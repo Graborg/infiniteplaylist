@@ -2,7 +2,10 @@
   "name": "rescript-project-template",
   "version": "0.0.1",
   "scripts": {
-    "build": "rescript",
+    "webpack": "webpack -w",
+    "webpack:production": "NODE_ENV=production webpack",
+    "server": "webpack serve",
+    "build": "rescript build",
     "clean": "rescript clean -with-deps",
     "start": "rescript build -w"
   },
@@ -12,6 +15,21 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "rescript": "*"
+    "@glennsl/bs-json": "^5.0.4",
+    "@rescript/react": "^0.10.3",
+    "bs-fetch": "^0.6.2",
+    "bs-platform": "^9.0.2",
+    "canvas-confetti": "^1.4.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "rescript": "^9.1.4"
+  },
+  "devDependencies": {
+    "css-loader": "^5.2.6",
+    "html-webpack-plugin": "^5.3.1",
+    "style-loader": "^3.0.0",
+    "webpack": "^5.40.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
   }
 }
