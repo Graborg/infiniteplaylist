@@ -25,10 +25,7 @@ let make = (~film: Todoist.film, ~id, ~lastElement: bool, ~selected: bool) => {
           style={ReactDOMStyle.make(~padding="0", ~margin="0 10px", ())}>
           <input
             checked=isChecked
-            onChange={_ => {
-              Js.log("Hej")
-              setCheck(prev => !prev)
-            }}
+            onChange={_ => setCheck(prev => !prev)}
             id={Belt.Int.toString(id) ++ "input"}
             type_="checkbox"
           />
@@ -42,6 +39,7 @@ let make = (~film: Todoist.film, ~id, ~lastElement: bool, ~selected: bool) => {
               ~minHeight="56px",
               ~borderBottom=lastElement ? "" : "1px #cecece solid",
               ~backgroundColor="white",
+              ~textDecoration=isChecked ? "line-through" : "",
               (),
             )}
             htmlFor={Belt.Int.toString(id) ++ "input"}>

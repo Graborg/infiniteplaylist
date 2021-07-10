@@ -48,7 +48,6 @@ function FilmlistItem(Props) {
                     checked: isChecked,
                     type: "checkbox",
                     onChange: (function (param) {
-                        console.log("Hej");
                         return Curry._1(setCheck, (function (prev) {
                                       return !prev;
                                     }));
@@ -61,6 +60,7 @@ function FilmlistItem(Props) {
                       minHeight: "56px",
                       padding: "21px 0 13px",
                       paddingLeft: "20px",
+                      textDecoration: isChecked ? "line-through" : "",
                       justifyContent: "space-between",
                       boxSizing: "border-box"
                     },
