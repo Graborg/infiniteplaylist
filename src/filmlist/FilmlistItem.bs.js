@@ -40,7 +40,6 @@ function FilmlistItem(Props) {
                   }),
                 onMouseLeave: (function (e) {
                     if (checked) {
-                      console.log(e);
                       Curry._1(click, film);
                     }
                     return Curry._1(setMouseOver, (function (param) {
@@ -59,13 +58,14 @@ function FilmlistItem(Props) {
                       })
                   }), React.createElement("label", {
                     style: {
-                      backgroundColor: "white",
+                      backgroundColor: "rgba(255, 255, 255, 0.438)",
                       borderBottom: lastElement ? "" : "1px #cecece solid",
                       display: "flex",
                       minHeight: "56px",
                       padding: "21px 0 13px",
                       paddingLeft: "20px",
                       textDecoration: checked ? "line-through" : "",
+                      borderRadius: "2px",
                       justifyContent: "space-between",
                       boxSizing: "border-box"
                     },

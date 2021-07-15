@@ -27,7 +27,6 @@ let make = (
           onMouseEnter={_ => setMouseOver(_ => true)}
           onMouseLeave={e => {
             if checked {
-              Js.log(e)
               click(film)
             }
             setMouseOver(_ => false)
@@ -48,11 +47,12 @@ let make = (
               ~display="flex",
               ~padding="21px 0 13px",
               ~paddingLeft="20px",
+              ~borderRadius="2px",
               ~justifyContent="space-between",
               ~boxSizing="border-box",
               ~minHeight="56px",
               ~borderBottom=lastElement ? "" : "1px #cecece solid",
-              ~backgroundColor="white",
+              ~backgroundColor="rgba(255, 255, 255, 0.438)",
               ~textDecoration=checked ? "line-through" : "",
               (),
             )}
