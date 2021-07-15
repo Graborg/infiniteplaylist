@@ -161,7 +161,7 @@ h1 {
 }
 
 label:before {
-  width: 12px;
+  width: 2%;
   height: 10px;
   border-radius: 50%;
   content: "";
