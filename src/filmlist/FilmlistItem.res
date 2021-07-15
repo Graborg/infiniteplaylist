@@ -6,7 +6,7 @@ type mouseOver =
 
 let creatorToString = (creator: Todoist.creator) =>
   switch creator {
-  | Karmi => "karmi"
+  | Karmi => "Karmi"
   | Ferma => "Ferma"
   }
 

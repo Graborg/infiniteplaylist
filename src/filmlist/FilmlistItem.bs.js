@@ -7,7 +7,7 @@ function creatorToString(creator) {
   if (creator) {
     return "Ferma";
   } else {
-    return "karmi";
+    return "Karmi";
   }
 }
 
@@ -98,7 +98,7 @@ function FilmlistItem(Props) {
                     style: {
                       border: "black 5px"
                     }
-                  }, film.creator ? "Ferma" : "karmi"));
+                  }, film.creator ? "Ferma" : "Karmi"));
   }
 }
 
