@@ -50,7 +50,7 @@ function getProjectId(token) {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        50,
+                        51,
                         8
                       ],
                       Error: new Error()
@@ -60,7 +60,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      35,
+                      36,
                       6
                     ],
                     Error: new Error()
@@ -81,8 +81,10 @@ function getFilms(token) {
                                               if (film !== undefined) {
                                                 var existingItem = Caml_option.valFromOption(film);
                                                 var filmName = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "content"), "")), ""));
+                                                var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "id"), "")), 1.0) | 0;
                                                 var creator = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "creator"), "")), 1.0) | 0;
                                                 return {
+                                                        id: id,
                                                         name: filmName,
                                                         creator: creator === 13612164 ? /* Karmi */0 : /* Ferma */1
                                                       };
@@ -91,7 +93,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      75,
+                                                      76,
                                                       12
                                                     ],
                                                     Error: new Error()

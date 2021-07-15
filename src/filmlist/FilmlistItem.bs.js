@@ -13,9 +13,9 @@ function creatorToString(creator) {
 
 function FilmlistItem(Props) {
   var film = Props.film;
-  var id = Props.id;
   var lastElement = Props.lastElement;
   var selected = Props.selected;
+  var seenFilm = Props.seenFilm;
   var match = React.useState(function () {
         return false;
       });
@@ -24,10 +24,10 @@ function FilmlistItem(Props) {
         return false;
       });
   var setCheck = match$1[1];
-  var isChecked = match$1[0];
-  if (match[0] || isChecked) {
+  var checked = match$1[0];
+  if (match[0] || checked) {
     return React.createElement("div", {
-                key: String(id),
+                key: String(film.id),
                 className: "film-item inputGroup",
                 style: {
                   margin: "0 10px",
@@ -38,16 +38,21 @@ function FilmlistItem(Props) {
                                   return true;
                                 }));
                   }),
-                onMouseLeave: (function (param) {
+                onMouseLeave: (function (e) {
+                    if (checked) {
+                      console.log(e);
+                      Curry._1(seenFilm, film);
+                    }
                     return Curry._1(setMouseOver, (function (param) {
                                   return false;
                                 }));
                   })
               }, React.createElement("input", {
-                    id: String(id) + "input",
-                    checked: isChecked,
+                    id: String(film.id) + "input",
+                    checked: checked,
                     type: "checkbox",
                     onChange: (function (param) {
+                        console.log("checking " + film.name);
                         return Curry._1(setCheck, (function (prev) {
                                       return !prev;
                                     }));
@@ -60,15 +65,15 @@ function FilmlistItem(Props) {
                       minHeight: "56px",
                       padding: "21px 0 13px",
                       paddingLeft: "20px",
-                      textDecoration: isChecked ? "line-through" : "",
+                      textDecoration: checked ? "line-through" : "",
                       justifyContent: "space-between",
                       boxSizing: "border-box"
                     },
-                    htmlFor: String(id) + "input"
+                    htmlFor: String(film.id) + "input"
                   }, film.name));
   } else {
     return React.createElement("div", {
-                key: String(id),
+                key: String(film.id),
                 className: "film-item inputGroup",
                 style: {
                   borderBottom: lastElement ? "" : "1px #cecece solid",

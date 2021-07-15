@@ -11,22 +11,36 @@ let creatorToString = (creator: Todoist.creator) =>
   }
 
 @react.component
-let make = (~film: Todoist.film, ~id, ~lastElement: bool, ~selected: bool) => {
+let make = (
+  ~film: Todoist.film,
+  ~lastElement: bool,
+  ~selected: bool,
+  ~seenFilm: Todoist.film => unit,
+) => {
   let (isMouseOver, setMouseOver) = React.useState(_ => false)
-  let (isChecked, setCheck) = React.useState(_ => false)
+  let (checked, setCheck) = React.useState(_ => false)
 
   {
-    isMouseOver || isChecked
+    isMouseOver || checked
       ? <div
-          key={Belt.Int.toString(id)}
+          key={Belt.Int.toString(film.id)}
           onMouseEnter={_ => setMouseOver(_ => true)}
-          onMouseLeave={_ => setMouseOver(_ => false)}
+          onMouseLeave={e => {
+            if checked {
+              Js.log(e)
+              seenFilm(film)
+            }
+            setMouseOver(_ => false)
+          }}
           className="film-item inputGroup"
           style={ReactDOMStyle.make(~padding="0", ~margin="0 10px", ())}>
           <input
-            checked=isChecked
-            onChange={_ => setCheck(prev => !prev)}
-            id={Belt.Int.toString(id) ++ "input"}
+            checked
+            onChange={_ => {
+              Js.log("checking " ++ film.name)
+              setCheck(prev => !prev)
+            }}
+            id={Belt.Int.toString(film.id) ++ "input"}
             type_="checkbox"
           />
           <label
@@ -39,15 +53,15 @@ let make = (~film: Todoist.film, ~id, ~lastElement: bool, ~selected: bool) => {
               ~minHeight="56px",
               ~borderBottom=lastElement ? "" : "1px #cecece solid",
               ~backgroundColor="white",
-              ~textDecoration=isChecked ? "line-through" : "",
+              ~textDecoration=checked ? "line-through" : "",
               (),
             )}
-            htmlFor={Belt.Int.toString(id) ++ "input"}>
+            htmlFor={Belt.Int.toString(film.id) ++ "input"}>
             {React.string(film.name)}
           </label>
         </div>
       : <div
-          key={Belt.Int.toString(id)}
+          key={Belt.Int.toString(film.id)}
           onMouseEnter={_ => setMouseOver(_ => true)}
           onMouseLeave={_ => setMouseOver(_ => false)}
           className="film-item inputGroup"

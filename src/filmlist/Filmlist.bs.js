@@ -25,7 +25,8 @@ function selectFilm(setState, filmId) {
                 }
                 return /* LoadedFilms */{
                         _0: prevState._0,
-                        _1: filmId
+                        _1: filmId,
+                        _2: prevState._2
                       };
               }));
 }
@@ -47,7 +48,8 @@ function Filmlist(Props) {
                   Curry._1(setState, (function (_prevState) {
                           return /* LoadedFilms */{
                                   _0: films,
-                                  _1: ""
+                                  _1: "",
+                                  _2: []
                                 };
                         }));
                   return Promise.resolve(undefined);
@@ -63,7 +65,8 @@ function Filmlist(Props) {
                     Curry._1(setState, (function (_preState) {
                             return /* LoadedFilms */{
                                     _0: films,
-                                    _1: ""
+                                    _1: "",
+                                    _2: []
                                   };
                           }));
                     return Promise.resolve(undefined);
@@ -72,6 +75,32 @@ function Filmlist(Props) {
           }
           
         }), []);
+  var seenFilm = function (film) {
+    return Curry._1(setState, (function (param) {
+                  if (typeof param === "number") {
+                    throw {
+                          RE_EXN_ID: "Match_failure",
+                          _1: [
+                            "Filmlist.res",
+                            57,
+                            13
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  var seenFilms = param._2;
+                  console.log(film);
+                  var newUnseen = param._0.filter(function (f) {
+                        return f.name !== film.name;
+                      });
+                  Belt_Array.fill(seenFilms, 0, 1, film);
+                  return /* LoadedFilms */{
+                          _0: newUnseen,
+                          _1: param._1,
+                          _2: seenFilms
+                        };
+                }));
+  };
   if (typeof state === "number") {
     switch (state) {
       case /* LoadingFilms */0 :
@@ -88,19 +117,21 @@ function Filmlist(Props) {
     var selected = state._1;
     var films = state._0;
     return React.createElement("div", {
+                key: "filmlist",
                 style: {
                   width: "100%"
                 }
               }, React.createElement(Title$RescriptProjectTemplate.make, {}), React.createElement("div", {
                     className: "film-list"
-                  }, Belt_Array.mapWithIndex(films, (function (id, film) {
-                          var lastElement = id === (films.length - 1 | 0);
+                  }, Belt_Array.mapWithIndex(films, (function (i, film) {
+                          var lastElement = i === (films.length - 1 | 0);
                           var selected$1 = selected === film.name;
                           return React.createElement(FilmlistItem$RescriptProjectTemplate.make, {
                                       film: film,
-                                      id: id,
                                       lastElement: lastElement,
-                                      selected: selected$1
+                                      selected: selected$1,
+                                      seenFilm: seenFilm,
+                                      key: String(film.id) + "h"
                                     });
                         }))), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
                     films: films,

@@ -16,6 +16,7 @@ module Todoist = {
     | Karmi
     | Ferma
   type film = {
+    id: int,
     name: string,
     creator: creator,
   }
@@ -80,6 +81,12 @@ module Todoist = {
                 ->Js.Json.decodeString
                 ->Belt.Option.getWithDefault("")
                 ->trimQuotes
+              let id =
+                Js.Dict.get(existingItem, "id")
+                ->Belt.Option.getWithDefault(Js.Json.string(""))
+                ->Js.Json.decodeNumber
+                ->Belt.Option.getWithDefault(1.0)
+                ->Belt.Float.toInt
 
               let creator =
                 Js.Dict.get(existingItem, "creator")
@@ -88,6 +95,7 @@ module Todoist = {
                 ->Belt.Option.getWithDefault(1.0)
                 ->Belt.Float.toInt
               {
+                id: id,
                 name: filmName,
                 creator: creator === 13612164 ? Karmi : Ferma,
               }

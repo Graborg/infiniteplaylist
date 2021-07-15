@@ -2,7 +2,7 @@ open Todoist
 type state =
   | LoadingFilms
   | ErrorFetchingFilms
-  | LoadedFilms(array<Todoist.film>, string)
+  | LoadedFilms(array<Todoist.film>, string, array<Todoist.film>)
   | NotLoggedin
 
 type url = {
@@ -17,7 +17,7 @@ type url = {
 let selectFilm = (setState, filmId) =>
   setState(prevState =>
     switch prevState {
-    | LoadedFilms(list, _selected) => LoadedFilms(list, filmId)
+    | LoadedFilms(list, _selected, seenFilms) => LoadedFilms(list, filmId, seenFilms)
     }
   )
 
@@ -38,7 +38,7 @@ let make = () => {
         |> Todoist.setToken
         |> Js.Promise.then_(Todoist.getFilms)
         |> Js.Promise.then_(films => {
-          setState(_preState => LoadedFilms(films, ""))
+          setState(_preState => LoadedFilms(films, "", []))
           Js.Promise.resolve()
         })
         |> ignore
@@ -46,26 +46,36 @@ let make = () => {
     | Some(token) =>
       Todoist.getFilms(token)
       |> Js.Promise.then_(films => {
-        setState(_prevState => LoadedFilms(films, ""))
+        setState(_prevState => LoadedFilms(films, "", []))
         Js.Promise.resolve()
       })
       |> ignore
     }
     None
   })
+  let seenFilm = (film: Todoist.film) =>
+    setState((LoadedFilms(films, selected, seenFilms)) => {
+      Js.log(film)
+      let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
+      Belt.Array.fill(~len=1, ~offset=0, seenFilms, film)
+      LoadedFilms(newUnseen, selected, seenFilms)
+    })
+
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
   | LoadingFilms => React.string("Loading...")
   | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
-  | LoadedFilms(films, selected) =>
-    <div style={ReactDOMStyle.make(~width="100%", ())}>
+  | LoadedFilms(films, selected, seenFilms) =>
+    <div key="filmlist" style={ReactDOMStyle.make(~width="100%", ())}>
       <Title />
       <div className="film-list">
         {films
-        ->Belt.Array.mapWithIndex((id, film) => {
-          let lastElement = id === Js.Array.length(films) - 1
+        ->Belt.Array.mapWithIndex((i, film) => {
+          let lastElement = i === Js.Array.length(films) - 1
           let selected = selected == film.name
-          <FilmlistItem film id lastElement selected />
+          <FilmlistItem
+            key={Belt.Int.toString(film.id) ++ "h"} film lastElement selected seenFilm
+          />
         })
         ->React.array}
       </div>
