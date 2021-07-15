@@ -165,7 +165,7 @@ label:before {
   height: 10px;
   border-radius: 50%;
   content: "";
-  background-color: #b3b6d3;
+  background-color: #a6abd454;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -222,5 +222,5 @@ label:after {
 }
 
 .inputGroup input:checked ~ label {
-  color: #fff;
+  color: rgb(0, 0, 0);
 }
