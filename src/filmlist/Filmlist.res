@@ -55,10 +55,15 @@ let make = () => {
   })
   let seenFilm = (film: Todoist.film) =>
     setState((LoadedFilms(films, selected, seenFilms)) => {
-      Js.log(film)
       let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
-      Belt.Array.fill(~len=1, ~offset=0, seenFilms, film)
-      LoadedFilms(newUnseen, selected, seenFilms)
+      let newSeenFilms = Js.Array.concat(seenFilms, [film])
+      LoadedFilms(newUnseen, selected, newSeenFilms)
+    })
+  let unDooSeenFilm = (film: Todoist.film) =>
+    setState((LoadedFilms(films, selected, seenFilms)) => {
+      let newSeenFilms = Js.Array2.filter(seenFilms, f => f.name !== film.name)
+      let newUnseen = Js.Array.concat(films, [film])
+      LoadedFilms(newUnseen, selected, newSeenFilms)
     })
 
   switch state {
@@ -74,12 +79,34 @@ let make = () => {
           let lastElement = i === Js.Array.length(films) - 1
           let selected = selected == film.name
           <FilmlistItem
-            key={Belt.Int.toString(film.id) ++ "h"} film lastElement selected seenFilm
+            key={Belt.Int.toString(film.id) ++ "h"} film lastElement selected click=seenFilm
           />
         })
         ->React.array}
       </div>
       <RandomBtn films selectFilmWithSetState />
+      {Js.Array.length(seenFilms) > 0
+        ? <div>
+            <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
+              {React.string("Seen films")}
+            </p>
+            <div className="film-list">
+              {seenFilms
+              ->Belt.Array.mapWithIndex((i, film) => {
+                let lastElement = i === Js.Array.length(films) - 1
+                let selected = selected == film.name
+                <FilmlistItem
+                  key={Belt.Int.toString(film.id) ++ "h"}
+                  film
+                  lastElement
+                  selected
+                  click=unDooSeenFilm
+                />
+              })
+              ->React.array}
+            </div>
+          </div>
+        : <div />}
     </div>
   }
 }

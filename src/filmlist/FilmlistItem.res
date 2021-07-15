@@ -15,7 +15,7 @@ let make = (
   ~film: Todoist.film,
   ~lastElement: bool,
   ~selected: bool,
-  ~seenFilm: Todoist.film => unit,
+  ~click: Todoist.film => unit,
 ) => {
   let (isMouseOver, setMouseOver) = React.useState(_ => false)
   let (checked, setCheck) = React.useState(_ => false)
@@ -28,7 +28,7 @@ let make = (
           onMouseLeave={e => {
             if checked {
               Js.log(e)
-              seenFilm(film)
+              click(film)
             }
             setMouseOver(_ => false)
           }}

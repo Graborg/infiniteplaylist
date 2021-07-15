@@ -15,7 +15,7 @@ function FilmlistItem(Props) {
   var film = Props.film;
   var lastElement = Props.lastElement;
   var selected = Props.selected;
-  var seenFilm = Props.seenFilm;
+  var click = Props.click;
   var match = React.useState(function () {
         return false;
       });
@@ -41,7 +41,7 @@ function FilmlistItem(Props) {
                 onMouseLeave: (function (e) {
                     if (checked) {
                       console.log(e);
-                      Curry._1(seenFilm, film);
+                      Curry._1(click, film);
                     }
                     return Curry._1(setMouseOver, (function (param) {
                                   return false;
