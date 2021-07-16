@@ -38,10 +38,7 @@ function FilmlistItem(Props) {
                                   return true;
                                 }));
                   }),
-                onMouseLeave: (function (e) {
-                    if (checked) {
-                      Curry._1(click, film);
-                    }
+                onMouseLeave: (function (param) {
                     return Curry._1(setMouseOver, (function (param) {
                                   return false;
                                 }));
@@ -52,6 +49,9 @@ function FilmlistItem(Props) {
                     type: "checkbox",
                     onChange: (function (param) {
                         console.log("checking " + film.name);
+                        setTimeout((function (param) {
+                                return Curry._1(click, film);
+                              }), 500);
                         return Curry._1(setCheck, (function (prev) {
                                       return !prev;
                                     }));

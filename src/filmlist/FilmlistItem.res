@@ -25,18 +25,14 @@ let make = (
       ? <div
           key={Belt.Int.toString(film.id)}
           onMouseEnter={_ => setMouseOver(_ => true)}
-          onMouseLeave={e => {
-            if checked {
-              click(film)
-            }
-            setMouseOver(_ => false)
-          }}
+          onMouseLeave={_ => setMouseOver(_ => false)}
           className="film-item inputGroup"
           style={ReactDOMStyle.make(~padding="0", ~margin="0 10px", ())}>
           <input
             checked
             onChange={_ => {
               Js.log("checking " ++ film.name)
+              Js.Global.setTimeout(() => click(film), 500) |> ignore
               setCheck(prev => !prev)
             }}
             id={Belt.Int.toString(film.id) ++ "input"}
