@@ -83,54 +83,60 @@ function Filmlist(Props) {
           
         }), []);
   var seenFilm = function (film) {
-    return Curry._1(setState, (function (param) {
-                  if (typeof param === "number") {
-                    throw {
-                          RE_EXN_ID: "Match_failure",
-                          _1: [
-                            "Filmlist.res",
-                            60,
-                            13
-                          ],
-                          Error: new Error()
-                        };
-                  }
-                  Todoist$RescriptProjectTemplate.Todoist.setFilmAsSeen(film);
-                  var newUnseen = param._0.filter(function (f) {
-                        return f.name !== film.name;
-                      });
-                  var newSeenFilms = [film].concat(param._2);
-                  return /* LoadedFilms */{
-                          _0: newUnseen,
-                          _1: param._1,
-                          _2: newSeenFilms
-                        };
-                }));
+    Todoist$RescriptProjectTemplate.Todoist.setFilmAsSeen(film);
+    setTimeout((function (param) {
+            return Curry._1(setState, (function (param) {
+                          if (typeof param === "number") {
+                            throw {
+                                  RE_EXN_ID: "Match_failure",
+                                  _1: [
+                                    "Filmlist.res",
+                                    62,
+                                    15
+                                  ],
+                                  Error: new Error()
+                                };
+                          }
+                          var newUnseen = param._0.filter(function (f) {
+                                return f.name !== film.name;
+                              });
+                          var newSeenFilms = [film].concat(param._2);
+                          return /* LoadedFilms */{
+                                  _0: newUnseen,
+                                  _1: param._1,
+                                  _2: newSeenFilms
+                                };
+                        }));
+          }), 500);
+    
   };
   var unDooSeenFilm = function (film) {
-    return Curry._1(setState, (function (param) {
-                  if (typeof param === "number") {
-                    throw {
-                          RE_EXN_ID: "Match_failure",
-                          _1: [
-                            "Filmlist.res",
-                            67,
-                            13
-                          ],
-                          Error: new Error()
-                        };
-                  }
-                  Todoist$RescriptProjectTemplate.Todoist.setFilmAsUnseen(film);
-                  var newSeenFilms = param._2.filter(function (f) {
-                        return f.name !== film.name;
-                      });
-                  var newUnseen = [film].concat(param._0);
-                  return /* LoadedFilms */{
-                          _0: newUnseen,
-                          _1: param._1,
-                          _2: newSeenFilms
-                        };
-                }));
+    Todoist$RescriptProjectTemplate.Todoist.setFilmAsUnseen(film);
+    setTimeout((function (param) {
+            return Curry._1(setState, (function (param) {
+                          if (typeof param === "number") {
+                            throw {
+                                  RE_EXN_ID: "Match_failure",
+                                  _1: [
+                                    "Filmlist.res",
+                                    73,
+                                    15
+                                  ],
+                                  Error: new Error()
+                                };
+                          }
+                          var newSeenFilms = param._2.filter(function (f) {
+                                return f.name !== film.name;
+                              });
+                          var newUnseen = [film].concat(param._0);
+                          return /* LoadedFilms */{
+                                  _0: newUnseen,
+                                  _1: param._1,
+                                  _2: newSeenFilms
+                                };
+                        }));
+          }), 500);
+    
   };
   if (typeof state === "number") {
     switch (state) {

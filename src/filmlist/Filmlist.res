@@ -56,20 +56,27 @@ let make = () => {
     }
     None
   })
-  let seenFilm = (film: Todoist.film) =>
-    setState((LoadedFilms(films, selected, seenFilms)) => {
-      let _k = Todoist.setFilmAsSeen(film)
-      let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
-      let newSeenFilms = Js.Array.concat(seenFilms, [film])
-      LoadedFilms(newUnseen, selected, newSeenFilms)
-    })
-  let unDooSeenFilm = (film: Todoist.film) =>
-    setState((LoadedFilms(films, selected, seenFilms)) => {
-      let _k = Todoist.setFilmAsUnseen(film)
-      let newSeenFilms = Js.Array2.filter(seenFilms, f => f.name !== film.name)
-      let newUnseen = Js.Array.concat(films, [film])
-      LoadedFilms(newUnseen, selected, newSeenFilms)
-    })
+  let seenFilm = (film: Todoist.film) => {
+    let _k = Todoist.setFilmAsSeen(film)
+    Js.Global.setTimeout(() => {
+      setState((LoadedFilms(films, selected, seenFilms)) => {
+        let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
+        let newSeenFilms = Js.Array.concat(seenFilms, [film])
+        LoadedFilms(newUnseen, selected, newSeenFilms)
+      })
+    }, 500) |> ignore
+  }
+
+  let unDooSeenFilm = (film: Todoist.film) => {
+    let _k = Todoist.setFilmAsUnseen(film)
+    Js.Global.setTimeout(() => {
+      setState((LoadedFilms(films, selected, seenFilms)) => {
+        let newSeenFilms = Js.Array2.filter(seenFilms, f => f.name !== film.name)
+        let newUnseen = Js.Array.concat(films, [film])
+        LoadedFilms(newUnseen, selected, newSeenFilms)
+      })
+    }, 500) |> ignore
+  }
 
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
