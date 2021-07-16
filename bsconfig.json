@@ -16,6 +16,6 @@
     "error" : "+101"
   },
   "reason": { "react-jsx": 3 },
-  "namespace": true,
+  "namespace": true
   
 }

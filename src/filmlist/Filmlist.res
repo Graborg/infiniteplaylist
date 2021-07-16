@@ -79,7 +79,7 @@ let make = () => {
           let lastElement = i === Js.Array.length(films) - 1
           let selected = selected == film.name
           <FilmlistItem
-            key={Belt.Int.toString(film.id) ++ "h"} film lastElement selected click=seenFilm
+            key={Belt.Float.toString(film.id) ++ "h"} film lastElement selected click=seenFilm
           />
         })
         ->React.array}
@@ -96,7 +96,7 @@ let make = () => {
                 let lastElement = i === Js.Array.length(films) - 1
                 let selected = selected == film.name
                 <FilmlistItem
-                  key={Belt.Int.toString(film.id) ++ "h"}
+                  key={Belt.Float.toString(film.id) ++ "h"}
                   film
                   lastElement
                   selected

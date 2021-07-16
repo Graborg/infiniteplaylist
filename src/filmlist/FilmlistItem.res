@@ -23,19 +23,27 @@ let make = (
   {
     isMouseOver || checked
       ? <div
-          key={Belt.Int.toString(film.id)}
+          key={Belt.Float.toString(film.id)}
           onMouseEnter={_ => setMouseOver(_ => true)}
           onMouseLeave={_ => setMouseOver(_ => false)}
           className="film-item inputGroup"
           style={ReactDOMStyle.make(~padding="0", ~margin="0 10px", ())}>
           <input
             checked
-            onChange={_ => {
-              Js.log("checking " ++ film.name)
-              Js.Global.setTimeout(() => click(film), 500) |> ignore
+            onChange={event => {
+              ReactEvent.Form.preventDefault(event)
               setCheck(prev => !prev)
+
+              Js.log("checking " ++ film.name)
+              Todoist.setFilmAsSeen(film)
+              |> Js.Promise.then_(_ => {
+                Js.log("lol")
+                click(film)
+                Js.Promise.resolve()
+              })
+              |> ignore
             }}
-            id={Belt.Int.toString(film.id) ++ "input"}
+            id={Belt.Float.toString(film.id) ++ "input"}
             type_="checkbox"
           />
           <label
@@ -52,12 +60,12 @@ let make = (
               ~textDecoration=checked ? "line-through" : "",
               (),
             )}
-            htmlFor={Belt.Int.toString(film.id) ++ "input"}>
+            htmlFor={Belt.Float.toString(film.id) ++ "input"}>
             {React.string(film.name)}
           </label>
         </div>
       : <div
-          key={Belt.Int.toString(film.id)}
+          key={Belt.Float.toString(film.id)}
           onMouseEnter={_ => setMouseOver(_ => true)}
           onMouseLeave={_ => setMouseOver(_ => false)}
           className="film-item inputGroup"

@@ -11,6 +11,8 @@ var Dom_storage = require("rescript/lib/js/dom_storage.js");
 
 var localStorageNamespace = "todoist-token";
 
+var localStorageProjectIdNamespace = "todoist-project";
+
 var clientSecret = "93820ee048244655adc1bb55475f0297";
 
 var clientId = "be81e104bbad4668a009dbf1ae3221c6";
@@ -19,18 +21,61 @@ var todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects";
 
 var todoistProjectUrl = "https://api.todoist.com/rest/v1/tasks?project_id=";
 
+var tasksUrl = "https://api.todoist.com/rest/v1/tasks/";
+
 var randomString = "fox0BUFvugh1kau";
 
-var todoistLoginLink = "http://todoist.com/oauth/authorize?client_id=be81e104bbad4668a009dbf1ae3221c6&scope=data:read,data:delete&state=fox0BUFvugh1kau";
+var todoistLoginLink = "http://todoist.com/oauth/authorize?client_id=be81e104bbad4668a009dbf1ae3221c6&scope=data:read_write,data:delete&state=fox0BUFvugh1kau";
 
 function trimQuotes(str) {
   return str.replace("\"", "").replace("\"", "");
 }
 
+function setTokenLocalStorage(token) {
+  Dom_storage.setItem(localStorageNamespace, token, localStorage);
+  return token;
+}
+
+function getTokenLocalStorage(param) {
+  return Dom_storage.getItem(localStorageNamespace, localStorage);
+}
+
+function getProjectIdLocalStorage(param) {
+  return Dom_storage.getItem(localStorageProjectIdNamespace, localStorage);
+}
+
+function setProjectIdLocalStorage(projectId) {
+  return Dom_storage.setItem(localStorageProjectIdNamespace, projectId, localStorage);
+}
+
+function authorizationHeader(token) {
+  return Fetch.RequestInit.make(undefined, {
+                Authorization: "Bearer " + token
+              }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined);
+}
+
+function setFilmAsSeen(film) {
+  console.log("settin");
+  console.log(film.id);
+  var token = Dom_storage.getItem(localStorageNamespace, localStorage);
+  if (token !== undefined) {
+    return fetch(tasksUrl + String(film.id) + "/close", Fetch.RequestInit.make(/* Post */2, {
+                      Authorization: "Bearer " + token
+                    }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
+  }
+  throw {
+        RE_EXN_ID: "Match_failure",
+        _1: [
+          "Todoist.res",
+          50,
+          4
+        ],
+        Error: new Error()
+      };
+}
+
 function getProjectId(token) {
-  return fetch(todoistProjectsUrl, Fetch.RequestInit.make(undefined, {
-                        Authorization: "Bearer " + token
-                      }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined)).then(function (prim) {
+  return fetch(todoistProjectsUrl, authorizationHeader(token)).then(function (prim) {
                 return prim.json();
               }).then(function (res) {
               var decoded = Js_json.decodeArray(res);
@@ -43,14 +88,19 @@ function getProjectId(token) {
                 console.log(projectId);
                 if (projectId !== undefined) {
                   var id = Caml_option.valFromOption(projectId);
-                  console.log(id);
-                  return Promise.resolve(JSON.stringify(Belt_Option.getWithDefault(id, "")));
+                  if (id !== undefined) {
+                    var idStringyfied = JSON.stringify(Caml_option.valFromOption(id));
+                    Dom_storage.setItem(localStorageProjectIdNamespace, idStringyfied, localStorage);
+                    return Promise.resolve(idStringyfied);
+                  }
+                  console.log("Project ID not found");
+                  return Promise.resolve("");
                 }
                 throw {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        51,
+                        85,
                         8
                       ],
                       Error: new Error()
@@ -60,7 +110,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      36,
+                      70,
                       6
                     ],
                     Error: new Error()
@@ -70,9 +120,7 @@ function getProjectId(token) {
 
 function getFilms(token) {
   return getProjectId(token).then(function (id) {
-              return fetch(todoistProjectUrl + id, Fetch.RequestInit.make(undefined, {
-                                    Authorization: "Bearer " + token
-                                  }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined)).then(function (prim) {
+              return fetch(todoistProjectUrl + id, authorizationHeader(token)).then(function (prim) {
                             return prim.json();
                           }).then(function (res) {
                           var decoded = Js_json.decodeArray(res);
@@ -81,7 +129,7 @@ function getFilms(token) {
                                               if (film !== undefined) {
                                                 var existingItem = Caml_option.valFromOption(film);
                                                 var filmName = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "content"), "")), ""));
-                                                var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "id"), "")), 1.0) | 0;
+                                                var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "id"), "0")), 1.0);
                                                 var creator = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "creator"), "")), 1.0) | 0;
                                                 return {
                                                         id: id,
@@ -93,7 +141,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      76,
+                                                      112,
                                                       12
                                                     ],
                                                     Error: new Error()
@@ -104,11 +152,6 @@ function getFilms(token) {
                           }
                         });
             });
-}
-
-function setTokenLocalStorage(token) {
-  Dom_storage.setItem(localStorageNamespace, token, localStorage);
-  return token;
 }
 
 function setToken(code) {
@@ -150,18 +193,25 @@ function searchStringToCode(search) {
 
 var Todoist = {
   trimQuotes: trimQuotes,
+  setTokenLocalStorage: setTokenLocalStorage,
+  getTokenLocalStorage: getTokenLocalStorage,
+  getProjectIdLocalStorage: getProjectIdLocalStorage,
+  setProjectIdLocalStorage: setProjectIdLocalStorage,
+  authorizationHeader: authorizationHeader,
+  setFilmAsSeen: setFilmAsSeen,
   getProjectId: getProjectId,
   getFilms: getFilms,
-  setTokenLocalStorage: setTokenLocalStorage,
   setToken: setToken,
   searchStringToCode: searchStringToCode
 };
 
 exports.localStorageNamespace = localStorageNamespace;
+exports.localStorageProjectIdNamespace = localStorageProjectIdNamespace;
 exports.clientSecret = clientSecret;
 exports.clientId = clientId;
 exports.todoistProjectsUrl = todoistProjectsUrl;
 exports.todoistProjectUrl = todoistProjectUrl;
+exports.tasksUrl = tasksUrl;
 exports.randomString = randomString;
 exports.todoistLoginLink = todoistLoginLink;
 exports.Todoist = Todoist;

@@ -2,6 +2,7 @@
 
 var Curry = require("rescript/lib/js/curry.js");
 var React = require("react");
+var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 
 function creatorToString(creator) {
   if (creator) {
@@ -47,14 +48,18 @@ function FilmlistItem(Props) {
                     id: String(film.id) + "input",
                     checked: checked,
                     type: "checkbox",
-                    onChange: (function (param) {
+                    onChange: (function ($$event) {
+                        $$event.preventDefault();
+                        Curry._1(setCheck, (function (prev) {
+                                return !prev;
+                              }));
                         console.log("checking " + film.name);
-                        setTimeout((function (param) {
-                                return Curry._1(click, film);
-                              }), 500);
-                        return Curry._1(setCheck, (function (prev) {
-                                      return !prev;
-                                    }));
+                        Todoist$RescriptProjectTemplate.Todoist.setFilmAsSeen(film).then(function (param) {
+                              console.log("lol");
+                              Curry._1(click, film);
+                              return Promise.resolve(undefined);
+                            });
+                        
                       })
                   }), React.createElement("label", {
                     style: {

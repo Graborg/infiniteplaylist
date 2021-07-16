@@ -1,13 +1,15 @@
 let localStorageNamespace = "todoist-token"
+let localStorageProjectIdNamespace = "todoist-project"
 let clientSecret = "93820ee048244655adc1bb55475f0297"
 let clientId = "be81e104bbad4668a009dbf1ae3221c6"
 let todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects"
 let todoistProjectUrl = "https://api.todoist.com/rest/v1/tasks?project_id="
+let tasksUrl = "https://api.todoist.com/rest/v1/tasks/"
 let randomString = "fox0BUFvugh1kau"
 let todoistLoginLink =
   "http://todoist.com/oauth/authorize?client_id=" ++
   clientId ++
-  "&scope=data:read,data:delete&state=" ++
+  "&scope=data:read_write,data:delete&state=" ++
   randomString
 
 module Todoist = {
@@ -16,20 +18,52 @@ module Todoist = {
     | Karmi
     | Ferma
   type film = {
-    id: int,
+    id: float,
     name: string,
     creator: creator,
   }
   let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
 
-  let getProjectId = token =>
-    Fetch.fetchWithInit(
-      todoistProjectsUrl,
-      Fetch.RequestInit.make(
-        ~headers=Fetch.HeadersInit.make({"Authorization": "Bearer " ++ token}),
-        (),
-      ),
+  let setTokenLocalStorage = token => {
+    Dom.Storage.setItem(localStorageNamespace, token, Dom.Storage.localStorage)
+    token
+  }
+  let getTokenLocalStorage = () =>
+    Dom.Storage.getItem(localStorageNamespace, Dom.Storage.localStorage)
+  let getProjectIdLocalStorage = () =>
+    Dom.Storage.getItem(localStorageProjectIdNamespace, Dom.Storage.localStorage)
+  let setProjectIdLocalStorage = projectId =>
+    Dom.Storage.setItem(localStorageProjectIdNamespace, projectId, Dom.Storage.localStorage)
+
+  let authorizationHeader = token =>
+    Fetch.RequestInit.make(
+      ~headers=Fetch.HeadersInit.make({
+        "Authorization": "Bearer " ++ token,
+      }),
+      (),
     )
+
+  let setFilmAsSeen = (film: film) => {
+    Js.log("settin")
+    Js.log(film.id)
+    let token = getTokenLocalStorage()
+    switch token {
+    | Some(token) =>
+      Fetch.fetchWithInit(
+        tasksUrl ++ Belt.Float.toString(film.id) ++ "/close",
+        Fetch.RequestInit.make(
+          ~method_=Post,
+          ~headers=Fetch.HeadersInit.make({
+            "Authorization": "Bearer " ++ token,
+          }),
+          (),
+        ),
+      )
+    }
+  }
+
+  let getProjectId = token =>
+    Fetch.fetchWithInit(todoistProjectsUrl, authorizationHeader(token))
     |> then_(Fetch.Response.json)
     |> then_(res => {
       let decoded = Js.Json.decodeArray(res)
@@ -50,23 +84,25 @@ module Todoist = {
         Js.log(projectId)
         switch projectId {
         | Some(id) =>
-          Js.log(id)
-          Js.Promise.resolve(Belt.Option.getWithDefault(id, Js.Json.string(""))->Js.Json.stringify)
+          switch id {
+          | Some(projectId) => {
+              let idStringyfied = Js.Json.stringify(projectId)
+              setProjectIdLocalStorage(idStringyfied)
+              Js.Promise.resolve(idStringyfied)
+            }
+
+          | None => {
+              Js.log("Project ID not found")
+              Js.Promise.resolve("")
+            }
+          }
         }
       }
     })
 
   let getFilms = token => {
     getProjectId(token) |> then_(id =>
-      Fetch.fetchWithInit(
-        todoistProjectUrl ++ id,
-        Fetch.RequestInit.make(
-          ~headers=Fetch.HeadersInit.make({
-            "Authorization": "Bearer " ++ token,
-          }),
-          (),
-        ),
-      )
+      Fetch.fetchWithInit(todoistProjectUrl ++ id, authorizationHeader(token))
       |> then_(Fetch.Response.json)
       |> then_(res => {
         let decoded = Js.Json.decodeArray(res)
@@ -83,10 +119,9 @@ module Todoist = {
                 ->trimQuotes
               let id =
                 Js.Dict.get(existingItem, "id")
-                ->Belt.Option.getWithDefault(Js.Json.string(""))
+                ->Belt.Option.getWithDefault(Js.Json.string("0"))
                 ->Js.Json.decodeNumber
                 ->Belt.Option.getWithDefault(1.0)
-                ->Belt.Float.toInt
 
               let creator =
                 Js.Dict.get(existingItem, "creator")
@@ -106,11 +141,6 @@ module Todoist = {
         }
       })
     )
-  }
-
-  let setTokenLocalStorage = token => {
-    Dom.Storage.setItem(localStorageNamespace, token, Dom.Storage.localStorage)
-    token
   }
 
   let setToken = code => {
