@@ -45,11 +45,17 @@ function Filmlist(Props) {
           var token = Dom_storage.getItem(Todoist$RescriptProjectTemplate.localStorageNamespace, localStorage);
           if (token !== undefined) {
             Todoist$RescriptProjectTemplate.Todoist.getFilms(token).then(function (films) {
+                  var unseen = films.filter(function (film) {
+                        return !film.seen;
+                      });
+                  var seen = films.filter(function (film) {
+                        return film.seen;
+                      });
                   Curry._1(setState, (function (_prevState) {
                           return /* LoadedFilms */{
-                                  _0: films,
+                                  _0: unseen,
                                   _1: "",
-                                  _2: []
+                                  _2: seen
                                 };
                         }));
                   return Promise.resolve(undefined);
@@ -62,6 +68,7 @@ function Filmlist(Props) {
                     }));
             } else {
               Todoist$RescriptProjectTemplate.Todoist.setToken(Todoist$RescriptProjectTemplate.Todoist.searchStringToCode(search)).then(Todoist$RescriptProjectTemplate.Todoist.getFilms).then(function (films) {
+                    console.log(films);
                     Curry._1(setState, (function (_preState) {
                             return /* LoadedFilms */{
                                     _0: films,
@@ -82,12 +89,13 @@ function Filmlist(Props) {
                           RE_EXN_ID: "Match_failure",
                           _1: [
                             "Filmlist.res",
-                            57,
+                            60,
                             13
                           ],
                           Error: new Error()
                         };
                   }
+                  Todoist$RescriptProjectTemplate.Todoist.setFilmAsSeen(film);
                   var newUnseen = param._0.filter(function (f) {
                         return f.name !== film.name;
                       });
@@ -106,12 +114,13 @@ function Filmlist(Props) {
                           RE_EXN_ID: "Match_failure",
                           _1: [
                             "Filmlist.res",
-                            63,
+                            67,
                             13
                           ],
                           Error: new Error()
                         };
                   }
+                  Todoist$RescriptProjectTemplate.Todoist.setFilmAsUnseen(film);
                   var newSeenFilms = param._2.filter(function (f) {
                         return f.name !== film.name;
                       });

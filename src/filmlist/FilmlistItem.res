@@ -35,13 +35,8 @@ let make = (
               setCheck(prev => !prev)
 
               Js.log("checking " ++ film.name)
-              Todoist.setFilmAsSeen(film)
-              |> Js.Promise.then_(_ => {
-                Js.log("lol")
-                click(film)
-                Js.Promise.resolve()
-              })
-              |> ignore
+
+              click(film)
             }}
             id={Belt.Float.toString(film.id) ++ "input"}
             type_="checkbox"

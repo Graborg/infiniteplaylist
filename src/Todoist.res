@@ -18,6 +18,7 @@ module Todoist = {
     | Karmi
     | Ferma
   type film = {
+    seen: bool,
     id: float,
     name: string,
     creator: creator,
@@ -47,13 +48,39 @@ module Todoist = {
     Js.log("settin")
     Js.log(film.id)
     let token = getTokenLocalStorage()
+    let payload = Js.Dict.empty()
+    Js.Dict.set(payload, "description", Js.Json.string("completed"))
     switch token {
     | Some(token) =>
       Fetch.fetchWithInit(
-        tasksUrl ++ Belt.Float.toString(film.id) ++ "/close",
+        tasksUrl ++ Belt.Float.toString(film.id),
         Fetch.RequestInit.make(
           ~method_=Post,
+          ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
           ~headers=Fetch.HeadersInit.make({
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " ++ token,
+          }),
+          (),
+        ),
+      )
+    }
+  }
+  let setFilmAsUnseen = (film: film) => {
+    Js.log("settin")
+    Js.log(film.id)
+    let token = getTokenLocalStorage()
+    let payload = Js.Dict.empty()
+    Js.Dict.set(payload, "description", Js.Json.string(""))
+    switch token {
+    | Some(token) =>
+      Fetch.fetchWithInit(
+        tasksUrl ++ Belt.Float.toString(film.id),
+        Fetch.RequestInit.make(
+          ~method_=Post,
+          ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
+          ~headers=Fetch.HeadersInit.make({
+            "Content-Type": "application/json",
             "Authorization": "Bearer " ++ token,
           }),
           (),
@@ -122,14 +149,25 @@ module Todoist = {
                 ->Belt.Option.getWithDefault(Js.Json.string("0"))
                 ->Js.Json.decodeNumber
                 ->Belt.Option.getWithDefault(1.0)
-
+              Js.log("film")
+              Js.log(film)
               let creator =
                 Js.Dict.get(existingItem, "creator")
                 ->Belt.Option.getWithDefault(Js.Json.string(""))
                 ->Js.Json.decodeNumber
                 ->Belt.Option.getWithDefault(1.0)
                 ->Belt.Float.toInt
+              let description =
+                Js.Dict.get(existingItem, "description")
+                ->Belt.Option.getWithDefault(Js.Json.string(""))
+                ->Js.Json.decodeString
+                ->Belt.Option.getWithDefault("")
+                ->trimQuotes
+
+              Js.log(filmName)
+              Js.log(description)
               {
+                seen: description == "completed" ? true : false,
                 id: id,
                 name: filmName,
                 creator: creator === 13612164 ? Karmi : Ferma,

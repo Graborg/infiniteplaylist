@@ -58,16 +58,42 @@ function setFilmAsSeen(film) {
   console.log("settin");
   console.log(film.id);
   var token = Dom_storage.getItem(localStorageNamespace, localStorage);
+  var payload = {};
+  payload["description"] = "completed";
   if (token !== undefined) {
-    return fetch(tasksUrl + String(film.id) + "/close", Fetch.RequestInit.make(/* Post */2, {
+    return fetch(tasksUrl + String(film.id), Fetch.RequestInit.make(/* Post */2, {
+                      "Content-Type": "application/json",
                       Authorization: "Bearer " + token
-                    }, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
+                    }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
   }
   throw {
         RE_EXN_ID: "Match_failure",
         _1: [
           "Todoist.res",
-          50,
+          53,
+          4
+        ],
+        Error: new Error()
+      };
+}
+
+function setFilmAsUnseen(film) {
+  console.log("settin");
+  console.log(film.id);
+  var token = Dom_storage.getItem(localStorageNamespace, localStorage);
+  var payload = {};
+  payload["description"] = "";
+  if (token !== undefined) {
+    return fetch(tasksUrl + String(film.id), Fetch.RequestInit.make(/* Post */2, {
+                      "Content-Type": "application/json",
+                      Authorization: "Bearer " + token
+                    }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
+  }
+  throw {
+        RE_EXN_ID: "Match_failure",
+        _1: [
+          "Todoist.res",
+          75,
           4
         ],
         Error: new Error()
@@ -100,7 +126,7 @@ function getProjectId(token) {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        85,
+                        112,
                         8
                       ],
                       Error: new Error()
@@ -110,7 +136,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      70,
+                      97,
                       6
                     ],
                     Error: new Error()
@@ -130,8 +156,14 @@ function getFilms(token) {
                                                 var existingItem = Caml_option.valFromOption(film);
                                                 var filmName = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "content"), "")), ""));
                                                 var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "id"), "0")), 1.0);
+                                                console.log("film");
+                                                console.log(film);
                                                 var creator = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "creator"), "")), 1.0) | 0;
+                                                var description = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "description"), "")), ""));
+                                                console.log(filmName);
+                                                console.log(description);
                                                 return {
+                                                        seen: description === "completed",
                                                         id: id,
                                                         name: filmName,
                                                         creator: creator === 13612164 ? /* Karmi */0 : /* Ferma */1
@@ -141,7 +173,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      112,
+                                                      139,
                                                       12
                                                     ],
                                                     Error: new Error()
@@ -199,6 +231,7 @@ var Todoist = {
   setProjectIdLocalStorage: setProjectIdLocalStorage,
   authorizationHeader: authorizationHeader,
   setFilmAsSeen: setFilmAsSeen,
+  setFilmAsUnseen: setFilmAsUnseen,
   getProjectId: getProjectId,
   getFilms: getFilms,
   setToken: setToken,

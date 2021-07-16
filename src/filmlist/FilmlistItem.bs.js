@@ -2,7 +2,6 @@
 
 var Curry = require("rescript/lib/js/curry.js");
 var React = require("react");
-var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 
 function creatorToString(creator) {
   if (creator) {
@@ -54,12 +53,7 @@ function FilmlistItem(Props) {
                                 return !prev;
                               }));
                         console.log("checking " + film.name);
-                        Todoist$RescriptProjectTemplate.Todoist.setFilmAsSeen(film).then(function (param) {
-                              console.log("lol");
-                              Curry._1(click, film);
-                              return Promise.resolve(undefined);
-                            });
-                        
+                        return Curry._1(click, film);
                       })
                   }), React.createElement("label", {
                     style: {

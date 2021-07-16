@@ -38,6 +38,7 @@ let make = () => {
         |> Todoist.setToken
         |> Js.Promise.then_(Todoist.getFilms)
         |> Js.Promise.then_(films => {
+          Js.log(films)
           setState(_preState => LoadedFilms(films, "", []))
           Js.Promise.resolve()
         })
@@ -45,8 +46,10 @@ let make = () => {
       }
     | Some(token) =>
       Todoist.getFilms(token)
-      |> Js.Promise.then_(films => {
-        setState(_prevState => LoadedFilms(films, "", []))
+      |> Js.Promise.then_((films: array<Todoist.film>) => {
+        let unseen = films->Js.Array2.filter(film => !film.seen)
+        let seen = films->Js.Array2.filter(film => film.seen)
+        setState(_prevState => LoadedFilms(unseen, "", seen))
         Js.Promise.resolve()
       })
       |> ignore
@@ -55,12 +58,14 @@ let make = () => {
   })
   let seenFilm = (film: Todoist.film) =>
     setState((LoadedFilms(films, selected, seenFilms)) => {
+      let _k = Todoist.setFilmAsSeen(film)
       let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
       let newSeenFilms = Js.Array.concat(seenFilms, [film])
       LoadedFilms(newUnseen, selected, newSeenFilms)
     })
   let unDooSeenFilm = (film: Todoist.film) =>
     setState((LoadedFilms(films, selected, seenFilms)) => {
+      let _k = Todoist.setFilmAsUnseen(film)
       let newSeenFilms = Js.Array2.filter(seenFilms, f => f.name !== film.name)
       let newUnseen = Js.Array.concat(films, [film])
       LoadedFilms(newUnseen, selected, newSeenFilms)
