@@ -14,8 +14,26 @@ var confetti = (function () {
         });
     });
 
+var horn = (function () {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const audioElement = document.querySelector('audio');
+      const track = audioCtx.createMediaElementSource(audioElement);
+      const playButton = document.querySelector('.tape-controls-play');
+      if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+      }
+      const gainNode = audioCtx.createGain();
+
+      const volumeControl = document.querySelector('[data-action="volume"]');
+      // connect our graph
+      track.connect(gainNode).connect(audioCtx.destination);
+      audioElement.play();
+    });
+
 function electFilm(setState, films, selectFilm) {
   Curry._1(confetti, undefined);
+  Curry._1(horn, undefined);
   var r = Random.$$int(films.length);
   var film = Belt_Array.get(films, r);
   if (film !== undefined) {
@@ -57,6 +75,7 @@ function RandomBtn(Props) {
 var make = RandomBtn;
 
 exports.confetti = confetti;
+exports.horn = horn;
 exports.electFilm = electFilm;
 exports.make = make;
 /* react Not a pure module */

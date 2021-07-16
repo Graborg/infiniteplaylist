@@ -16,8 +16,28 @@ let confetti = %raw(`
     }
 `)
 
+let horn = %raw(`
+    function () {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const audioElement = document.querySelector('audio');
+      const track = audioCtx.createMediaElementSource(audioElement);
+      const playButton = document.querySelector('.tape-controls-play');
+      if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+      }
+      const gainNode = audioCtx.createGain();
+
+      const volumeControl = document.querySelector('[data-action="volume"]');
+      // connect our graph
+      track.connect(gainNode).connect(audioCtx.destination);
+      audioElement.play();
+    }
+`)
+
 let electFilm = (setState, films: array<Todoist.film>, selectFilm) => {
   let _h = confetti()
+  let _l = horn()
   let r = Random.int(Belt.Array.length(films))
   switch Belt.Array.get(films, r) {
   | Some(film) =>
@@ -31,7 +51,6 @@ let electFilm = (setState, films: array<Todoist.film>, selectFilm) => {
 @react.component
 let make = (~films, ~selectFilmWithSetState) => {
   let (state, setState) = React.useState(() => NoElection)
-
   <div
     style={ReactDOMStyle.make(
       ~display="flex",
