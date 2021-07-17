@@ -31,11 +31,14 @@ var horn = (function () {
       audioElement.play();
     });
 
-function electFilm(setState, films, selectFilm) {
+function electFilm(setState, films, selectFilm, nextElector) {
   Curry._1(confetti, undefined);
   Curry._1(horn, undefined);
-  var r = Random.$$int(films.length);
-  var film = Belt_Array.get(films, r);
+  var filmsOfCreator = films.filter(function (film) {
+        return film.creator === nextElector;
+      });
+  var randomIndex = Random.$$int(filmsOfCreator.length);
+  var film = Belt_Array.get(filmsOfCreator, randomIndex);
   if (film !== undefined) {
     Curry._1(selectFilm, film.name);
     Curry._1(setState, (function (_prevState) {
@@ -49,7 +52,8 @@ function electFilm(setState, films, selectFilm) {
 
 function RandomBtn(Props) {
   var films = Props.films;
-  var selectFilmWithSetState = Props.selectFilmWithSetState;
+  var doSelectFilm = Props.doSelectFilm;
+  var nextElector = Props.nextElector;
   var match = React.useState(function () {
         return /* NoElection */1;
       });
@@ -67,7 +71,7 @@ function RandomBtn(Props) {
                     className: "gradient-text"
                   }, state._0), React.createElement("button", {
                   onClick: (function (_event) {
-                      return electFilm(setState, films, selectFilmWithSetState);
+                      return electFilm(setState, films, doSelectFilm, nextElector);
                     })
                 }, "Hace un volado"));
 }

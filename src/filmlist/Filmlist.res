@@ -14,18 +14,16 @@ type url = {
   search: string,
 }
 
-let selectFilm = (setState, filmId) =>
-  setState(prevState =>
-    switch prevState {
-    | LoadedFilms(list, _selected, seenFilms) => LoadedFilms(list, filmId, seenFilms)
-    }
-  )
-
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
-  let selectFilmWithSetState = selectFilm(setState)
 
+  let doSelectFilm = filmId =>
+    setState(prevState =>
+      switch prevState {
+      | LoadedFilms(list, _selected, seenFilms) => LoadedFilms(list, filmId, seenFilms)
+      }
+    )
   let url = RescriptReactRouter.useUrl()
 
   React.useEffect0(() => {
@@ -78,6 +76,16 @@ let make = () => {
     }, 500) |> ignore
   }
 
+  let getNextElector = (seenFilms: array<Todoist.film>) => {
+    open Todoist
+    let selectedByKarmi =
+      Js.Array2.filter(seenFilms, film => film.creator === Karmi)->Js.Array.length
+    let selectedByFerma =
+      Js.Array2.filter(seenFilms, film => film.creator === Ferma)->Js.Array.length
+
+    selectedByKarmi > selectedByFerma ? Ferma : Karmi
+  }
+
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
   | LoadingFilms => React.string("Loading...")
@@ -96,7 +104,7 @@ let make = () => {
         })
         ->React.array}
       </div>
-      <RandomBtn films selectFilmWithSetState />
+      <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
       {Js.Array.length(seenFilms) > 0
         ? <div>
             <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>

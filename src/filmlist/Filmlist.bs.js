@@ -10,35 +10,31 @@ var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 var RandomBtn$RescriptProjectTemplate = require("./RandomBtn.bs.js");
 var FilmlistItem$RescriptProjectTemplate = require("./FilmlistItem.bs.js");
 
-function selectFilm(setState, filmId) {
-  return Curry._1(setState, (function (prevState) {
-                if (typeof prevState === "number") {
-                  throw {
-                        RE_EXN_ID: "Match_failure",
-                        _1: [
-                          "Filmlist.res",
-                          19,
-                          4
-                        ],
-                        Error: new Error()
-                      };
-                }
-                return /* LoadedFilms */{
-                        _0: prevState._0,
-                        _1: filmId,
-                        _2: prevState._2
-                      };
-              }));
-}
-
 function Filmlist(Props) {
   var match = React.useState(function () {
         return /* LoadingFilms */0;
       });
   var setState = match[1];
   var state = match[0];
-  var selectFilmWithSetState = function (param) {
-    return selectFilm(setState, param);
+  var doSelectFilm = function (filmId) {
+    return Curry._1(setState, (function (prevState) {
+                  if (typeof prevState === "number") {
+                    throw {
+                          RE_EXN_ID: "Match_failure",
+                          _1: [
+                            "Filmlist.res",
+                            23,
+                            6
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  return /* LoadedFilms */{
+                          _0: prevState._0,
+                          _1: filmId,
+                          _2: prevState._2
+                        };
+                }));
   };
   var url = RescriptReactRouter.useUrl(undefined, undefined);
   React.useEffect((function () {
@@ -91,7 +87,7 @@ function Filmlist(Props) {
                                   RE_EXN_ID: "Match_failure",
                                   _1: [
                                     "Filmlist.res",
-                                    62,
+                                    60,
                                     15
                                   ],
                                   Error: new Error()
@@ -119,7 +115,7 @@ function Filmlist(Props) {
                                   RE_EXN_ID: "Match_failure",
                                   _1: [
                                     "Filmlist.res",
-                                    73,
+                                    71,
                                     15
                                   ],
                                   Error: new Error()
@@ -137,6 +133,19 @@ function Filmlist(Props) {
                         }));
           }), 500);
     
+  };
+  var getNextElector = function (seenFilms) {
+    var selectedByKarmi = seenFilms.filter(function (film) {
+          return film.creator === /* Karmi */0;
+        }).length;
+    var selectedByFerma = seenFilms.filter(function (film) {
+          return film.creator === /* Ferma */1;
+        }).length;
+    if (selectedByKarmi > selectedByFerma) {
+      return /* Ferma */1;
+    } else {
+      return /* Karmi */0;
+    }
   };
   if (typeof state === "number") {
     switch (state) {
@@ -173,7 +182,8 @@ function Filmlist(Props) {
                                     });
                         }))), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
                     films: films,
-                    selectFilmWithSetState: selectFilmWithSetState
+                    doSelectFilm: doSelectFilm,
+                    nextElector: getNextElector(seenFilms)
                   }), seenFilms.length > 0 ? React.createElement("div", undefined, React.createElement("p", {
                           style: {
                             margin: "10px 0 10px 10px"
@@ -196,6 +206,5 @@ function Filmlist(Props) {
 
 var make = Filmlist;
 
-exports.selectFilm = selectFilm;
 exports.make = make;
 /* react Not a pure module */

@@ -35,11 +35,17 @@ let horn = %raw(`
     }
 `)
 
-let electFilm = (setState, films: array<Todoist.film>, selectFilm) => {
+let electFilm = (
+  setState,
+  films: array<Todoist.film>,
+  selectFilm,
+  nextElector: Todoist.creator,
+) => {
   let _h = confetti()
   let _l = horn()
-  let r = Random.int(Belt.Array.length(films))
-  switch Belt.Array.get(films, r) {
+  let filmsOfCreator = films->Js.Array2.filter((film: Todoist.film) => film.creator === nextElector)
+  let randomIndex = filmsOfCreator->Belt.Array.length->Random.int
+  switch Belt.Array.get(filmsOfCreator, randomIndex) {
   | Some(film) =>
     selectFilm(film.name)
     setState(_prevState => FilmElected(film.name))
@@ -49,7 +55,7 @@ let electFilm = (setState, films: array<Todoist.film>, selectFilm) => {
 }
 
 @react.component
-let make = (~films, ~selectFilmWithSetState) => {
+let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
   let (state, setState) = React.useState(() => NoElection)
   <div
     style={ReactDOMStyle.make(
@@ -65,7 +71,7 @@ let make = (~films, ~selectFilmWithSetState) => {
     | NoElection => <p />
     | FilmElected(film) => <h2 className="gradient-text"> {React.string(film)} </h2>
     }}
-    <button onClick={_event => electFilm(setState, films, selectFilmWithSetState)}>
+    <button onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
       {React.string("Hace un volado")}
     </button>
   </div>
