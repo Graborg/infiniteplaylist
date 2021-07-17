@@ -6,8 +6,8 @@ type mouseOver =
 
 let creatorToString = (creator: Todoist.creator) =>
   switch creator {
-  | Karmi => "Karmi"
-  | Ferma => "Ferma"
+  | Karmi => j`🐘 ` ++ "Karmi" ++ j` 🐘`
+  | Ferma => j`🐄 ` ++ "Ferma" ++ j` 🐄`
   }
 
 @react.component
@@ -27,7 +27,12 @@ let make = (
           onMouseEnter={_ => setMouseOver(_ => true)}
           onMouseLeave={_ => setMouseOver(_ => false)}
           className="film-item inputGroup"
-          style={ReactDOMStyle.make(~padding="0", ~margin="0 10px", ())}>
+          style={ReactDOMStyle.make(
+            ~padding="0",
+            ~margin="0 10px",
+            ~color={film.creator === Ferma ? "#476098" : "#8b9862"},
+            (),
+          )}>
           <input
             checked
             onChange={event => {
@@ -73,6 +78,7 @@ let make = (
             ~justifyContent="space-between",
             ~boxSizing="border-box",
             ~minHeight="56px",
+            ~color={film.creator === Ferma ? "#476098" : "#8b9862"},
             (),
           )}>
           <p>

@@ -5,9 +5,9 @@ var React = require("react");
 
 function creatorToString(creator) {
   if (creator) {
-    return "Ferma";
+    return "🐄 " + "Ferma" + " 🐄";
   } else {
-    return "Karmi";
+    return "🐘 " + "Karmi" + " 🐘";
   }
 }
 
@@ -30,6 +30,7 @@ function FilmlistItem(Props) {
                 key: String(film.id),
                 className: "film-item inputGroup",
                 style: {
+                  color: film.creator === /* Ferma */1 ? "#476098" : "#8b9862",
                   margin: "0 10px",
                   padding: "0"
                 },
@@ -76,6 +77,7 @@ function FilmlistItem(Props) {
                 className: "film-item inputGroup",
                 style: {
                   borderBottom: lastElement ? "" : "1px #cecece solid",
+                  color: film.creator === /* Ferma */1 ? "#476098" : "#8b9862",
                   display: "flex",
                   margin: "0 10px",
                   minHeight: "56px",
@@ -97,7 +99,7 @@ function FilmlistItem(Props) {
                     style: {
                       border: "black 5px"
                     }
-                  }, film.creator ? "Ferma" : "Karmi"));
+                  }, creatorToString(film.creator)));
   }
 }
 
