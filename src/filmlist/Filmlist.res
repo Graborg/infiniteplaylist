@@ -108,7 +108,7 @@ let make = () => {
       {Js.Array.length(seenFilms) > 0
         ? <div>
             <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
-              {React.string("Seen films")}
+              {React.string("Peliculas vistas")}
             </p>
             <div className="film-list">
               {seenFilms

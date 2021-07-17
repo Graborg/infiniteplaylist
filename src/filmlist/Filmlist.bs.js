@@ -188,7 +188,7 @@ function Filmlist(Props) {
                           style: {
                             margin: "10px 0 10px 10px"
                           }
-                        }, "Seen films"), React.createElement("div", {
+                        }, "Peliculas vistas"), React.createElement("div", {
                           className: "film-list"
                         }, Belt_Array.mapWithIndex(seenFilms, (function (i, film) {
                                 var lastElement = i === (films.length - 1 | 0);
