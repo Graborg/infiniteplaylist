@@ -11,7 +11,7 @@
   },
   "bsc-flags": ["-bs-super-errors", "-bs-no-version-header"],
   "suffix": ".bs.js",
-  "bs-dependencies": ["@rescript/react","bs-fetch"],
+  "bs-dependencies": ["@rescript/react","bs-fetch",   "rescript-debounce-react"],
   "warnings": {
     "error" : "+101"
   },

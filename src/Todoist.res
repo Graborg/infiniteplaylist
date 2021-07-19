@@ -45,8 +45,6 @@ module Todoist = {
     )
 
   let setFilmAsSeen = (film: film) => {
-    Js.log("settin")
-    Js.log(film.id)
     let token = getTokenLocalStorage()
     let payload = Js.Dict.empty()
     Js.Dict.set(payload, "description", Js.Json.string("completed"))
@@ -67,8 +65,6 @@ module Todoist = {
     }
   }
   let setFilmAsUnseen = (film: film) => {
-    Js.log("settin")
-    Js.log(film.id)
     let token = getTokenLocalStorage()
     let payload = Js.Dict.empty()
     Js.Dict.set(payload, "description", Js.Json.string(""))
@@ -108,7 +104,6 @@ module Todoist = {
           ->Belt.Array.map(e => Js.Dict.get(Belt.Option.getWithDefault(e, Js.Dict.empty()), "id"))
           ->Belt.Array.get(0)
 
-        Js.log(projectId)
         switch projectId {
         | Some(id) =>
           switch id {
@@ -149,8 +144,6 @@ module Todoist = {
                 ->Belt.Option.getWithDefault(Js.Json.string("0"))
                 ->Js.Json.decodeNumber
                 ->Belt.Option.getWithDefault(1.0)
-              Js.log("film")
-              Js.log(film)
               let creator =
                 Js.Dict.get(existingItem, "creator")
                 ->Belt.Option.getWithDefault(Js.Json.string(""))
@@ -164,8 +157,6 @@ module Todoist = {
                 ->Belt.Option.getWithDefault("")
                 ->trimQuotes
 
-              Js.log(filmName)
-              Js.log(description)
               {
                 seen: description == "completed" ? true : false,
                 id: id,

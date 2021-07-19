@@ -53,7 +53,6 @@ function FilmlistItem(Props) {
                         Curry._1(setCheck, (function (prev) {
                                 return !prev;
                               }));
-                        console.log("checking " + film.name);
                         return Curry._1(click, film);
                       })
                   }), React.createElement("label", {

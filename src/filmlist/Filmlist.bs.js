@@ -8,6 +8,7 @@ var RescriptReactRouter = require("@rescript/react/src/RescriptReactRouter.bs.js
 var Title$RescriptProjectTemplate = require("./Title.bs.js");
 var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 var RandomBtn$RescriptProjectTemplate = require("./RandomBtn.bs.js");
+var Inputfield$RescriptProjectTemplate = require("./Inputfield.bs.js");
 var FilmlistItem$RescriptProjectTemplate = require("./FilmlistItem.bs.js");
 
 function Filmlist(Props) {
@@ -64,7 +65,6 @@ function Filmlist(Props) {
                     }));
             } else {
               Todoist$RescriptProjectTemplate.Todoist.setToken(Todoist$RescriptProjectTemplate.Todoist.searchStringToCode(search)).then(Todoist$RescriptProjectTemplate.Todoist.getFilms).then(function (films) {
-                    console.log(films);
                     Curry._1(setState, (function (_preState) {
                             return /* LoadedFilms */{
                                     _0: films,
@@ -87,7 +87,7 @@ function Filmlist(Props) {
                                   RE_EXN_ID: "Match_failure",
                                   _1: [
                                     "Filmlist.res",
-                                    60,
+                                    59,
                                     15
                                   ],
                                   Error: new Error()
@@ -115,7 +115,7 @@ function Filmlist(Props) {
                                   RE_EXN_ID: "Match_failure",
                                   _1: [
                                     "Filmlist.res",
-                                    71,
+                                    70,
                                     15
                                   ],
                                   Error: new Error()
@@ -180,7 +180,7 @@ function Filmlist(Props) {
                                       click: seenFilm,
                                       key: String(film.id) + "h"
                                     });
-                        }))), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
+                        }))), React.createElement(Inputfield$RescriptProjectTemplate.make, {}), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
                     films: films,
                     doSelectFilm: doSelectFilm,
                     nextElector: getNextElector(seenFilms)

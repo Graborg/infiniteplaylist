@@ -39,8 +39,6 @@ let make = (
               ReactEvent.Form.preventDefault(event)
               setCheck(prev => !prev)
 
-              Js.log("checking " ++ film.name)
-
               click(film)
             }}
             id={Belt.Float.toString(film.id) ++ "input"}

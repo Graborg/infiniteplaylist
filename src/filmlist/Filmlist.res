@@ -36,7 +36,6 @@ let make = () => {
         |> Todoist.setToken
         |> Js.Promise.then_(Todoist.getFilms)
         |> Js.Promise.then_(films => {
-          Js.log(films)
           setState(_preState => LoadedFilms(films, "", []))
           Js.Promise.resolve()
         })
@@ -104,6 +103,7 @@ let make = () => {
         })
         ->React.array}
       </div>
+      <Inputfield />
       <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
       {Js.Array.length(seenFilms) > 0
         ? <div>

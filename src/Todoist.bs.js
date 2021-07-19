@@ -55,8 +55,6 @@ function authorizationHeader(token) {
 }
 
 function setFilmAsSeen(film) {
-  console.log("settin");
-  console.log(film.id);
   var token = Dom_storage.getItem(localStorageNamespace, localStorage);
   var payload = {};
   payload["description"] = "completed";
@@ -70,7 +68,7 @@ function setFilmAsSeen(film) {
         RE_EXN_ID: "Match_failure",
         _1: [
           "Todoist.res",
-          53,
+          51,
           4
         ],
         Error: new Error()
@@ -78,8 +76,6 @@ function setFilmAsSeen(film) {
 }
 
 function setFilmAsUnseen(film) {
-  console.log("settin");
-  console.log(film.id);
   var token = Dom_storage.getItem(localStorageNamespace, localStorage);
   var payload = {};
   payload["description"] = "";
@@ -93,7 +89,7 @@ function setFilmAsUnseen(film) {
         RE_EXN_ID: "Match_failure",
         _1: [
           "Todoist.res",
-          75,
+          71,
           4
         ],
         Error: new Error()
@@ -111,7 +107,6 @@ function getProjectId(token) {
                               })), (function (e) {
                             return Js_dict.get(Belt_Option.getWithDefault(e, {}), "id");
                           })), 0);
-                console.log(projectId);
                 if (projectId !== undefined) {
                   var id = Caml_option.valFromOption(projectId);
                   if (id !== undefined) {
@@ -126,7 +121,7 @@ function getProjectId(token) {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        112,
+                        107,
                         8
                       ],
                       Error: new Error()
@@ -136,7 +131,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      97,
+                      93,
                       6
                     ],
                     Error: new Error()
@@ -156,12 +151,8 @@ function getFilms(token) {
                                                 var existingItem = Caml_option.valFromOption(film);
                                                 var filmName = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "content"), "")), ""));
                                                 var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "id"), "0")), 1.0);
-                                                console.log("film");
-                                                console.log(film);
                                                 var creator = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(existingItem, "creator"), "")), 1.0) | 0;
                                                 var description = trimQuotes(Belt_Option.getWithDefault(Js_json.decodeString(Belt_Option.getWithDefault(Js_dict.get(existingItem, "description"), "")), ""));
-                                                console.log(filmName);
-                                                console.log(description);
                                                 return {
                                                         seen: description === "completed",
                                                         id: id,
@@ -173,7 +164,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      139,
+                                                      134,
                                                       12
                                                     ],
                                                     Error: new Error()
