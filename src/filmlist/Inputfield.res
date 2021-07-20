@@ -5,6 +5,8 @@ let make = () => {
   open IMDB
   let ((searchText, suggestedFilms, showOptions), setText) = React.useState(_ => ("", [], false))
 
+  let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
+
   <div>
     <input
       value={searchText}
@@ -15,8 +17,7 @@ let make = () => {
           suggestedFilmsState,
           true,
         ))
-
-        IMDBService.search(currentValue, setText)
+        searchDebounced(currentValue)
       }}
     />
     <ul id="suggested-films">

@@ -4,6 +4,7 @@ var Curry = require("rescript/lib/js/curry.js");
 var React = require("react");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
+var ReactDebounce = require("rescript-debounce-react/src/ReactDebounce.bs.js");
 var IMDB$RescriptProjectTemplate = require("../IMDB.bs.js");
 
 function trimQuotes(str) {
@@ -20,6 +21,9 @@ function Inputfield(Props) {
       });
   var setText = match[1];
   var match$1 = match[0];
+  var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
+          return IMDB$RescriptProjectTemplate.IMDBService.search(text, setText);
+        }));
   return React.createElement("div", undefined, React.createElement("input", {
                   value: match$1[0],
                   onChange: (function (e) {
@@ -31,7 +35,7 @@ function Inputfield(Props) {
                                       true
                                     ];
                             }));
-                      return IMDB$RescriptProjectTemplate.IMDBService.search(currentValue, setText);
+                      return Curry._1(searchDebounced, currentValue);
                     })
                 }), React.createElement("ul", {
                   id: "suggested-films"
