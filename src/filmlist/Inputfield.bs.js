@@ -22,6 +22,7 @@ function Inputfield(Props) {
       });
   var setText = match[1];
   var match$1 = match[0];
+  var activeOption = match$1[3];
   var suggestedFilms = match$1[1];
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
           return IMDB$RescriptProjectTemplate.IMDBService.search(text, setText);
@@ -30,15 +31,12 @@ function Inputfield(Props) {
                   value: match$1[0],
                   onKeyDown: (function (e) {
                       var keyCode = e.keyCode;
-                      console.log(keyCode);
                       if (keyCode === 13) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[3];
                                       return [
                                               trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[activeOptionState], (function (e) {
-                                                              var h = JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
-                                                              console.log(h);
-                                                              return h;
+                                                              return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
                                                             })), "")),
                                               param[1],
                                               false,
@@ -84,11 +82,12 @@ function Inputfield(Props) {
                     })
                 }), React.createElement("ul", {
                   id: "suggested-films"
-                }, match$1[2] ? Belt_Array.map(Belt_Array.slice(suggestedFilms, 0, 5), (function (film) {
+                }, match$1[2] ? Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms, 0, 5), (function (i, film) {
                           return Belt_Option.mapWithDefault(film, "", (function (someFilm) {
                                         var title = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.title, "")));
                                         var year = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.year, "")));
                                         return React.createElement("li", {
+                                                    className: i === activeOption ? "highlight" : "",
                                                     onClick: (function (item) {
                                                         var currentValue = item.target.innerText;
                                                         return Curry._1(setText, (function (param) {
@@ -97,7 +96,7 @@ function Inputfield(Props) {
                                                                               RE_EXN_ID: "Match_failure",
                                                                               _1: [
                                                                                 "Inputfield.res",
-                                                                                79,
+                                                                                77,
                                                                                 26
                                                                               ],
                                                                               Error: new Error()

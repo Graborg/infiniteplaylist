@@ -231,7 +231,11 @@ label:after {
 }
 
 #suggested-films>li {
-  background-color: white;
+  background-color: #fdf1f0;
   padding: 5px;
   border: 1px solid rgb(206, 206, 206);
+}
+
+#suggested-films>li.highlight {
+  background-color: white;
 }

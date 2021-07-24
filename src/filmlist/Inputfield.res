@@ -17,16 +17,13 @@ let make = () => {
       value={searchText}
       onKeyDown={e => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
-        Js.log(keyCode)
         // Enter
         if keyCode === 13 {
           setText(((_searchString, suggestedFilmsState, _, activeOptionState)) => (
             Js.Array2.unsafe_get(suggestedFilms, activeOptionState)
-            ->Belt.Option.map(e => {
-              let h = e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
-              Js.log(h)
-              h
-            })
+            ->Belt.Option.map(e =>
+              e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
+            )
             ->Belt.Option.getWithDefault("")
             ->trimQuotes,
             suggestedFilmsState,
@@ -71,9 +68,10 @@ let make = () => {
     <ul id="suggested-films">
       {showOptions
         ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)
-          ->Belt.Array.map(film =>
+          ->Belt.Array.mapWithIndex((i, film) =>
             Belt.Option.mapWithDefault(film, React.string(""), someFilm =>
               <li
+                className={i === activeOption ? "highlight" : ""}
                 onClick={item => {
                   let currentValue = ReactEvent.Mouse.target(item)["innerText"]
                   setText(((_searchString, suggestedFilmsState, _, -1)) => (
