@@ -15,9 +15,51 @@ let make = () => {
   <div>
     <input
       value={searchText}
+      onKeyDown={e => {
+        let keyCode = ReactEvent.Keyboard.keyCode(e)
+        Js.log(keyCode)
+        // Enter
+        if keyCode === 13 {
+          setText(((_searchString, suggestedFilmsState, _, activeOptionState)) => (
+            Js.Array2.unsafe_get(suggestedFilms, activeOptionState)
+            ->Belt.Option.map(e => {
+              let h = e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
+              Js.log(h)
+              h
+            })
+            ->Belt.Option.getWithDefault("")
+            ->trimQuotes,
+            suggestedFilmsState,
+            false,
+            activeOptionState,
+          ))
+        } else if (
+          // Up arrow
+          keyCode === 38
+        ) {
+          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => (
+            searchString,
+            suggestedFilmsState,
+            showOptionsState,
+            activeOptionState === 0 ? 0 : activeOptionState - 1,
+          ))
+        } else if (
+          // Down arrow
+          keyCode === 40
+        ) {
+          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => (
+            searchString,
+            suggestedFilmsState,
+            showOptionsState,
+            activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
+              ? activeOptionState
+              : activeOptionState + 1,
+          ))
+        }
+      }}
       onChange={e => {
         let currentValue = ReactEvent.Form.target(e)["value"]
-        setText(((_searchString, suggestedFilmsState, _, _)) => (
+        setText(((_searchString, suggestedFilmsState, _, activeOptionState)) => (
           currentValue,
           suggestedFilmsState,
           true,

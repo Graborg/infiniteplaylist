@@ -9,7 +9,7 @@ module IMDBService = {
       "https://imdb8.p.rapidapi.com/auto-complete?q=" ++ str,
       Fetch.RequestInit.make(
         ~headers=Fetch.HeadersInit.make({
-          "x-rapidapi-key": "2df82a1ee9msha7bfe50dac1853fp17ec3ejsn869e578089bb",
+          "x-rapidapi-key": "9c744b249amsh8eb81c677f77ce4p1f64e7jsnf87a5847de6e",
           "x-rapidapi-host": "imdb8.p.rapidapi.com",
         }),
         (),
@@ -41,7 +41,7 @@ module IMDBService = {
               )->Belt.Option.getWithDefault(false)
             )
           Js.log(topResults)
-          setState(((prev, _prev2, _, _)) => (prev, topResults, true, -1))
+          setState(((prev, _prev2, _, activeOption)) => (prev, topResults, true, activeOption))
         }
       }
 
