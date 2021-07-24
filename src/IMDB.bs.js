@@ -4,6 +4,7 @@ var Curry = require("rescript/lib/js/curry.js");
 var Fetch = require("bs-fetch/src/Fetch.bs.js");
 var Js_dict = require("rescript/lib/js/js_dict.js");
 var Js_json = require("rescript/lib/js/js_json.js");
+var Caml_obj = require("rescript/lib/js/caml_obj.js");
 var Js_option = require("rescript/lib/js/js_option.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
@@ -18,15 +19,25 @@ function search(str, setState) {
         var decoded = Js_json.decodeObject(res);
         if (decoded !== undefined) {
           var topResults = Belt_Option.getWithDefault(Js_json.decodeArray(Belt_Option.getWithDefault(Js_dict.get(Caml_option.valFromOption(decoded), "d"), [])), []).map(function (film) {
-                  return Belt_Option.flatMap(Js_json.decodeObject(film), (function (filmObj) {
-                                return Js_dict.get(filmObj, "l");
-                              }));
-                }).filter(Js_option.isSome);
+                    return Belt_Option.flatMap(Js_json.decodeObject(film), (function (filmObj) {
+                                  return {
+                                          title: Js_dict.get(filmObj, "l"),
+                                          year: Js_dict.get(filmObj, "y"),
+                                          category: Js_dict.get(filmObj, "q")
+                                        };
+                                }));
+                  }).filter(Js_option.isSome).filter(function (film) {
+                return Belt_Option.getWithDefault(Belt_Option.map(film, (function (f) {
+                                  return Caml_obj.caml_equal(Belt_Option.getWithDefault(f.category, "none"), "feature");
+                                })), false);
+              });
+          console.log(topResults);
           Curry._1(setState, (function (param) {
                   return [
                           param[0],
                           topResults,
-                          true
+                          true,
+                          -1
                         ];
                 }));
         } else {

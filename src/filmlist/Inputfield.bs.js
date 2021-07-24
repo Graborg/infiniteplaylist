@@ -16,7 +16,8 @@ function Inputfield(Props) {
         return [
                 "",
                 [],
-                false
+                false,
+                -1
               ];
       });
   var setText = match[1];
@@ -32,7 +33,8 @@ function Inputfield(Props) {
                               return [
                                       currentValue,
                                       param[1],
-                                      true
+                                      true,
+                                      -1
                                     ];
                             }));
                       return Curry._1(searchDebounced, currentValue);
@@ -41,18 +43,32 @@ function Inputfield(Props) {
                   id: "suggested-films"
                 }, match$1[2] ? Belt_Array.map(Belt_Array.slice(match$1[1], 0, 5), (function (film) {
                           return Belt_Option.mapWithDefault(film, "", (function (someFilm) {
+                                        var title = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.title, "")));
+                                        var year = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.year, "")));
                                         return React.createElement("li", {
                                                     onClick: (function (item) {
                                                         var currentValue = item.target.innerText;
                                                         return Curry._1(setText, (function (param) {
+                                                                      if (param[3] !== -1) {
+                                                                        throw {
+                                                                              RE_EXN_ID: "Match_failure",
+                                                                              _1: [
+                                                                                "Inputfield.res",
+                                                                                37,
+                                                                                26
+                                                                              ],
+                                                                              Error: new Error()
+                                                                            };
+                                                                      }
                                                                       return [
                                                                               currentValue,
                                                                               param[1],
-                                                                              false
+                                                                              false,
+                                                                              -1
                                                                             ];
                                                                     }));
                                                       })
-                                                  }, React.createElement("p", undefined, trimQuotes(JSON.stringify(someFilm))));
+                                                  }, React.createElement("p", undefined, title + " (" + year + ")"));
                                       }));
                         })) : ""));
 }

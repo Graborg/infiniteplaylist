@@ -3,7 +3,7 @@ module IMDBService = {
 
   let search = (
     str: string,
-    setState: (((string, array<'a>, bool)) => (string, array<'a>, bool)) => unit,
+    setState: (((string, array<'a>, bool, int)) => (string, array<'a>, bool, int)) => unit,
   ) =>
     Fetch.fetchWithInit(
       "https://imdb8.p.rapidapi.com/auto-complete?q=" ++ str,
@@ -26,11 +26,22 @@ module IMDBService = {
             ->Belt.Option.getWithDefault(Js.Json.array([]))
             ->Js.Json.decodeArray
             ->Belt.Option.getWithDefault([])
-            ->Js.Array2.map(film =>
-              Js.Json.decodeObject(film)->Belt.Option.flatMap(filmObj => Js.Dict.get(filmObj, "l"))
-            )
+            ->Js.Array2.map(film => {
+              Js.Json.decodeObject(film)->Belt.Option.flatMap(filmObj => Some({
+                "title": Js.Dict.get(filmObj, "l"),
+                "year": Js.Dict.get(filmObj, "y"),
+                "category": Js.Dict.get(filmObj, "q"),
+              }))
+            })
             ->Js.Array2.filter(Js.Option.isSome)
-          setState(((prev, _prev2, _)) => (prev, topResults, true))
+            ->Js.Array2.filter(film =>
+              Belt.Option.map(film, f =>
+                Belt.Option.getWithDefault(f["category"], Js.Json.string("none")) ==
+                  Js.Json.string("feature")
+              )->Belt.Option.getWithDefault(false)
+            )
+          Js.log(topResults)
+          setState(((prev, _prev2, _, _)) => (prev, topResults, true, -1))
         }
       }
 
