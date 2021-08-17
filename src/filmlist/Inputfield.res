@@ -3,6 +3,7 @@ let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\
 @react.component
 let make = () => {
   open IMDB
+  open Todoist
   let ((searchText, suggestedFilms, showOptions, activeOption), setText) = React.useState(_ => (
     "",
     [],
@@ -19,39 +20,43 @@ let make = () => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
         // Enter
         if keyCode === 13 {
-          setText(((_searchString, suggestedFilmsState, _, activeOptionState)) => (
-            Js.Array2.unsafe_get(suggestedFilms, activeOptionState)
-            ->Belt.Option.map(e =>
-              e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
-            )
-            ->Belt.Option.getWithDefault("")
-            ->trimQuotes,
-            suggestedFilmsState,
-            false,
-            activeOptionState,
-          ))
+          Todoist.addFilm(searchText)->ignore
+          setText(((searchString, suggestedFilmsState, _, activeOptionState)) => {
+            ("", [], false, -1)
+          })
         } else if (
           // Up arrow
           keyCode === 38
         ) {
-          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => (
-            searchString,
-            suggestedFilmsState,
-            showOptionsState,
-            activeOptionState === 0 ? 0 : activeOptionState - 1,
-          ))
+          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+            let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
+            let selectedFromDropdown =
+              Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
+              ->Belt.Option.map(e =>
+                e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
+              )
+              ->Belt.Option.getWithDefault("")
+              ->trimQuotes
+            (selectedFromDropdown, suggestedFilmsState, showOptionsState, newActiveOptionState)
+          })
         } else if (
           // Down arrow
           keyCode === 40
         ) {
-          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => (
-            searchString,
-            suggestedFilmsState,
-            showOptionsState,
-            activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
-              ? activeOptionState
-              : activeOptionState + 1,
-          ))
+          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+            let newActiveOptionState =
+              activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
+                ? activeOptionState
+                : activeOptionState + 1
+            let selectedFromDropdown =
+              Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
+              ->Belt.Option.map(e =>
+                e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
+              )
+              ->Belt.Option.getWithDefault("")
+              ->trimQuotes
+            (selectedFromDropdown, suggestedFilmsState, showOptionsState, newActiveOptionState)
+          })
         }
       }}
       onChange={e => {

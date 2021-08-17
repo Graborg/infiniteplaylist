@@ -4,7 +4,7 @@ let clientSecret = "93820ee048244655adc1bb55475f0297"
 let clientId = "be81e104bbad4668a009dbf1ae3221c6"
 let todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects"
 let todoistProjectUrl = "https://api.todoist.com/rest/v1/tasks?project_id="
-let tasksUrl = "https://api.todoist.com/rest/v1/tasks/"
+let tasksUrl = "https://api.todoist.com/rest/v1/tasks"
 let randomString = "fox0BUFvugh1kau"
 let todoistLoginLink =
   "http://todoist.com/oauth/authorize?client_id=" ++
@@ -51,7 +51,7 @@ module Todoist = {
     switch token {
     | Some(token) =>
       Fetch.fetchWithInit(
-        tasksUrl ++ Belt.Float.toString(film.id),
+        tasksUrl ++ "/" ++ Belt.Float.toString(film.id),
         Fetch.RequestInit.make(
           ~method_=Post,
           ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
@@ -71,7 +71,28 @@ module Todoist = {
     switch token {
     | Some(token) =>
       Fetch.fetchWithInit(
-        tasksUrl ++ Belt.Float.toString(film.id),
+        tasksUrl ++ "/" ++ Belt.Float.toString(film.id),
+        Fetch.RequestInit.make(
+          ~method_=Post,
+          ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
+          ~headers=Fetch.HeadersInit.make({
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " ++ token,
+          }),
+          (),
+        ),
+      )
+    }
+  }
+
+  let addFilm = (filmName: string) => {
+    let token = getTokenLocalStorage()
+    let payload = Js.Dict.empty()
+    Js.Dict.set(payload, "content", Js.Json.string(filmName))
+    switch token {
+    | Some(token) =>
+      Fetch.fetchWithInit(
+        tasksUrl,
         Fetch.RequestInit.make(
           ~method_=Post,
           ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),

@@ -21,7 +21,7 @@ var todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects";
 
 var todoistProjectUrl = "https://api.todoist.com/rest/v1/tasks?project_id=";
 
-var tasksUrl = "https://api.todoist.com/rest/v1/tasks/";
+var tasksUrl = "https://api.todoist.com/rest/v1/tasks";
 
 var randomString = "fox0BUFvugh1kau";
 
@@ -59,7 +59,7 @@ function setFilmAsSeen(film) {
   var payload = {};
   payload["description"] = "completed";
   if (token !== undefined) {
-    return fetch(tasksUrl + String(film.id), Fetch.RequestInit.make(/* Post */2, {
+    return fetch("https://api.todoist.com/rest/v1/tasks/" + String(film.id), Fetch.RequestInit.make(/* Post */2, {
                       "Content-Type": "application/json",
                       Authorization: "Bearer " + token
                     }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
@@ -80,7 +80,7 @@ function setFilmAsUnseen(film) {
   var payload = {};
   payload["description"] = "";
   if (token !== undefined) {
-    return fetch(tasksUrl + String(film.id), Fetch.RequestInit.make(/* Post */2, {
+    return fetch("https://api.todoist.com/rest/v1/tasks/" + String(film.id), Fetch.RequestInit.make(/* Post */2, {
                       "Content-Type": "application/json",
                       Authorization: "Bearer " + token
                     }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
@@ -90,6 +90,27 @@ function setFilmAsUnseen(film) {
         _1: [
           "Todoist.res",
           71,
+          4
+        ],
+        Error: new Error()
+      };
+}
+
+function addFilm(filmName) {
+  var token = Dom_storage.getItem(localStorageNamespace, localStorage);
+  var payload = {};
+  payload["content"] = filmName;
+  if (token !== undefined) {
+    return fetch(tasksUrl, Fetch.RequestInit.make(/* Post */2, {
+                      "Content-Type": "application/json",
+                      Authorization: "Bearer " + token
+                    }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
+  }
+  throw {
+        RE_EXN_ID: "Match_failure",
+        _1: [
+          "Todoist.res",
+          92,
           4
         ],
         Error: new Error()
@@ -121,7 +142,7 @@ function getProjectId(token) {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        107,
+                        128,
                         8
                       ],
                       Error: new Error()
@@ -131,7 +152,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      93,
+                      114,
                       6
                     ],
                     Error: new Error()
@@ -164,7 +185,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      134,
+                                                      155,
                                                       12
                                                     ],
                                                     Error: new Error()
@@ -223,6 +244,7 @@ var Todoist = {
   authorizationHeader: authorizationHeader,
   setFilmAsSeen: setFilmAsSeen,
   setFilmAsUnseen: setFilmAsUnseen,
+  addFilm: addFilm,
   getProjectId: getProjectId,
   getFilms: getFilms,
   setToken: setToken,

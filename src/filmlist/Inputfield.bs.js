@@ -6,6 +6,7 @@ var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var ReactDebounce = require("rescript-debounce-react/src/ReactDebounce.bs.js");
 var IMDB$RescriptProjectTemplate = require("../IMDB.bs.js");
+var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 
 function trimQuotes(str) {
   return str.replace("\"", "").replace("\"", "");
@@ -24,44 +25,51 @@ function Inputfield(Props) {
   var match$1 = match[0];
   var activeOption = match$1[3];
   var suggestedFilms = match$1[1];
+  var searchText = match$1[0];
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
           return IMDB$RescriptProjectTemplate.IMDBService.search(text, setText);
         }));
   return React.createElement("div", undefined, React.createElement("input", {
-                  value: match$1[0],
+                  value: searchText,
                   onKeyDown: (function (e) {
                       var keyCode = e.keyCode;
                       if (keyCode === 13) {
+                        Todoist$RescriptProjectTemplate.Todoist.addFilm(searchText);
                         return Curry._1(setText, (function (param) {
-                                      var activeOptionState = param[3];
                                       return [
-                                              trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[activeOptionState], (function (e) {
-                                                              return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
-                                                            })), "")),
-                                              param[1],
+                                              "",
+                                              [],
                                               false,
-                                              activeOptionState
+                                              -1
                                             ];
                                     }));
                       } else if (keyCode === 38) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[3];
+                                      var newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1 | 0;
+                                      var selectedFromDropdown = trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[newActiveOptionState], (function (e) {
+                                                      return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
+                                                    })), ""));
                                       return [
-                                              param[0],
+                                              selectedFromDropdown,
                                               param[1],
                                               param[2],
-                                              activeOptionState === 0 ? 0 : activeOptionState - 1 | 0
+                                              newActiveOptionState
                                             ];
                                     }));
                       } else if (keyCode === 40) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[3];
                                       var suggestedFilmsState = param[1];
+                                      var newActiveOptionState = activeOptionState === (suggestedFilmsState.length - 1 | 0) ? activeOptionState : activeOptionState + 1 | 0;
+                                      var selectedFromDropdown = trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[newActiveOptionState], (function (e) {
+                                                      return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
+                                                    })), ""));
                                       return [
-                                              param[0],
+                                              selectedFromDropdown,
                                               suggestedFilmsState,
                                               param[2],
-                                              activeOptionState === (suggestedFilmsState.length - 1 | 0) ? activeOptionState : activeOptionState + 1 | 0
+                                              newActiveOptionState
                                             ];
                                     }));
                       } else {
@@ -96,7 +104,7 @@ function Inputfield(Props) {
                                                                               RE_EXN_ID: "Match_failure",
                                                                               _1: [
                                                                                 "Inputfield.res",
-                                                                                77,
+                                                                                82,
                                                                                 26
                                                                               ],
                                                                               Error: new Error()
