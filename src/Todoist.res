@@ -88,21 +88,45 @@ module Todoist = {
   let addFilm = (filmName: string) => {
     let token = getTokenLocalStorage()
     let payload = Js.Dict.empty()
-    Js.Dict.set(payload, "content", Js.Json.string(filmName))
-    switch token {
-    | Some(token) =>
-      Fetch.fetchWithInit(
-        tasksUrl,
-        Fetch.RequestInit.make(
-          ~method_=Post,
-          ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
-          ~headers=Fetch.HeadersInit.make({
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " ++ token,
-          }),
-          (),
-        ),
-      )
+    let projectId = getProjectIdLocalStorage()
+    let projectIdFloat = Belt.Option.flatMap(projectId, Belt.Float.fromString)
+    switch (token, projectIdFloat) {
+    | (Some(token), Some(projectId)) => {
+        Js.Dict.set(payload, "content", Js.Json.string(filmName))
+        Js.Dict.set(payload, "project_id", Js.Json.number(projectId))
+        Fetch.fetchWithInit(
+          tasksUrl,
+          Fetch.RequestInit.make(
+            ~method_=Post,
+            ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
+            ~headers=Fetch.HeadersInit.make({
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " ++ token,
+            }),
+            (),
+          ),
+        )
+        |> then_(Fetch.Response.json)
+        |> then_(res => {
+          let decoded = Js.Json.decodeObject(res)
+          switch decoded {
+          | Some(film) => {
+              let id =
+                Js.Dict.get(film, "id")
+                ->Belt.Option.getWithDefault(Js.Json.string("0"))
+                ->Js.Json.decodeNumber
+                ->Belt.Option.getWithDefault(1.0)
+              let creator =
+                Js.Dict.get(film, "creator")
+                ->Belt.Option.getWithDefault(Js.Json.string(""))
+                ->Js.Json.decodeNumber
+                ->Belt.Option.getWithDefault(1.0)
+                ->Belt.Float.toInt
+              Js.Promise.resolve((creator === 13612164 ? Karmi : Ferma, id))
+            }
+          }
+        })
+      }
     }
   }
 

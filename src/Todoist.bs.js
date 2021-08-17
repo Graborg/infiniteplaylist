@@ -4,6 +4,7 @@ var Fetch = require("bs-fetch/src/Fetch.bs.js");
 var Js_dict = require("rescript/lib/js/js_dict.js");
 var Js_json = require("rescript/lib/js/js_json.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
+var Belt_Float = require("rescript/lib/js/belt_Float.js");
 var Caml_array = require("rescript/lib/js/caml_array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
@@ -99,18 +100,54 @@ function setFilmAsUnseen(film) {
 function addFilm(filmName) {
   var token = Dom_storage.getItem(localStorageNamespace, localStorage);
   var payload = {};
-  payload["content"] = filmName;
+  var projectId = Dom_storage.getItem(localStorageProjectIdNamespace, localStorage);
+  var projectIdFloat = Belt_Option.flatMap(projectId, Belt_Float.fromString);
   if (token !== undefined) {
-    return fetch(tasksUrl, Fetch.RequestInit.make(/* Post */2, {
-                      "Content-Type": "application/json",
-                      Authorization: "Bearer " + token
-                    }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined));
+    if (projectIdFloat !== undefined) {
+      payload["content"] = filmName;
+      payload["project_id"] = projectIdFloat;
+      return fetch(tasksUrl, Fetch.RequestInit.make(/* Post */2, {
+                            "Content-Type": "application/json",
+                            Authorization: "Bearer " + token
+                          }, Caml_option.some(JSON.stringify(payload)), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)(undefined)).then(function (prim) {
+                    return prim.json();
+                  }).then(function (res) {
+                  var decoded = Js_json.decodeObject(res);
+                  if (decoded !== undefined) {
+                    var film = Caml_option.valFromOption(decoded);
+                    var id = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(film, "id"), "0")), 1.0);
+                    var creator = Belt_Option.getWithDefault(Js_json.decodeNumber(Belt_Option.getWithDefault(Js_dict.get(film, "creator"), "")), 1.0) | 0;
+                    return Promise.resolve([
+                                creator === 13612164 ? /* Karmi */0 : /* Ferma */1,
+                                id
+                              ]);
+                  }
+                  throw {
+                        RE_EXN_ID: "Match_failure",
+                        _1: [
+                          "Todoist.res",
+                          112,
+                          10
+                        ],
+                        Error: new Error()
+                      };
+                });
+    }
+    throw {
+          RE_EXN_ID: "Match_failure",
+          _1: [
+            "Todoist.res",
+            93,
+            4
+          ],
+          Error: new Error()
+        };
   }
   throw {
         RE_EXN_ID: "Match_failure",
         _1: [
           "Todoist.res",
-          92,
+          93,
           4
         ],
         Error: new Error()
@@ -142,7 +179,7 @@ function getProjectId(token) {
                       RE_EXN_ID: "Match_failure",
                       _1: [
                         "Todoist.res",
-                        128,
+                        152,
                         8
                       ],
                       Error: new Error()
@@ -152,7 +189,7 @@ function getProjectId(token) {
                     RE_EXN_ID: "Match_failure",
                     _1: [
                       "Todoist.res",
-                      114,
+                      138,
                       6
                     ],
                     Error: new Error()
@@ -185,7 +222,7 @@ function getFilms(token) {
                                                     RE_EXN_ID: "Match_failure",
                                                     _1: [
                                                       "Todoist.res",
-                                                      155,
+                                                      179,
                                                       12
                                                     ],
                                                     Error: new Error()

@@ -1,7 +1,7 @@
 let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
 
 @react.component
-let make = (~addFilmToList: string => unit) => {
+let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
   open IMDB
 
   let ((searchText, suggestedFilms, showOptions, activeOption), setText) = React.useState(_ => (
@@ -20,7 +20,7 @@ let make = (~addFilmToList: string => unit) => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
         // Enter
         if keyCode === 13 {
-          addFilmToList(searchText)
+          addFilmToList(searchText)->ignore
           setText(((_searchString, _suggestedFilmsState, _, _activeOptionState)) => (
             "",
             [],

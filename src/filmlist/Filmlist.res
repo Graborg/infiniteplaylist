@@ -85,17 +85,18 @@ let make = () => {
     selectedByKarmi > selectedByFerma ? Ferma : Karmi
   }
   let addFilmToList = (filmName: string) => {
-    Todoist.addFilm(filmName)->ignore
-    setState((LoadedFilms(films, selected, seenFilms)) => {
+    Todoist.addFilm(filmName) |> Js.Promise.then_(((creator, filmId)) => {
       let film: Todoist.film = {
         name: filmName,
         seen: false,
-        id: 1234.0,
-        creator: Ferma,
+        id: filmId,
+        creator: creator,
       }
-      let newUnseen = Js.Array.concat([film], films)
-
-      LoadedFilms(newUnseen, selected, seenFilms)
+      setState((LoadedFilms(films, selected, seenFilms)) => {
+        let newUnseen = Js.Array.concat([film], films)
+        LoadedFilms(newUnseen, selected, seenFilms)
+      })
+      Js.Promise.resolve()
     })
   }
   switch state {
