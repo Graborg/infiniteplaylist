@@ -1,9 +1,9 @@
 let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
 
 @react.component
-let make = () => {
+let make = (~addFilmToList: string => unit) => {
   open IMDB
-  open Todoist
+
   let ((searchText, suggestedFilms, showOptions, activeOption), setText) = React.useState(_ => (
     "",
     [],
@@ -20,15 +20,18 @@ let make = () => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
         // Enter
         if keyCode === 13 {
-          Todoist.addFilm(searchText)->ignore
-          setText(((searchString, suggestedFilmsState, _, activeOptionState)) => {
-            ("", [], false, -1)
-          })
+          addFilmToList(searchText)
+          setText(((_searchString, _suggestedFilmsState, _, _activeOptionState)) => (
+            "",
+            [],
+            false,
+            -1,
+          ))
         } else if (
           // Up arrow
           keyCode === 38
         ) {
-          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+          setText(((_searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
             let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
             let selectedFromDropdown =
               Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
@@ -43,7 +46,7 @@ let make = () => {
           // Down arrow
           keyCode === 40
         ) {
-          setText(((searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+          setText(((_searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
             let newActiveOptionState =
               activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
                 ? activeOptionState

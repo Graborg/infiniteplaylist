@@ -6,13 +6,13 @@ var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var ReactDebounce = require("rescript-debounce-react/src/ReactDebounce.bs.js");
 var IMDB$RescriptProjectTemplate = require("../IMDB.bs.js");
-var Todoist$RescriptProjectTemplate = require("../Todoist.bs.js");
 
 function trimQuotes(str) {
   return str.replace("\"", "").replace("\"", "");
 }
 
 function Inputfield(Props) {
+  var addFilmToList = Props.addFilmToList;
   var match = React.useState(function () {
         return [
                 "",
@@ -34,7 +34,7 @@ function Inputfield(Props) {
                   onKeyDown: (function (e) {
                       var keyCode = e.keyCode;
                       if (keyCode === 13) {
-                        Todoist$RescriptProjectTemplate.Todoist.addFilm(searchText);
+                        Curry._1(addFilmToList, searchText);
                         return Curry._1(setText, (function (param) {
                                       return [
                                               "",
@@ -104,7 +104,7 @@ function Inputfield(Props) {
                                                                               RE_EXN_ID: "Match_failure",
                                                                               _1: [
                                                                                 "Inputfield.res",
-                                                                                82,
+                                                                                85,
                                                                                 26
                                                                               ],
                                                                               Error: new Error()

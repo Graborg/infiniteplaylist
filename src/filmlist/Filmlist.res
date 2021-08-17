@@ -84,7 +84,20 @@ let make = () => {
 
     selectedByKarmi > selectedByFerma ? Ferma : Karmi
   }
+  let addFilmToList = (filmName: string) => {
+    Todoist.addFilm(filmName)->ignore
+    setState((LoadedFilms(films, selected, seenFilms)) => {
+      let film: Todoist.film = {
+        name: filmName,
+        seen: false,
+        id: 1234.0,
+        creator: Ferma,
+      }
+      let newUnseen = Js.Array.concat([film], films)
 
+      LoadedFilms(newUnseen, selected, seenFilms)
+    })
+  }
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
   | LoadingFilms => React.string("Loading...")
@@ -103,7 +116,7 @@ let make = () => {
         })
         ->React.array}
       </div>
-      <Inputfield />
+      <Inputfield addFilmToList />
       <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
       {Js.Array.length(seenFilms) > 0
         ? <div>

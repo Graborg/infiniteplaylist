@@ -147,6 +147,34 @@ function Filmlist(Props) {
       return /* Karmi */0;
     }
   };
+  var addFilmToList = function (filmName) {
+    Todoist$RescriptProjectTemplate.Todoist.addFilm(filmName);
+    return Curry._1(setState, (function (param) {
+                  if (typeof param === "number") {
+                    throw {
+                          RE_EXN_ID: "Match_failure",
+                          _1: [
+                            "Filmlist.res",
+                            89,
+                            13
+                          ],
+                          Error: new Error()
+                        };
+                  }
+                  var film = {
+                    seen: false,
+                    id: 1234.0,
+                    name: filmName,
+                    creator: /* Ferma */1
+                  };
+                  var newUnseen = param._0.concat([film]);
+                  return /* LoadedFilms */{
+                          _0: newUnseen,
+                          _1: param._1,
+                          _2: param._2
+                        };
+                }));
+  };
   if (typeof state === "number") {
     switch (state) {
       case /* LoadingFilms */0 :
@@ -180,7 +208,9 @@ function Filmlist(Props) {
                                       click: seenFilm,
                                       key: String(film.id) + "h"
                                     });
-                        }))), React.createElement(Inputfield$RescriptProjectTemplate.make, {}), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
+                        }))), React.createElement(Inputfield$RescriptProjectTemplate.make, {
+                    addFilmToList: addFilmToList
+                  }), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
                     films: films,
                     doSelectFilm: doSelectFilm,
                     nextElector: getNextElector(seenFilms)
