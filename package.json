@@ -5,7 +5,7 @@
     "webpack": "webpack -w",
     "webpack:production": "NODE_ENV=production webpack",
     "server": "webpack serve",
-    "build": "rescript build",
+    "build": "rescript build -with-deps",
     "clean": "rescript clean -with-deps",
     "start": "rescript build -w"
   },
@@ -23,7 +23,9 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rescript": "^9.1.4",
-    "rescript-debounce-react": "^1.0.0"
+    "rescript-debounce-react": "^1.0.0",
+    "sass": "^1.38.0",
+    "sass-loader": "^12.1.0"
   },
   "devDependencies": {
     "css-loader": "^5.2.6",

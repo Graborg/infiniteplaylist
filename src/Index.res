@@ -1,4 +1,4 @@
-%%raw("import './styles/main.css'")
+%%raw("import './styles/main.scss'")
 
 ReactDOM.render(
   <React.StrictMode> <Filmlist /> </React.StrictMode>,

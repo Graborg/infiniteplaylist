@@ -6,7 +6,7 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
 var Filmlist$RescriptProjectTemplate = require("./filmlist/Filmlist.bs.js");
 
-import './styles/main.css'
+import './styles/main.scss'
 ;
 
 ReactDom.render(React.createElement(React.StrictMode, {

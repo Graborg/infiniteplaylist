@@ -1,67 +1,65 @@
+body {
+  background-color: rgb(224, 226, 229);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+button {
+  background-color: white;
+  color: #476098;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #476098;
+  border: none;
+  padding: 8px;
+  font-size: 16px;
+}
+button:active {
+  background-color: #476098;
+  color: white;
+}
+p {
+  margin: 0;
+}
+#root {
+  display: flex;
+  width: 80%;
+  margin-top: 16px;
+  font-family: sans-serif;
+}
 
-
-  body {
-    background-color: rgb(224, 226, 229);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  button {
-    background-color: white;
-    color: #476098;
-    border-radius: 2px;
-    box-shadow: 0 0 0 1px #476098;
-    border: none;
-    padding: 8px;
-    font-size: 16px;
-  }
-  button:active {
-    background-color: #476098;
-    color: white;
-  }
-  p {
-    margin: 0;
-  }
+@media (min-width: 0em) and (max-width: 40em) {
   #root {
-    display:flex;
-    width:80%;
-    margin-top: 16px;
-    font-family: sans-serif;
-  }
-
-  @media (min-width: 0em) and (max-width: 40em) {
-  #root {
-    width:95%;
+    width: 95%;
     margin-top: 20px;
   }
 }
 
-  .containerTitle {
-    background-color: rgb(242, 243, 245);
-    border-radius: 12px 12px 0px 0px;
-    padding: 12px;
-    font-weight: bold;
-  }
-  .containerContent {
-    background-color: white;
-    padding: 16px;
-    border-radius: 0px 0px 12px 12px;
-  }
-  .film-list {
-    width:100%;
-    border-radius: 12px;
-    padding: 0;
-    box-shadow: 0px 4px 16px rgb(200, 200, 200);
-    display: flex;
-    flex-direction: column;
-  }
+.containerTitle {
+  background-color: rgb(242, 243, 245);
+  border-radius: 12px 12px 0px 0px;
+  padding: 12px;
+  font-weight: bold;
+}
+.containerContent {
+  background-color: white;
+  padding: 16px;
+  border-radius: 0px 0px 12px 12px;
+}
+.film-list {
+  width: 100%;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0px 4px 16px rgb(200, 200, 200);
+  display: flex;
+  flex-direction: column;
+}
 
 .gradient-text.result {
   transform: rotate(17deg);
   padding: 10%;
   position: fixed;
-  left:10%;
-  top:30%;
+  left: 10%;
+  top: 30%;
   font-size: 70px;
   margin: 0;
   z-index: 10;
@@ -69,21 +67,22 @@
 
 .gradient-text {
   /* Fallback: Set a background color. */
-  background-color: #CA4246;
+  background-color: #ca4246;
 
   /* Create the gradient. */
-   background-image: linear-gradient(
-        45deg,
-        #CA4246 16.666%,
-        #E16541 16.666%,
-        #E16541 33.333%,
-        #F18F43 33.333%,
-        #F18F43 50%,
-        #8B9862 50%,
-        #8B9862 66.666%,
-        #476098 66.666%,
-        #476098 83.333%,
-        #A7489B 83.333%);
+  background-image: linear-gradient(
+    45deg,
+    #ca4246 16.666%,
+    #e16541 16.666%,
+    #e16541 33.333%,
+    #f18f43 33.333%,
+    #f18f43 50%,
+    #8b9862 50%,
+    #8b9862 66.666%,
+    #476098 66.666%,
+    #476098 83.333%,
+    #a7489b 83.333%
+  );
 
   /* Set the background size and repeat properties. */
   background-size: 100%;
@@ -95,41 +94,37 @@
   -webkit-text-fill-color: transparent;
 
   /* Animate the text when loading the element. */
-    /* This animates it on page load and when hovering out. */
-    animation: rainbow-text-simple-animation-rev 0.75s ease forwards;
-
+  /* This animates it on page load and when hovering out. */
+  animation: rainbow-text-simple-animation-rev 0.75s ease forwards;
 }
-
 
 /* Move the background and make it smaller. */
 /* Animation shown when entering the page and after the hover animation. */
 @keyframes rainbow-text-simple-animation-rev {
-    0% {
-        background-size: 650%;
-    }
-    40% {
-        background-size: 650%;
-    }
-    100% {
-        background-size: 100%;
-    }
+  0% {
+    background-size: 650%;
+  }
+  40% {
+    background-size: 650%;
+  }
+  100% {
+    background-size: 100%;
+  }
 }
 
 /* Move the background and make it larger. */
 /* Animation shown when hovering over the text. */
 @keyframes rainbow-text-simple-animation {
-    0% {
-        background-size: 100%;
-    }
-    80% {
-        background-size: 650%;
-    }
-    100% {
-        background-size: 650%;
-    }
+  0% {
+    background-size: 100%;
+  }
+  80% {
+    background-size: 650%;
+  }
+  100% {
+    background-size: 650%;
+  }
 }
-
-
 
 /* Style the rest of the page. */
 body {
@@ -154,7 +149,6 @@ h1 {
   cursor: pointer;
   width: 605px;
 }
-
 
 .inputGroup label {
   /* padding: 12px 30px; */
@@ -186,7 +180,7 @@ label:after {
   width: 25px;
   height: 25px;
   content: "";
-  border: 2px solid #D1D7DC;
+  border: 2px solid #d1d7dc;
   background-color: #fff;
   background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' fill-rule='nonzero'/%3E%3C/svg%3E ");
   background-repeat: no-repeat;
@@ -225,8 +219,8 @@ label:after {
   opacity: 1;
 }
 .inputGroup input:checked ~ label:after {
-  background-color: #54E0C7;
-  border-color: #54E0C7;
+  background-color: #54e0c7;
+  border-color: #54e0c7;
 }
 
 .inputGroup input:checked ~ label {
@@ -239,13 +233,12 @@ label:after {
   margin: 0;
   position: absolute;
   z-index: 5;
-  top: 36px;
+  top: 58px;
   width: 80%;
   margin-left: -1px;
-
 }
 
-#suggested-films>li {
+#suggested-films > li {
   background-color: white;
   color: #476098;
   padding: 5px;
@@ -253,7 +246,7 @@ label:after {
   border-radius: 3px;
 }
 
-#suggested-films>li.highlight {
+#suggested-films > li.highlight {
   background-color: #fdf1f0;
 }
 
@@ -262,19 +255,19 @@ label:after {
   flex-direction: row;
   justify-content: space-between;
   margin: 10px 5px 30px 5px;
-  align-items:end;
-  position:relative;
+  align-items: end;
+  position: relative;
 }
 
 #searchbox {
-  width:45%;
+  width: 45%;
 }
 
-#searchbox>input {
+#searchbox > input {
   font-size: 16px;
   outline: none;
   border-radius: 2px;
-  border:0;
+  border: 0;
   color: #476098;
   padding: 8px;
   width: 100%;
