@@ -57,22 +57,24 @@ let electFilm = (
 @react.component
 let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
   let (state, setState) = React.useState(() => NoElection)
-  <div
-    style={ReactDOMStyle.make(
-      ~display="flex",
-      ~flexDirection="row",
-      ~margin="0 2px 0 15px",
-      ~justifyContent="space-between",
-      ~alignItems="baseline",
-      (),
-    )}>
+  <div>
     {switch state {
     | LoadingElection => <p />
     | NoElection => <p />
-    | FilmElected(film) => <h2 className="gradient-text"> {React.string(film)} </h2>
+    | FilmElected(film) => <h2 className="gradient-text result"> {React.string(film)} </h2>
     }}
-    <button onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
-      {React.string("Hace un volado")}
-    </button>
+    <div
+      style={ReactDOMStyle.make(
+        ~display="flex",
+        ~flexDirection="row",
+        ~margin="0 2px 0 15px",
+        ~justifyContent="space-between",
+        ~alignItems="baseline",
+        (),
+      )}>
+      <button onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
+        {React.string("Hace un volado")}
+      </button>
+    </div>
   </div>
 }

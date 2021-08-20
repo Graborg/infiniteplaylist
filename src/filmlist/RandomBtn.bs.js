@@ -59,21 +59,21 @@ function RandomBtn(Props) {
       });
   var setState = match[1];
   var state = match[0];
-  return React.createElement("div", {
-              style: {
-                display: "flex",
-                margin: "0 2px 0 15px",
-                alignItems: "baseline",
-                flexDirection: "row",
-                justifyContent: "space-between"
-              }
-            }, typeof state === "number" ? React.createElement("p", undefined) : React.createElement("h2", {
-                    className: "gradient-text"
-                  }, state._0), React.createElement("button", {
-                  onClick: (function (_event) {
-                      return electFilm(setState, films, doSelectFilm, nextElector);
-                    })
-                }, "Hace un volado"));
+  return React.createElement("div", undefined, typeof state === "number" ? React.createElement("p", undefined) : React.createElement("h2", {
+                    className: "gradient-text result"
+                  }, state._0), React.createElement("div", {
+                  style: {
+                    display: "flex",
+                    margin: "0 2px 0 15px",
+                    alignItems: "baseline",
+                    flexDirection: "row",
+                    justifyContent: "space-between"
+                  }
+                }, React.createElement("button", {
+                      onClick: (function (_event) {
+                          return electFilm(setState, films, doSelectFilm, nextElector);
+                        })
+                    }, "Hace un volado")));
 }
 
 var make = RandomBtn;

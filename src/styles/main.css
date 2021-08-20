@@ -56,6 +56,16 @@
     flex-direction: column;
   }
 
+.gradient-text.result {
+  transform: rotate(17deg);
+  padding: 10%;
+  position: fixed;
+  left:10%;
+  top:30%;
+  font-size: 70px;
+  margin: 0;
+  z-index: 10;
+}
 
 .gradient-text {
   /* Fallback: Set a background color. */
