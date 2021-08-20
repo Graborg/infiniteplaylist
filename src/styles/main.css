@@ -262,7 +262,7 @@ label:after {
   flex-direction: row;
   justify-content: space-between;
   margin: 10px 5px 30px 5px;
-  align-items:center;
+  align-items:end;
   position:relative;
 }
 

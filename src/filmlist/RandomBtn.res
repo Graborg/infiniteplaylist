@@ -34,6 +34,11 @@ let horn = %raw(`
       audioElement.play();
     }
 `)
+let creatorToString = (creator: Todoist.creator) =>
+  switch creator {
+  | Karmi => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
+  | Ferma => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
+  }
 
 let electFilm = (
   setState,
@@ -59,20 +64,34 @@ let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
   let (state, setState) = React.useState(() => NoElection)
   <div>
     {switch state {
-    | LoadingElection => <p />
-    | NoElection => <p />
+    | LoadingElection => React.string("")
+    | NoElection => React.string("")
     | FilmElected(film) => <h2 className="gradient-text result"> {React.string(film)} </h2>
     }}
+    <p
+      style={ReactDOMStyle.make(
+        ~marginBottom="5px",
+        ~textAlign="center",
+        ~color={nextElector === Ferma ? "#476098" : "#8b9862"},
+        (),
+      )}>
+      {React.string(creatorToString(nextElector))}
+    </p>
     <div
       style={ReactDOMStyle.make(
         ~display="flex",
         ~flexDirection="row",
-        ~margin="0 2px 0 15px",
         ~justifyContent="space-between",
         ~alignItems="baseline",
         (),
       )}>
-      <button onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
+      <button
+        style={ReactDOMStyle.make(
+          ~boxShadow="0 0 0 1px" ++ {nextElector === Ferma ? "#476098" : "#8b9862"},
+          ~color={nextElector === Ferma ? "#476098" : "#8b9862"},
+          (),
+        )}
+        onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
         {React.string("Hace un volado")}
       </button>
     </div>

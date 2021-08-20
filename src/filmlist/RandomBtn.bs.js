@@ -31,6 +31,14 @@ var horn = (function () {
       audioElement.play();
     });
 
+function creatorToString(creator) {
+  if (creator) {
+    return "🐄 " + "Ferma!" + " 🐄";
+  } else {
+    return "🐘 " + "Karmi!" + " 🐘";
+  }
+}
+
 function electFilm(setState, films, selectFilm, nextElector) {
   Curry._1(confetti, undefined);
   Curry._1(horn, undefined);
@@ -59,17 +67,28 @@ function RandomBtn(Props) {
       });
   var setState = match[1];
   var state = match[0];
-  return React.createElement("div", undefined, typeof state === "number" ? React.createElement("p", undefined) : React.createElement("h2", {
+  return React.createElement("div", undefined, typeof state === "number" ? "" : React.createElement("h2", {
                     className: "gradient-text result"
-                  }, state._0), React.createElement("div", {
+                  }, state._0), React.createElement("p", {
+                  style: {
+                    color: nextElector === /* Ferma */1 ? "#476098" : "#8b9862",
+                    marginBottom: "5px",
+                    textAlign: "center"
+                  }
+                }, creatorToString(nextElector)), React.createElement("div", {
                   style: {
                     display: "flex",
-                    margin: "0 2px 0 15px",
                     alignItems: "baseline",
                     flexDirection: "row",
                     justifyContent: "space-between"
                   }
                 }, React.createElement("button", {
+                      style: {
+                        color: nextElector === /* Ferma */1 ? "#476098" : "#8b9862",
+                        boxShadow: "0 0 0 1px" + (
+                          nextElector === /* Ferma */1 ? "#476098" : "#8b9862"
+                        )
+                      },
                       onClick: (function (_event) {
                           return electFilm(setState, films, doSelectFilm, nextElector);
                         })
@@ -80,6 +99,7 @@ var make = RandomBtn;
 
 exports.confetti = confetti;
 exports.horn = horn;
+exports.creatorToString = creatorToString;
 exports.electFilm = electFilm;
 exports.make = make;
 /* react Not a pure module */
