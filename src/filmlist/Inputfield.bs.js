@@ -29,7 +29,9 @@ function Inputfield(Props) {
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
           return IMDB$RescriptProjectTemplate.IMDBService.search(text, setText);
         }));
-  return React.createElement("div", undefined, React.createElement("input", {
+  return React.createElement("div", {
+              id: "searchbox"
+            }, React.createElement("input", {
                   value: searchText,
                   onKeyDown: (function (e) {
                       var keyCode = e.keyCode;

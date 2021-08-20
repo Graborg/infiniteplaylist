@@ -13,7 +13,7 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
 
   let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
 
-  <div>
+  <div id="searchbox">
     <input
       value={searchText}
       onKeyDown={e => {

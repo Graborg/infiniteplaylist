@@ -7,7 +7,6 @@
     align-items: center;
   }
   button {
-    margin-top:10px;
     background-color: white;
     color: #476098;
     border-radius: 2px;
@@ -228,14 +227,46 @@ label:after {
   list-style: none;
   padding: 0;
   margin: 0;
+  position: absolute;
+  z-index: 5;
+  top: 36px;
+  width: 80%;
+  margin-left: -1px;
+
 }
 
 #suggested-films>li {
-  background-color: #fdf1f0;
+  background-color: white;
+  color: #476098;
   padding: 5px;
-  border: 1px solid rgb(206, 206, 206);
+  border: 1px solid #476098;
+  border-radius: 3px;
 }
 
 #suggested-films>li.highlight {
-  background-color: white;
+  background-color: #fdf1f0;
+}
+
+#underfilmlist-items {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 10px 5px 30px 5px;
+  align-items:center;
+  position:relative;
+}
+
+#searchbox {
+  width:45%;
+}
+
+#searchbox>input {
+  font-size: 16px;
+  outline: none;
+  border-radius: 2px;
+  border:0;
+  color: #476098;
+  padding: 8px;
+  width: 100%;
+  box-shadow: 0 0 0 1px #476098;
 }

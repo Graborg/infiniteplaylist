@@ -117,8 +117,10 @@ let make = () => {
         })
         ->React.array}
       </div>
-      <Inputfield addFilmToList />
-      <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
+      <div id="underfilmlist-items">
+        <Inputfield addFilmToList />
+        <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
+      </div>
       {Js.Array.length(seenFilms) > 0
         ? <div>
             <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
