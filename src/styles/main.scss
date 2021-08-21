@@ -233,8 +233,8 @@ h1 {
   margin: 0;
   position: absolute;
   z-index: 5;
-  top: 58px;
-  width: 80%;
+  top: 55px;
+  width: 100%;
   margin-left: -1px;
 }
 
@@ -260,13 +260,13 @@ h1 {
 }
 
 #searchbox-wrapper {
-  width: 45%;
+  width: 50%;
   position: relative;
   padding-top: 18px;
 }
 
 $primary: #9da577;
-$secondary: #38ef7d;
+$secondary: #476098;
 $white: #fff;
 $gray: #9b9b9b;
 
@@ -274,13 +274,12 @@ input#searchbox {
   outline: none;
   border-radius: 2px;
   border: 0;
-  color: $primary;
+  color: $secondary;
   padding: 8px;
   width: 100%;
   box-shadow: 0 0 0 1px #476098;
   transition: border-color 0.2s;
   font-size: 1rem;
-  font-weight: 700;
   &::placeholder {
     color: transparent;
   }
@@ -305,8 +304,8 @@ input#searchbox {
 
 .searchbox__label {
   position: absolute;
-  top: 32px;
-  left: 6px;
+  top: 30px;
+  left: 8px;
   display: block;
   transition: 0.3s;
   font-size: 1rem;
