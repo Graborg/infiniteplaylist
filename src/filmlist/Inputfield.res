@@ -13,8 +13,10 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
 
   let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
 
-  <div id="searchbox">
+  <div id="searchbox-wrapper">
     <input
+      placeholder="Añada pelicula"
+      id="searchbox"
       value={searchText}
       onKeyDown={e => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
@@ -73,6 +75,9 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
         searchDebounced(currentValue)
       }}
     />
+    <label htmlFor="searchbox" className="searchbox__label">
+      {React.string(`Añada pelicula`)}
+    </label>
     <ul id="suggested-films">
       {showOptions
         ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)

@@ -162,7 +162,7 @@ h1 {
   overflow: hidden;
 }
 
-label:before {
+.inputGroup label:before {
   width: 2%;
   height: 10px;
   border-radius: 50%;
@@ -176,7 +176,7 @@ label:before {
   opacity: 0;
   z-index: -1;
 }
-label:after {
+.inputGroup label:after {
   width: 25px;
   height: 25px;
   content: "";
@@ -259,17 +259,70 @@ label:after {
   position: relative;
 }
 
-#searchbox {
+#searchbox-wrapper {
   width: 45%;
+  position: relative;
+  padding-top: 18px;
 }
 
-#searchbox > input {
-  font-size: 16px;
+$primary: #9da577;
+$secondary: #38ef7d;
+$white: #fff;
+$gray: #9b9b9b;
+
+input#searchbox {
   outline: none;
   border-radius: 2px;
   border: 0;
-  color: #476098;
+  color: $primary;
   padding: 8px;
   width: 100%;
   box-shadow: 0 0 0 1px #476098;
+  transition: border-color 0.2s;
+  font-size: 1rem;
+  font-weight: 700;
+  &::placeholder {
+    color: transparent;
+  }
+
+  &:placeholder-shown ~ .searchbox__label {
+    font-size: 1rem;
+    cursor: text;
+  }
+  &:not(:placeholder-shown) ~ .searchbox__label {
+    font-weight: 700;
+    font-size: 1rem;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: block;
+    transition: 0.2s;
+    color: $primary;
+    z-index: 10;
+    background-color: transparent;
+  }
+}
+
+.searchbox__label {
+  position: absolute;
+  top: 32px;
+  left: 6px;
+  display: block;
+  transition: 0.3s;
+  font-size: 1rem;
+  color: $gray;
+}
+
+#searchbox:focus {
+  ~ .searchbox__label {
+    font-weight: 700;
+    font-size: 1rem;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: block;
+    transition: 0.3s;
+    color: $primary;
+    z-index: 10;
+  }
 }
