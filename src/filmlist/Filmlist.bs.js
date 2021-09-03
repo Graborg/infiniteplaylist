@@ -212,15 +212,7 @@ function Filmlist(Props) {
                                       click: seenFilm,
                                       key: String(film.id) + "h"
                                     });
-                        }))), React.createElement("div", {
-                    id: "underfilmlist-items"
-                  }, React.createElement(Inputfield$RescriptProjectTemplate.make, {
-                        addFilmToList: addFilmToList
-                      }), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
-                        films: films,
-                        doSelectFilm: doSelectFilm,
-                        nextElector: getNextElector(seenFilms)
-                      })), seenFilms.length > 0 ? React.createElement("div", undefined, React.createElement("p", {
+                        }))), seenFilms.length > 0 ? React.createElement("div", undefined, React.createElement("p", {
                           style: {
                             margin: "10px 0 10px 10px"
                           }
@@ -236,7 +228,15 @@ function Filmlist(Props) {
                                             click: unDooSeenFilm,
                                             key: String(film.id) + "h"
                                           });
-                              })))) : React.createElement("div", undefined));
+                              })))) : React.createElement("div", undefined), React.createElement("div", {
+                    id: "underfilmlist-items"
+                  }, React.createElement(Inputfield$RescriptProjectTemplate.make, {
+                        addFilmToList: addFilmToList
+                      }), React.createElement(RandomBtn$RescriptProjectTemplate.make, {
+                        films: films,
+                        doSelectFilm: doSelectFilm,
+                        nextElector: getNextElector(seenFilms)
+                      })));
   }
 }
 

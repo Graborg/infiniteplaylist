@@ -1,4 +1,11 @@
+$primary: #9da577;
+$secondary: #476098;
+$white: #fff;
+$gray: #9b9b9b;
+$background-grey: #fdf1f0; 
+
 body {
+        margin:0;
   background-color: rgb(224, 226, 229);
   display: flex;
   flex-direction: column;
@@ -22,16 +29,9 @@ p {
 }
 #root {
   display: flex;
-  width: 80%;
+  width: 100%;
   margin-top: 16px;
   font-family: sans-serif;
-}
-
-@media (min-width: 0em) and (max-width: 40em) {
-  #root {
-    width: 95%;
-    margin-top: 20px;
-  }
 }
 
 .containerTitle {
@@ -46,12 +46,13 @@ p {
   border-radius: 0px 0px 12px 12px;
 }
 .film-list {
-  width: 100%;
+  width: 95%;
   border-radius: 12px;
   padding: 0;
   box-shadow: 0px 4px 16px rgb(200, 200, 200);
   display: flex;
   flex-direction: column;
+  margin:15px auto;
 }
 
 .gradient-text.result {
@@ -252,11 +253,13 @@ h1 {
 
 #underfilmlist-items {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  margin: 10px 5px 30px 5px;
-  align-items: end;
-  position: relative;
+  position: sticky;
+  align-items:end;
+  bottom:0;
+  background-color:$background-grey; 
+  box-shadow: 0 -2px 4px -1px rgba(0,0,0,0.25);
+  padding:10px
 }
 
 #searchbox-wrapper {
@@ -264,11 +267,6 @@ h1 {
   position: relative;
   padding-top: 18px;
 }
-
-$primary: #9da577;
-$secondary: #476098;
-$white: #fff;
-$gray: #9b9b9b;
 
 input#searchbox {
   outline: none;
@@ -325,3 +323,4 @@ input#searchbox {
     z-index: 10;
   }
 }
+
