@@ -19,10 +19,7 @@ function FilmlistItem(Props) {
   var match = React.useState(function () {
         return false;
       });
-  var setMouseOver = match[1];
-  React.useState(function () {
-        return false;
-      });
+  var setCheck = match[1];
   return React.createElement("div", {
               key: String(film.id),
               className: "film-item inputGroup",
@@ -33,21 +30,15 @@ function FilmlistItem(Props) {
                 margin: "0 10px",
                 minHeight: "56px",
                 padding: "21px 5px 13px",
+                textDecoration: match[0] ? "line-through" : "",
                 justifyContent: "space-between",
                 boxSizing: "border-box"
               },
               onClick: (function (param) {
+                  Curry._1(setCheck, (function (prevState) {
+                          return !prevState;
+                        }));
                   return Curry._1(click, film);
-                }),
-              onMouseEnter: (function (param) {
-                  return Curry._1(setMouseOver, (function (param) {
-                                return true;
-                              }));
-                }),
-              onMouseLeave: (function (param) {
-                  return Curry._1(setMouseOver, (function (param) {
-                                return false;
-                              }));
                 })
             }, React.createElement("p", undefined, selected ? "🤠" + " " : "", film.name, selected ? " " + "🤠" : ""), React.createElement("p", {
                   style: {
