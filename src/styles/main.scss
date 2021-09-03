@@ -229,20 +229,23 @@ h1 {
 }
 
 #suggested-films {
+  display:flex;
+  flex-direction: column-reverse;
   list-style: none;
   padding: 0;
   margin: 0;
-  position: absolute;
-  z-index: 5;
-  top: 55px;
-  width: 100%;
+  position: fixed;
+  z-index: 15;
+  bottom: 45px;
   margin-left: -1px;
+  min-width:60%;
+  max-width:90%;
 }
 
 #suggested-films > li {
   background-color: white;
   color: #476098;
-  padding: 5px;
+  padding: 10px 35px 10px 5px;
   border: 1px solid #476098;
   border-radius: 3px;
 }

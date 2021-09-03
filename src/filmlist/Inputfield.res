@@ -12,8 +12,42 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
   ))
 
   let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
-
   <div id="searchbox-wrapper">
+    <ul id="suggested-films">
+      {showOptions
+        ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)
+          ->Belt.Array.mapWithIndex((i, film) =>
+            Belt.Option.mapWithDefault(film, React.string(""), someFilm =>
+              <li
+                className={i === activeOption ? "highlight" : ""}
+                onClick={item => {
+                  let currentValue = ReactEvent.Mouse.target(item)["innerText"]
+                  setText(((_searchString, suggestedFilmsState, _, -1)) => (
+                    currentValue,
+                    suggestedFilmsState,
+                    false,
+                    -1,
+                  ))
+                }}>
+                <p>
+                  {
+                    let title =
+                      Js.Json.stringify(
+                        Belt.Option.getWithDefault(someFilm["title"], Js.Json.string("")),
+                      )->trimQuotes
+                    let year =
+                      Js.Json.stringify(
+                        Belt.Option.getWithDefault(someFilm["year"], Js.Json.string("")),
+                      )->trimQuotes
+                    React.string(`${title} (${year})`)
+                  }
+                </p>
+              </li>
+            )
+          )
+          ->React.array
+        : React.string("")}
+    </ul>
     <input
       placeholder="Añada pelicula"
       id="searchbox"
@@ -78,40 +112,5 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
     <label htmlFor="searchbox" className="searchbox__label">
       {React.string(`Añada pelicula`)}
     </label>
-    <ul id="suggested-films">
-      {showOptions
-        ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)
-          ->Belt.Array.mapWithIndex((i, film) =>
-            Belt.Option.mapWithDefault(film, React.string(""), someFilm =>
-              <li
-                className={i === activeOption ? "highlight" : ""}
-                onClick={item => {
-                  let currentValue = ReactEvent.Mouse.target(item)["innerText"]
-                  setText(((_searchString, suggestedFilmsState, _, -1)) => (
-                    currentValue,
-                    suggestedFilmsState,
-                    false,
-                    -1,
-                  ))
-                }}>
-                <p>
-                  {
-                    let title =
-                      Js.Json.stringify(
-                        Belt.Option.getWithDefault(someFilm["title"], Js.Json.string("")),
-                      )->trimQuotes
-                    let year =
-                      Js.Json.stringify(
-                        Belt.Option.getWithDefault(someFilm["year"], Js.Json.string("")),
-                      )->trimQuotes
-                    React.string(`${title} (${year})`)
-                  }
-                </p>
-              </li>
-            )
-          )
-          ->React.array
-        : React.string("")}
-    </ul>
   </div>
 }

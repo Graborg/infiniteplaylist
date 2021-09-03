@@ -31,7 +31,39 @@ function Inputfield(Props) {
         }));
   return React.createElement("div", {
               id: "searchbox-wrapper"
-            }, React.createElement("input", {
+            }, React.createElement("ul", {
+                  id: "suggested-films"
+                }, match$1[2] ? Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms, 0, 5), (function (i, film) {
+                          return Belt_Option.mapWithDefault(film, "", (function (someFilm) {
+                                        var title = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.title, "")));
+                                        var year = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.year, "")));
+                                        return React.createElement("li", {
+                                                    className: i === activeOption ? "highlight" : "",
+                                                    onClick: (function (item) {
+                                                        var currentValue = item.target.innerText;
+                                                        return Curry._1(setText, (function (param) {
+                                                                      if (param[3] !== -1) {
+                                                                        throw {
+                                                                              RE_EXN_ID: "Match_failure",
+                                                                              _1: [
+                                                                                "Inputfield.res",
+                                                                                25,
+                                                                                26
+                                                                              ],
+                                                                              Error: new Error()
+                                                                            };
+                                                                      }
+                                                                      return [
+                                                                              currentValue,
+                                                                              param[1],
+                                                                              false,
+                                                                              -1
+                                                                            ];
+                                                                    }));
+                                                      })
+                                                  }, React.createElement("p", undefined, title + " (" + year + ")"));
+                                      }));
+                        })) : ""), React.createElement("input", {
                   id: "searchbox",
                   placeholder: "A\xc3\xb1ada pelicula",
                   value: searchText,
@@ -95,39 +127,7 @@ function Inputfield(Props) {
                 }), React.createElement("label", {
                   className: "searchbox__label",
                   htmlFor: "searchbox"
-                }, "Añada pelicula"), React.createElement("ul", {
-                  id: "suggested-films"
-                }, match$1[2] ? Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms, 0, 5), (function (i, film) {
-                          return Belt_Option.mapWithDefault(film, "", (function (someFilm) {
-                                        var title = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.title, "")));
-                                        var year = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.year, "")));
-                                        return React.createElement("li", {
-                                                    className: i === activeOption ? "highlight" : "",
-                                                    onClick: (function (item) {
-                                                        var currentValue = item.target.innerText;
-                                                        return Curry._1(setText, (function (param) {
-                                                                      if (param[3] !== -1) {
-                                                                        throw {
-                                                                              RE_EXN_ID: "Match_failure",
-                                                                              _1: [
-                                                                                "Inputfield.res",
-                                                                                90,
-                                                                                26
-                                                                              ],
-                                                                              Error: new Error()
-                                                                            };
-                                                                      }
-                                                                      return [
-                                                                              currentValue,
-                                                                              param[1],
-                                                                              false,
-                                                                              -1
-                                                                            ];
-                                                                    }));
-                                                      })
-                                                  }, React.createElement("p", undefined, title + " (" + year + ")"));
-                                      }));
-                        })) : ""));
+                }, "Añada pelicula"));
 }
 
 var make = Inputfield;
