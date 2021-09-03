@@ -20,86 +20,40 @@ function FilmlistItem(Props) {
         return false;
       });
   var setMouseOver = match[1];
-  var match$1 = React.useState(function () {
+  React.useState(function () {
         return false;
       });
-  var setCheck = match$1[1];
-  var checked = match$1[0];
-  if (match[0] || checked) {
-    return React.createElement("div", {
-                key: String(film.id),
-                className: "film-item inputGroup",
-                style: {
-                  color: film.creator === /* Ferma */1 ? "#476098" : "#8b9862",
-                  margin: "0 10px",
-                  padding: "0"
-                },
-                onMouseEnter: (function (param) {
-                    return Curry._1(setMouseOver, (function (param) {
-                                  return true;
-                                }));
-                  }),
-                onMouseLeave: (function (param) {
-                    return Curry._1(setMouseOver, (function (param) {
-                                  return false;
-                                }));
-                  })
-              }, React.createElement("input", {
-                    id: String(film.id) + "input",
-                    checked: checked,
-                    type: "checkbox",
-                    onChange: (function ($$event) {
-                        $$event.preventDefault();
-                        Curry._1(setCheck, (function (prev) {
-                                return !prev;
+  return React.createElement("div", {
+              key: String(film.id),
+              className: "film-item inputGroup",
+              style: {
+                borderBottom: lastElement ? "" : "1px #cecece solid",
+                color: film.creator === /* Ferma */1 ? "#476098" : "#8b9862",
+                display: "flex",
+                margin: "0 10px",
+                minHeight: "56px",
+                padding: "21px 5px 13px",
+                justifyContent: "space-between",
+                boxSizing: "border-box"
+              },
+              onClick: (function (param) {
+                  return Curry._1(click, film);
+                }),
+              onMouseEnter: (function (param) {
+                  return Curry._1(setMouseOver, (function (param) {
+                                return true;
                               }));
-                        return Curry._1(click, film);
-                      })
-                  }), React.createElement("label", {
-                    style: {
-                      backgroundColor: "rgba(255, 255, 255, 0.438)",
-                      borderBottom: lastElement ? "" : "1px #cecece solid",
-                      display: "flex",
-                      minHeight: "56px",
-                      padding: "21px 0 13px",
-                      paddingLeft: "20px",
-                      textDecoration: checked ? "line-through" : "",
-                      borderRadius: "2px",
-                      justifyContent: "space-between",
-                      boxSizing: "border-box"
-                    },
-                    htmlFor: String(film.id) + "input"
-                  }, film.name));
-  } else {
-    return React.createElement("div", {
-                key: String(film.id),
-                className: "film-item inputGroup",
-                style: {
-                  borderBottom: lastElement ? "" : "1px #cecece solid",
-                  color: film.creator === /* Ferma */1 ? "#476098" : "#8b9862",
-                  display: "flex",
-                  margin: "0 10px",
-                  minHeight: "56px",
-                  padding: "21px 5px 13px",
-                  justifyContent: "space-between",
-                  boxSizing: "border-box"
-                },
-                onMouseEnter: (function (param) {
-                    return Curry._1(setMouseOver, (function (param) {
-                                  return true;
-                                }));
-                  }),
-                onMouseLeave: (function (param) {
-                    return Curry._1(setMouseOver, (function (param) {
-                                  return false;
-                                }));
-                  })
-              }, React.createElement("p", undefined, selected ? "🤠" + " " : "", film.name, selected ? " " + "🤠" : ""), React.createElement("p", {
-                    style: {
-                      border: "black 5px"
-                    }
-                  }, creatorToString(film.creator)));
-  }
+                }),
+              onMouseLeave: (function (param) {
+                  return Curry._1(setMouseOver, (function (param) {
+                                return false;
+                              }));
+                })
+            }, React.createElement("p", undefined, selected ? "🤠" + " " : "", film.name, selected ? " " + "🤠" : ""), React.createElement("p", {
+                  style: {
+                    border: "black 5px"
+                  }
+                }, creatorToString(film.creator)));
 }
 
 var make = FilmlistItem;
