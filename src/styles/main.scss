@@ -236,7 +236,7 @@ h1 {
   margin: 0;
   position: fixed;
   z-index: 15;
-  bottom: 45px;
+  bottom: 47px;
   margin-left: -1px;
   min-width:60%;
   max-width:90%;
@@ -246,8 +246,8 @@ h1 {
   background-color: white;
   color: #476098;
   padding: 10px 35px 10px 5px;
-  border: 1px solid #476098;
   border-radius: 3px;
+  box-shadow: 0 1px 6px 2px #d2d3d5; 
 }
 
 #suggested-films > li.highlight {
@@ -278,7 +278,7 @@ input#searchbox {
   color: $secondary;
   padding: 8px;
   width: 100%;
-  box-shadow: 0 0 0 1px #476098;
+  box-shadow: 0 0 3px 1px #476098;
   transition: border-color 0.2s;
   font-size: 1rem;
   &::placeholder {
