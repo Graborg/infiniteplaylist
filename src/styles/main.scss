@@ -5,7 +5,8 @@ $gray: #9b9b9b;
 $background-grey: #fdf1f0; 
 
 body {
-        margin:0;
+  font-family: Roboto;
+  margin:0;
   background-color: rgb(224, 226, 229);
   display: flex;
   flex-direction: column;
@@ -31,7 +32,6 @@ p {
   display: flex;
   width: 100%;
   margin-top: 16px;
-  font-family: sans-serif;
 }
 
 .containerTitle {
