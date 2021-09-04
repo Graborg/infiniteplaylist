@@ -52,14 +52,6 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
       placeholder="Añada pelicula"
       id="searchbox"
       value={searchText}
-      onBlur={e => {
-        setText(((searchString, suggestedFilmsState, _, activeOptionState)) => (
-          searchString,
-          suggestedFilmsState,
-          false,
-          activeOptionState,
-        ))
-      }}
       onFocus={e => {
         setText(((searchString, suggestedFilmsState, _, activeOptionState)) => (
           searchString,
