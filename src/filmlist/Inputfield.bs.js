@@ -112,6 +112,26 @@ function Inputfield(Props) {
                         return ;
                       }
                     }),
+                  onFocus: (function (e) {
+                      return Curry._1(setText, (function (param) {
+                                    return [
+                                            param[0],
+                                            param[1],
+                                            true,
+                                            param[3]
+                                          ];
+                                  }));
+                    }),
+                  onBlur: (function (e) {
+                      return Curry._1(setText, (function (param) {
+                                    return [
+                                            param[0],
+                                            param[1],
+                                            false,
+                                            param[3]
+                                          ];
+                                  }));
+                    }),
                   onChange: (function (e) {
                       var currentValue = e.target.value;
                       Curry._1(setText, (function (param) {
