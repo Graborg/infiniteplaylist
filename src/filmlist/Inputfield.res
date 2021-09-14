@@ -1,20 +1,26 @@
 let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
-
+@send external contains: (Dom.element, {..}) => bool = "contains"
+@val external window: {..} = "window"
 @react.component
 let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
   open IMDB
+  let (showList, toggleList) = React.useState(_ => true)
 
-  let ((searchText, suggestedFilms, showOptions, activeOption), setText) = React.useState(_ => (
-    "",
-    [],
-    false,
-    -1,
-  ))
-
+  let ((searchText, suggestedFilms, activeOption), setText) = React.useState(_ => ("", [], -1))
+  let wrapperRef = React.useRef(Js.Nullable.null)
+  React.useEffect0(() => {
+    let handleClickOutside = (event: ReactEvent.Mouse.t) =>
+      switch wrapperRef.current->Js.Nullable.toOption {
+      | Some(dom) if dom->contains(ReactEvent.Mouse.target(event)) => ()
+      | _ => toggleList(_ => false)
+      }
+    window["addEventListener"]("mousedown", handleClickOutside)
+    None
+  })
   let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
-  <div id="searchbox-wrapper">
+  <div ref={ReactDOM.Ref.domRef(wrapperRef)} id="searchbox-wrapper">
     <ul id="suggested-films">
-      {showOptions
+      {showList
         ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)
           ->Belt.Array.mapWithIndex((i, film) =>
             Belt.Option.mapWithDefault(film, React.string(""), someFilm =>
@@ -22,12 +28,8 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
                 className={i === activeOption ? "highlight" : ""}
                 onClick={item => {
                   let currentValue = ReactEvent.Mouse.target(item)["innerText"]
-                  setText(((_searchString, suggestedFilmsState, _, -1)) => (
-                    currentValue,
-                    suggestedFilmsState,
-                    false,
-                    -1,
-                  ))
+                  addFilmToList(currentValue)->ignore
+                  toggleList(_ => false)
                 }}>
                 <p>
                   {
@@ -52,30 +54,18 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
       placeholder="Añada pelicula"
       id="searchbox"
       value={searchText}
-      onFocus={e => {
-        setText(((searchString, suggestedFilmsState, _, activeOptionState)) => (
-          searchString,
-          suggestedFilmsState,
-          true,
-          activeOptionState,
-        ))
-      }}
+      onFocus={e => toggleList(_ => true)}
       onKeyDown={e => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
         // Enter
         if keyCode === 13 {
           addFilmToList(searchText)->ignore
-          setText(((_searchString, _suggestedFilmsState, _, _activeOptionState)) => (
-            "",
-            [],
-            false,
-            -1,
-          ))
+          toggleList(_ => false)
         } else if (
           // Up arrow
           keyCode === 38
         ) {
-          setText(((_searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+          setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
             let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
             let selectedFromDropdown =
               Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
@@ -84,13 +74,13 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
               )
               ->Belt.Option.getWithDefault("")
               ->trimQuotes
-            (selectedFromDropdown, suggestedFilmsState, showOptionsState, newActiveOptionState)
+            (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
           })
         } else if (
           // Down arrow
           keyCode === 40
         ) {
-          setText(((_searchString, suggestedFilmsState, showOptionsState, activeOptionState)) => {
+          setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
             let newActiveOptionState =
               activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
                 ? activeOptionState
@@ -102,16 +92,15 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
               )
               ->Belt.Option.getWithDefault("")
               ->trimQuotes
-            (selectedFromDropdown, suggestedFilmsState, showOptionsState, newActiveOptionState)
+            (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
           })
         }
       }}
       onChange={e => {
         let currentValue = ReactEvent.Form.target(e)["value"]
-        setText(((_searchString, suggestedFilmsState, _, activeOptionState)) => (
+        setText(((_searchString, suggestedFilmsState, activeOptionState)) => (
           currentValue,
           suggestedFilmsState,
-          true,
           -1,
         ))
         searchDebounced(currentValue)

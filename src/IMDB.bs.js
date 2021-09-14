@@ -36,8 +36,7 @@ function search(str, setState) {
                   return [
                           param[0],
                           topResults,
-                          true,
-                          param[3]
+                          param[2]
                         ];
                 }));
         } else {

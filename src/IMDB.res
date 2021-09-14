@@ -3,7 +3,7 @@ module IMDBService = {
 
   let search = (
     str: string,
-    setState: (((string, array<'a>, bool, int)) => (string, array<'a>, bool, int)) => unit,
+    setState: (((string, array<'a>, int)) => (string, array<'a>, int)) => unit,
   ) =>
     Fetch.fetchWithInit(
       "https://imdb8.p.rapidapi.com/auto-complete?q=" ++ str,
@@ -41,7 +41,7 @@ module IMDBService = {
               )->Belt.Option.getWithDefault(false)
             )
           Js.log(topResults)
-          setState(((prev, _prev2, _, activeOption)) => (prev, topResults, true, activeOption))
+          setState(((prev, _prev2, activeOption)) => (prev, topResults, activeOption))
         }
       }
 
