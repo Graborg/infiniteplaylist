@@ -236,14 +236,15 @@ h1 {
   margin-left: -1px;
   min-width:60%;
   max-width:90%;
+  border-radius: 3px;
+  box-shadow: 0 1px 6px 2px #d2d3d5;
 }
 
 #suggested-films > li {
   background-color: white;
   color: #476098;
   padding: 10px 35px 10px 5px;
-  border-radius: 3px;
-  box-shadow: 0 1px 6px 2px #d2d3d5; 
+  box-shadow: 0px 0px 3px 1px #d2d3d5;
 }
 
 #suggested-films > li.highlight {

@@ -5,7 +5,7 @@ var React = require("react");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var ReactDebounce = require("rescript-debounce-react/src/ReactDebounce.bs.js");
-var IMDB$RescriptProjectTemplate = require("../IMDB.bs.js");
+var TheMovieDB$RescriptProjectTemplate = require("../TheMovieDB.bs.js");
 
 function trimQuotes(str) {
   return str.replace("\"", "").replace("\"", "");
@@ -44,7 +44,15 @@ function Inputfield(Props) {
           
         }), []);
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
-          return IMDB$RescriptProjectTemplate.IMDBService.search(text, setText);
+          return TheMovieDB$RescriptProjectTemplate.TheMovieDBAdapter.search(text, (function (searchRes) {
+                        return Curry._1(setText, (function (param) {
+                                      return [
+                                              param[0],
+                                              searchRes,
+                                              param[2]
+                                            ];
+                                    }));
+                      }));
         }));
   return React.createElement("div", {
               ref: wrapperRef,
@@ -93,14 +101,13 @@ function Inputfield(Props) {
                       } else if (keyCode === 40) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];
-                                      var suggestedFilmsState = param[1];
-                                      var newActiveOptionState = activeOptionState === (suggestedFilmsState.length - 1 | 0) ? activeOptionState : activeOptionState + 1 | 0;
+                                      var newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1 | 0;
                                       var selectedFromDropdown = trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[newActiveOptionState], (function (e) {
                                                       return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
                                                     })), ""));
                                       return [
                                               selectedFromDropdown,
-                                              suggestedFilmsState,
+                                              param[1],
                                               newActiveOptionState
                                             ];
                                     }));

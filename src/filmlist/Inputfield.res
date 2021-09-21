@@ -3,7 +3,7 @@ let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\
 @val external window: {..} = "window"
 @react.component
 let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
-  open IMDB
+  open TheMovieDB
   let (showList, toggleList) = React.useState(_ => true)
 
   let ((searchText, suggestedFilms, activeOption), setText) = React.useState(_ => ("", [], -1))
@@ -17,7 +17,15 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
     window["addEventListener"]("mousedown", handleClickOutside)
     None
   })
-  let searchDebounced = ReactDebounce.useDebounced(text => IMDBService.search(text, setText))
+  let searchDebounced = ReactDebounce.useDebounced(text =>
+    TheMovieDBAdapter.search(text, searchRes => {
+      setText(((searchString, _prevSearchResults, activeOptionState)) => (
+        searchString,
+        searchRes,
+        activeOptionState,
+      ))
+    })
+  )
   <div ref={ReactDOM.Ref.domRef(wrapperRef)} id="searchbox-wrapper">
     <ul id="suggested-films">
       {showList
@@ -67,6 +75,7 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
         ) {
           setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
             let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
+            //activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
             let selectedFromDropdown =
               Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
               ->Belt.Option.map(e =>
@@ -81,10 +90,7 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
           keyCode === 40
         ) {
           setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
-            let newActiveOptionState =
-              activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
-                ? activeOptionState
-                : activeOptionState + 1
+            let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
             let selectedFromDropdown =
               Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
               ->Belt.Option.map(e =>
