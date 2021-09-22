@@ -15,38 +15,28 @@ function trimQuotes(str) {
 }
 
 function search(str, callback) {
-  fetch("https://api.themoviedb.org/3/search/movie?api_key=6457e32b10837b9f9a7bbdf1e6aa0aa0&query=" + str).then(function (prim) {
-          return prim.json();
-        }).then(function (res) {
-        var decoded = Js_json.decodeObject(res);
-        if (decoded !== undefined) {
-          Curry._1(callback, Belt_Option.getWithDefault(Js_json.decodeArray(Belt_Option.getWithDefault(Js_dict.get(Caml_option.valFromOption(decoded), "results"), [])), []).map(function (film) {
-                        return Belt_Option.flatMap(Js_json.decodeObject(film), (function (filmObj) {
-                                      return {
-                                              title: Belt_Option.map(Belt_Option.map(Js_dict.get(filmObj, "title"), (function (prim) {
-                                                          return JSON.stringify(prim);
-                                                        })), trimQuotes),
-                                              year: Belt_Option.map(Belt_Option.map(Js_dict.get(filmObj, "release_date"), (function (e) {
-                                                          return JSON.stringify(e);
-                                                        })), trimQuotes),
-                                              category: Js_dict.get(filmObj, "title")
-                                            };
-                                    }));
-                      }).filter(Belt_Option.isSome).map(Belt_Option.getExn));
-        } else {
-          throw {
-                RE_EXN_ID: "Match_failure",
-                _1: [
-                  "TheMovieDB.res",
-                  14,
-                  6
-                ],
-                Error: new Error()
-              };
-        }
-        return Promise.resolve("");
-      });
-  
+  return fetch("https://api.themoviedb.org/3/search/movie?api_key=6457e32b10837b9f9a7bbdf1e6aa0aa0&query=" + str).then(function (prim) {
+                return prim.json();
+              }).then(function (res) {
+              var results = Js_json.decodeObject(res);
+              return Promise.resolve(results !== undefined ? Belt_Option.map(Belt_Option.map(Belt_Option.map(Belt_Option.flatMap(Js_dict.get(Caml_option.valFromOption(results), "results"), Js_json.decodeArray), (function (resArray) {
+                                          return resArray.map(function (film) {
+                                                      return Belt_Option.map(Js_json.decodeObject(film), (function (filmObj) {
+                                                                    return {
+                                                                            title: Belt_Option.map(Belt_Option.map(Js_dict.get(filmObj, "title"), (function (prim) {
+                                                                                        return JSON.stringify(prim);
+                                                                                      })), trimQuotes),
+                                                                            year: Belt_Option.map(Belt_Option.map(Js_dict.get(filmObj, "release_date"), (function (e) {
+                                                                                        return JSON.stringify(e);
+                                                                                      })), trimQuotes),
+                                                                            category: Js_dict.get(filmObj, "title")
+                                                                          };
+                                                                  }));
+                                                    });
+                                        })), (function (mappedArray) {
+                                      return mappedArray.filter(Belt_Option.isSome).map(Belt_Option.getExn);
+                                    })), Curry.__1(callback)) : undefined);
+            });
 }
 
 var TheMovieDBAdapter = {

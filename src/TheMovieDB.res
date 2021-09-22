@@ -9,17 +9,16 @@ module TheMovieDBAdapter = {
   let search = (str: string, callback: array<'a> => unit) =>
     Fetch.fetch(base_uri ++ "search/movie?api_key=" ++ api_key ++ "&query=" ++ str)
     |> then_(Fetch.Response.json)
-    |> then_(res => {
-      let decoded = Js.Json.decodeObject(res)
-      switch decoded {
-      | Some(imdbResult) => {
-          let topResults =
-            Js.Dict.get(imdbResult, "results")
-            ->Belt.Option.getWithDefault(Js.Json.array([]))
-            ->Js.Json.decodeArray
-            ->Belt.Option.getWithDefault([])
-            ->Js.Array2.map(film =>
-              Js.Json.decodeObject(film)->Belt.Option.flatMap(filmObj => Some({
+    |> then_(res =>
+      switch Js.Json.decodeObject(res) {
+      | None => None
+      | Some(results) =>
+        Js.Dict.get(results, "results")
+        ->Belt.Option.flatMap(Js.Json.decodeArray)
+        ->Belt.Option.map(resArray =>
+          Js.Array2.map(resArray, film =>
+            Js.Json.decodeObject(film)->Belt.Option.map(filmObj =>
+              {
                 "title": Js.Dict.get(filmObj, "title")
                 ->Belt.Option.map(Js.Json.stringify)
                 ->Belt.Option.map(trimQuotes),
@@ -27,15 +26,14 @@ module TheMovieDBAdapter = {
                 ->Belt.Option.map(e => e->Js.Json.stringify)
                 ->Belt.Option.map(e => e->trimQuotes),
                 "category": Js.Dict.get(filmObj, "title"),
-              }))
+              }
             )
-            ->Js.Array2.filter(Belt.Option.isSome)
-            ->Js.Array2.map(Belt.Option.getExn)
-          callback(topResults)
-        }
-      }
-
-      Js.Promise.resolve("")
-    })
-    |> ignore
+          )
+        )
+        ->Belt.Option.map(mappedArray =>
+          Js.Array2.filter(mappedArray, Belt.Option.isSome)->Js.Array2.map(Belt.Option.getExn)
+        )
+        ->Belt.Option.map(res => callback(res))
+      } |> resolve
+    )
 }
