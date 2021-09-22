@@ -60,20 +60,20 @@ function Inputfield(Props) {
             }, React.createElement("ul", {
                   id: "suggested-films"
                 }, match[0] ? Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms, 0, 5), (function (i, film) {
-                          return Belt_Option.mapWithDefault(film, "", (function (someFilm) {
-                                        var title = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.title, "")));
-                                        var year = trimQuotes(JSON.stringify(Belt_Option.getWithDefault(someFilm.year, "")));
-                                        return React.createElement("li", {
-                                                    className: i === activeOption ? "highlight" : "",
-                                                    onClick: (function (item) {
-                                                        var currentValue = item.target.innerText;
-                                                        Curry._1(addFilmToList, currentValue);
-                                                        return Curry._1(toggleList, (function (param) {
-                                                                      return false;
-                                                                    }));
-                                                      })
-                                                  }, React.createElement("p", undefined, title + " (" + year + ")"));
-                                      }));
+                          var match = film.title;
+                          var match$1 = film.year;
+                          return React.createElement("li", {
+                                      className: i === activeOption ? "highlight" : "",
+                                      onClick: (function (item) {
+                                          var currentValue = item.target.innerText;
+                                          Curry._1(addFilmToList, currentValue);
+                                          return Curry._1(toggleList, (function (param) {
+                                                        return false;
+                                                      }));
+                                        })
+                                    }, React.createElement("p", undefined, match !== undefined ? (
+                                            match$1 !== undefined ? match + " (" + match$1 + ")" : match
+                                          ) : "<error no title>"));
                         })) : ""), React.createElement("input", {
                   id: "searchbox",
                   placeholder: "A\xc3\xb1ada pelicula",
@@ -88,26 +88,30 @@ function Inputfield(Props) {
                       } else if (keyCode === 38) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];
-                                      var newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1 | 0;
-                                      var selectedFromDropdown = trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[newActiveOptionState], (function (e) {
-                                                      return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
-                                                    })), ""));
+                                      var suggestedFilmsState = param[1];
+                                      var optionsLength = suggestedFilmsState.length;
+                                      var newActiveOptionState = activeOptionState === optionsLength ? optionsLength : activeOptionState + 1 | 0;
+                                      console.log(suggestedFilms[newActiveOptionState]);
+                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(suggestedFilms, newActiveOptionState), (function (filmItem) {
+                                                  return filmItem.title;
+                                                })), "");
                                       return [
                                               selectedFromDropdown,
-                                              param[1],
+                                              suggestedFilmsState,
                                               newActiveOptionState
                                             ];
                                     }));
                       } else if (keyCode === 40) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];
+                                      var suggestedFilmsState = param[1];
                                       var newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1 | 0;
-                                      var selectedFromDropdown = trimQuotes(Belt_Option.getWithDefault(Belt_Option.map(suggestedFilms[newActiveOptionState], (function (e) {
-                                                      return JSON.stringify(Belt_Option.getWithDefault(e.title, ""));
-                                                    })), ""));
+                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(suggestedFilmsState, newActiveOptionState), (function (filmItem) {
+                                                  return filmItem.title;
+                                                })), "");
                                       return [
                                               selectedFromDropdown,
-                                              param[1],
+                                              suggestedFilmsState,
                                               newActiveOptionState
                                             ];
                                     }));

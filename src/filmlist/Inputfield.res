@@ -31,29 +31,21 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
       {showList
         ? Belt.Array.slice(suggestedFilms, ~offset=0, ~len=5)
           ->Belt.Array.mapWithIndex((i, film) =>
-            Belt.Option.mapWithDefault(film, React.string(""), someFilm =>
-              <li
-                className={i === activeOption ? "highlight" : ""}
-                onClick={item => {
-                  let currentValue = ReactEvent.Mouse.target(item)["innerText"]
-                  addFilmToList(currentValue)->ignore
-                  toggleList(_ => false)
-                }}>
-                <p>
-                  {
-                    let title =
-                      Js.Json.stringify(
-                        Belt.Option.getWithDefault(someFilm["title"], Js.Json.string("")),
-                      )->trimQuotes
-                    let year =
-                      Js.Json.stringify(
-                        Belt.Option.getWithDefault(someFilm["year"], Js.Json.string("")),
-                      )->trimQuotes
-                    React.string(`${title} (${year})`)
-                  }
-                </p>
-              </li>
-            )
+            <li
+              className={i === activeOption ? "highlight" : ""}
+              onClick={item => {
+                let currentValue = ReactEvent.Mouse.target(item)["innerText"]
+                addFilmToList(currentValue)->ignore
+                toggleList(_ => false)
+              }}>
+              <p>
+                {switch (film["title"], film["year"]) {
+                | (Some(title), Some(year)) => React.string(`${title} (${year})`)
+                | (Some(title), None) => React.string(title)
+                | (None, _) => React.string("<error no title>")
+                }}
+              </p>
+            </li>
           )
           ->React.array
         : React.string("")}
@@ -74,15 +66,14 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
           keyCode === 38
         ) {
           setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
-            let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
-            //activeOptionState === Belt.Array.length(suggestedFilmsState) - 1
+            let optionsLength = Belt.Array.length(suggestedFilmsState)
+            let newActiveOptionState =
+              activeOptionState === optionsLength ? optionsLength : activeOptionState + 1
+            Js.log(Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState))
             let selectedFromDropdown =
-              Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
-              ->Belt.Option.map(e =>
-                e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
-              )
+              Belt.Array.get(suggestedFilms, newActiveOptionState)
+              ->Belt.Option.flatMap(filmItem => filmItem["title"])
               ->Belt.Option.getWithDefault("")
-              ->trimQuotes
             (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
           })
         } else if (
@@ -92,19 +83,17 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
           setText(((_searchString, suggestedFilmsState, activeOptionState)) => {
             let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
             let selectedFromDropdown =
-              Js.Array2.unsafe_get(suggestedFilms, newActiveOptionState)
-              ->Belt.Option.map(e =>
-                e["title"]->Belt.Option.getWithDefault(Js.Json.string(""))->Js.Json.stringify
-              )
+              Belt.Array.get(suggestedFilmsState, newActiveOptionState)
+              ->Belt.Option.flatMap(filmItem => filmItem["title"])
               ->Belt.Option.getWithDefault("")
-              ->trimQuotes
+
             (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
           })
         }
       }}
       onChange={e => {
         let currentValue = ReactEvent.Form.target(e)["value"]
-        setText(((_searchString, suggestedFilmsState, activeOptionState)) => (
+        setText(((_searchString, suggestedFilmsState, _activeOptionState)) => (
           currentValue,
           suggestedFilmsState,
           -1,
