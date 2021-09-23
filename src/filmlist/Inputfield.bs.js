@@ -7,10 +7,6 @@ var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var ReactDebounce = require("rescript-debounce-react/src/ReactDebounce.bs.js");
 var TheMovieDB$RescriptProjectTemplate = require("../TheMovieDB.bs.js");
 
-function trimQuotes(str) {
-  return str.replace("\"", "").replace("\"", "");
-}
-
 function Inputfield(Props) {
   var addFilmToList = Props.addFilmToList;
   var match = React.useState(function () {
@@ -20,7 +16,7 @@ function Inputfield(Props) {
   var match$1 = React.useState(function () {
         return [
                 "",
-                [],
+                /* NoResultsInit */0,
                 -1
               ];
       });
@@ -44,37 +40,41 @@ function Inputfield(Props) {
           
         }), []);
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
-          return TheMovieDB$RescriptProjectTemplate.TheMovieDBAdapter.search(text, (function (searchRes) {
-                        return Curry._1(setText, (function (param) {
-                                      return [
-                                              param[0],
-                                              searchRes,
-                                              param[2]
-                                            ];
-                                    }));
-                      }));
+          TheMovieDB$RescriptProjectTemplate.TheMovieDBAdapter.search(text, (function (res) {
+                  return Curry._1(setText, (function (param) {
+                                return [
+                                        param[0],
+                                        res,
+                                        param[2]
+                                      ];
+                              }));
+                }));
+          
         }));
   return React.createElement("div", {
               ref: wrapperRef,
               id: "searchbox-wrapper"
             }, React.createElement("ul", {
                   id: "suggested-films"
-                }, match[0] ? Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms, 0, 5), (function (i, film) {
-                          var match = film.title;
-                          var match$1 = film.year;
-                          return React.createElement("li", {
-                                      className: i === activeOption ? "highlight" : "",
-                                      onClick: (function (item) {
-                                          var currentValue = item.target.innerText;
-                                          Curry._1(addFilmToList, currentValue);
-                                          return Curry._1(toggleList, (function (param) {
-                                                        return false;
-                                                      }));
-                                        })
-                                    }, React.createElement("p", undefined, match !== undefined ? (
-                                            match$1 !== undefined ? match + " (" + match$1 + ")" : match
-                                          ) : "<error no title>"));
-                        })) : ""), React.createElement("input", {
+                }, match[0] ? (
+                    typeof suggestedFilms === "number" ? (
+                        suggestedFilms !== 0 ? React.createElement("li", undefined, "No results found") : ""
+                      ) : Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms._0, 0, 5), (function (i, film) {
+                              var match = film.title;
+                              var match$1 = film.year;
+                              return React.createElement("li", {
+                                          className: i === activeOption ? "highlight" : "",
+                                          onClick: (function (item) {
+                                              Curry._1(addFilmToList, item.target.innerText);
+                                              return Curry._1(toggleList, (function (param) {
+                                                            return false;
+                                                          }));
+                                            })
+                                        }, React.createElement("p", undefined, match !== undefined ? (
+                                                match$1 !== undefined ? match + " (" + match$1 + ")" : match
+                                              ) : "<error no title>"));
+                            }))
+                  ) : ""), React.createElement("input", {
                   id: "searchbox",
                   placeholder: "A\xc3\xb1ada pelicula",
                   value: searchText,
@@ -89,10 +89,17 @@ function Inputfield(Props) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];
                                       var suggestedFilmsState = param[1];
-                                      var optionsLength = suggestedFilmsState.length;
+                                      if (typeof suggestedFilmsState === "number") {
+                                        return [
+                                                param[0],
+                                                suggestedFilmsState,
+                                                activeOptionState
+                                              ];
+                                      }
+                                      var filmList = suggestedFilmsState._0;
+                                      var optionsLength = filmList.length;
                                       var newActiveOptionState = activeOptionState === optionsLength ? optionsLength : activeOptionState + 1 | 0;
-                                      console.log(suggestedFilms[newActiveOptionState]);
-                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(suggestedFilms, newActiveOptionState), (function (filmItem) {
+                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(filmList, newActiveOptionState), (function (filmItem) {
                                                   return filmItem.title;
                                                 })), "");
                                       return [
@@ -105,8 +112,15 @@ function Inputfield(Props) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];
                                       var suggestedFilmsState = param[1];
+                                      if (typeof suggestedFilmsState === "number") {
+                                        return [
+                                                param[0],
+                                                suggestedFilmsState,
+                                                activeOptionState
+                                              ];
+                                      }
                                       var newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1 | 0;
-                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(suggestedFilmsState, newActiveOptionState), (function (filmItem) {
+                                      var selectedFromDropdown = Belt_Option.getWithDefault(Belt_Option.flatMap(Belt_Array.get(suggestedFilmsState._0, newActiveOptionState), (function (filmItem) {
                                                   return filmItem.title;
                                                 })), "");
                                       return [
@@ -143,6 +157,5 @@ function Inputfield(Props) {
 
 var make = Inputfield;
 
-exports.trimQuotes = trimQuotes;
 exports.make = make;
 /* react Not a pure module */
