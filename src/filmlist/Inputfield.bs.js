@@ -62,6 +62,10 @@ function Inputfield(Props) {
                       ) : Belt_Array.mapWithIndex(Belt_Array.slice(suggestedFilms._0, 0, 5), (function (i, film) {
                               var match = film.title;
                               var match$1 = film.year;
+                              var tmp;
+                              tmp = match !== undefined ? (
+                                  match$1 !== undefined && match$1 !== "" ? match + " (" + match$1 + ")" : match
+                                ) : "<error no title>";
                               return React.createElement("li", {
                                           className: i === activeOption ? "highlight" : "",
                                           onClick: (function (item) {
@@ -70,9 +74,7 @@ function Inputfield(Props) {
                                                             return false;
                                                           }));
                                             })
-                                        }, React.createElement("p", undefined, match !== undefined ? (
-                                                match$1 !== undefined ? match + " (" + match$1 + ")" : match
-                                              ) : "<error no title>"));
+                                        }, React.createElement("p", undefined, tmp));
                             }))
                   ) : ""), React.createElement("input", {
                   id: "searchbox",

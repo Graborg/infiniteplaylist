@@ -46,9 +46,10 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
                 }}>
                 <p>
                   {switch (film["title"], film["year"]) {
-                  | (Some(title), Some(year)) => React.string(`${title} (${year})`)
+                  | (Some(title), Some("")) => React.string(title)
                   | (Some(title), None) => React.string(title)
-                  | (None, _) => React.string("<error no title>")
+                  | (Some(title), Some(year)) => React.string(`${title} (${year})`)
+                  | (_, _) => React.string("<error no title>")
                   }}
                 </p>
               </li>
