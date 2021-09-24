@@ -24,7 +24,6 @@ function Inputfield(Props) {
   var match$2 = match$1[0];
   var activeOption = match$2[2];
   var suggestedFilms = match$2[1];
-  var searchText = match$2[0];
   var wrapperRef = React.useRef(null);
   React.useEffect((function () {
           var handleClickOutside = function ($$event) {
@@ -39,6 +38,16 @@ function Inputfield(Props) {
           Curry._2(window.addEventListener, "mousedown", handleClickOutside);
           
         }), []);
+  var selectItemFromList = function (film) {
+    Curry._1(addFilmToList, film);
+    return Curry._1(setText, (function (param) {
+                  return [
+                          "",
+                          /* NoResultsInit */0,
+                          -1
+                        ];
+                }));
+  };
   var searchDebounced = ReactDebounce.useDebounced(undefined, (function (text) {
           TheMovieDB$RescriptProjectTemplate.TheMovieDBAdapter.search(text, (function (res) {
                   return Curry._1(setText, (function (param) {
@@ -69,24 +78,31 @@ function Inputfield(Props) {
                               return React.createElement("li", {
                                           className: i === activeOption ? "highlight" : "",
                                           onClick: (function (item) {
-                                              Curry._1(addFilmToList, item.target.innerText);
-                                              return Curry._1(toggleList, (function (param) {
-                                                            return false;
-                                                          }));
+                                              selectItemFromList(item.target.innerText);
+                                              
                                             })
                                         }, React.createElement("p", undefined, tmp));
                             }))
                   ) : ""), React.createElement("input", {
                   id: "searchbox",
                   placeholder: "A\xc3\xb1ada pelicula",
-                  value: searchText,
+                  value: match$2[0],
                   onKeyDown: (function (e) {
                       var keyCode = e.keyCode;
                       if (keyCode === 13) {
-                        Curry._1(addFilmToList, searchText);
-                        return Curry._1(toggleList, (function (param) {
-                                      return false;
-                                    }));
+                        if (typeof suggestedFilms === "number") {
+                          return ;
+                        } else {
+                          Belt_Option.map(Belt_Option.flatMap(Belt_Array.get(suggestedFilms._0, activeOption), (function (e) {
+                                      return Belt_Option.map(e.title, (function (title) {
+                                                    var year = Belt_Option.mapWithDefault(e.year, "", (function (year) {
+                                                            return " (" + year + ")";
+                                                          }));
+                                                    return title + year;
+                                                  }));
+                                    })), selectItemFromList);
+                          return ;
+                        }
                       } else if (keyCode === 38) {
                         return Curry._1(setText, (function (param) {
                                       var activeOptionState = param[2];

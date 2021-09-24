@@ -3,6 +3,7 @@
 @react.component
 let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
   open TheMovieDB
+  open Belt
   let (showList, toggleList) = React.useState(_ => true)
 
   let ((searchText, suggestedFilms, activeOption), setText) = React.useState(_ => (
@@ -20,6 +21,10 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
     window["addEventListener"]("mousedown", handleClickOutside)
     None
   })
+  let selectItemFromList = film => {
+    addFilmToList(film)->ignore
+    setText(((_, _, _)) => ("", NoResultsInit, -1))
+  }
   let searchDebounced = ReactDebounce.useDebounced(text =>
     TheMovieDBAdapter.search(text, res =>
       setText(((searchString, _prevRes, activeOptionState)) => (
@@ -41,8 +46,7 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
               <li
                 className={i === activeOption ? "highlight" : ""}
                 onClick={item => {
-                  ReactEvent.Mouse.target(item)["innerText"]->addFilmToList->ignore
-                  toggleList(_ => false)
+                  ReactEvent.Mouse.target(item)["innerText"]->selectItemFromList->ignore
                 }}>
                 <p>
                   {switch (film["title"], film["year"]) {
@@ -67,8 +71,20 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
         let keyCode = ReactEvent.Keyboard.keyCode(e)
         // Enter
         if keyCode === 13 {
-          addFilmToList(searchText)->ignore
-          toggleList(_ => false)
+          switch suggestedFilms {
+          | NoResultsInit => ignore()
+          | NoResultsFound => ignore()
+          | Results(suggestedFilms) =>
+            suggestedFilms[activeOption]
+            ->Option.flatMap(e =>
+              Option.map(e["title"], title => {
+                let year = Option.mapWithDefault(e["year"], "", year => " (" ++ year ++ ")")
+                title ++ year
+              })
+            )
+            ->Option.map(selectItemFromList)
+            ->ignore
+          }
         } else if (
           // Up arrow
           keyCode === 38
