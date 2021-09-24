@@ -1,7 +1,7 @@
 @send external contains: (Dom.element, {..}) => bool = "contains"
 @val external window: {..} = "window"
 @react.component
-let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
+let make = (~addFilmToList=?, ~disabled=false) => {
   open TheMovieDB
   open Belt
   let (showList, toggleList) = React.useState(_ => true)
@@ -22,7 +22,7 @@ let make = (~addFilmToList: string => Js.Promise.t<unit>) => {
     None
   })
   let selectItemFromList = film => {
-    addFilmToList(film)->ignore
+    Option.map(addFilmToList, func => func(film))->ignore
     setText(((_, _, _)) => ("", NoResultsInit, -1))
   }
   let searchDebounced = ReactDebounce.useDebounced(text =>

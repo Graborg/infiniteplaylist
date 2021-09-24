@@ -1,7 +1,6 @@
 open Todoist
 
 type state =
-  | LoadingElection
   | NoElection
   | FilmElected(string)
 
@@ -34,37 +33,53 @@ let horn = %raw(`
       audioElement.play();
     }
 `)
-let creatorToString = (creator: Todoist.creator) =>
+let creatorToString = creator => {
+  open Todoist
   switch creator {
-  | Karmi => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
-  | Ferma => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
+  | Some(Karmi) => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
+  | Some(Ferma) => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
+  | None => ""
   }
+}
 
-let electFilm = (
-  setState,
-  films: array<Todoist.film>,
-  selectFilm,
-  nextElector: Todoist.creator,
-) => {
-  let _h = confetti()
-  let _l = horn()
-  let filmsOfCreator = films->Js.Array2.filter((film: Todoist.film) => film.creator === nextElector)
-  let randomIndex = filmsOfCreator->Belt.Array.length->Random.int
-  switch Belt.Array.get(filmsOfCreator, randomIndex) {
-  | Some(film) =>
-    selectFilm(film.name)
-    setState(_prevState => FilmElected(film.name))
-  | None => ()
+let getCreatorColor = creator => {
+  open Todoist
+  switch creator {
+  | Some(Ferma) => "#476098"
+  | Some(Karmi) => "#8b9862"
+  | None => ""
+  }
+}
+let electFilm = (~setState, ~doSelectFilm, ~nextElector, ~films: array<Todoist.film>=[], ()) => {
+  confetti()->ignore
+  horn()->ignore
+
+  switch (doSelectFilm, nextElector) {
+  | (Some(selectFilmFunc), Some(elector)) =>
+    {
+      let filmsOfCreator = films->Js.Array2.filter((film: Todoist.film) => film.creator === elector)
+      let randomIndex = filmsOfCreator->Belt.Array.length->Random.int
+      Belt.Array.get(filmsOfCreator, randomIndex)->Belt.Option.map(film => {
+        selectFilmFunc(film.name)
+        setState(_prevState => FilmElected(film.name))
+      })
+    }->ignore
+  | (Some(_), None) => Js.log("no function passed to RandomBtn")
+  | (None, _) => Js.log("Something went wrong when electing next film in randomBtn")
   }
   ()
 }
 
 @react.component
-let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
+let make = (
+  ~films=[],
+  ~doSelectFilm=?,
+  ~nextElector: option<Todoist.creator>=?,
+  ~disabled=false,
+) => {
   let (state, setState) = React.useState(() => NoElection)
   <div>
     {switch state {
-    | LoadingElection => React.string("")
     | NoElection => React.string("")
     | FilmElected(film) => <h2 className="gradient-text result"> {React.string(film)} </h2>
     }}
@@ -72,7 +87,7 @@ let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
       style={ReactDOMStyle.make(
         ~marginBottom="5px",
         ~textAlign="center",
-        ~color={nextElector === Ferma ? "#476098" : "#8b9862"},
+        ~color={getCreatorColor(nextElector)},
         (),
       )}>
       {React.string(creatorToString(nextElector))}
@@ -86,13 +101,14 @@ let make = (~films, ~doSelectFilm, ~nextElector: Todoist.creator) => {
         (),
       )}>
       <button
+        disabled
         style={ReactDOMStyle.make(
-          ~boxShadow="0 0 0 1px" ++ {nextElector === Ferma ? "#476098" : "#8b9862"},
-          ~color={nextElector === Ferma ? "#476098" : "#8b9862"},
+          ~boxShadow="0 0 0 1px" ++ getCreatorColor(nextElector),
+          ~color={getCreatorColor(nextElector)},
           (),
         )}
-        onClick={_event => electFilm(setState, films, doSelectFilm, nextElector)}>
-        {React.string("Hace un volado")}
+        onClick={_event => electFilm(~setState, ~doSelectFilm, ~nextElector, ~films, ())}>
+        {React.string("Haz un volado")}
       </button>
     </div>
   </div>
