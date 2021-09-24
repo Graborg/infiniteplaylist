@@ -100,43 +100,53 @@ let make = () => {
     })
   }
 
-  <div key="filmlist" style={ReactDOMStyle.make(~width="100%", ())}>
-    <Title />
-    {switch state {
+  {
+    switch state {
     | ErrorFetchingFilms => React.string("An error occurred!")
-    | LoadingFilms => React.string("Loading...")
-    | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
-    | LoadedFilms(films, selected, seenFilms) =>
-      <div>
-        <FilmList films selected markFilmAsSeen />
-        {Js.Array.length(seenFilms) > 0
-          ? <div>
-              <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
-                {React.string("Peliculas vistas")}
-              </p>
-              <div className="film-list">
-                {seenFilms
-                ->Belt.Array.mapWithIndex((i, film) => {
-                  let lastElement = i === Js.Array.length(films) - 1
-                  let selected = selected == film.name
-                  <FilmlistItem
-                    key={Belt.Float.toString(film.id) ++ "h"}
-                    film
-                    lastElement
-                    selected
-                    click=unDooSeenFilm
-                  />
-                })
-                ->React.array}
-              </div>
-            </div>
-          : <div />}
+    | LoadingFilms =>
+      <div style={ReactDOMStyle.make(~width="100%", ())}>
+        <Title />
+        <div id="content"> <p> {React.string("Loading...")} </p> </div>
         <div id="underfilmlist-items">
-          <Inputfield addFilmToList />
-          <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
+          <Inputfield disabled=true /> <RandomBtn disabled=true />
         </div>
       </div>
-    }}
-    <div id="underfilmlist-items"> <Inputfield disabled=true /> <RandomBtn disabled=true /> </div>
-  </div>
+    | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
+    | LoadedFilms(films, selected, seenFilms) =>
+      <div style={ReactDOMStyle.make(~width="100%", ())}>
+        <Title />
+        <div id="content">
+          <div key="filmlist" style={ReactDOMStyle.make(~width="100%", ())}>
+            <FilmList films selected markFilmAsSeen />
+            {Js.Array.length(seenFilms) > 0
+              ? <div>
+                  <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
+                    {React.string("Peliculas vistas")}
+                  </p>
+                  <div className="film-list">
+                    {seenFilms
+                    ->Belt.Array.mapWithIndex((i, film) => {
+                      let lastElement = i === Js.Array.length(films) - 1
+                      let selected = selected == film.name
+                      <FilmlistItem
+                        key={Belt.Float.toString(film.id) ++ "h"}
+                        film
+                        lastElement
+                        selected
+                        click=unDooSeenFilm
+                      />
+                    })
+                    ->React.array}
+                  </div>
+                </div>
+              : <div />}
+          </div>
+          <div id="underfilmlist-items">
+            <Inputfield addFilmToList />
+            <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
+          </div>
+        </div>
+      </div>
+    }
+  }
 }

@@ -63,6 +63,7 @@ let make = (~addFilmToList=?, ~disabled=false) => {
         : React.string("")}
     </ul>
     <input
+      disabled
       placeholder="Añada pelicula"
       id="searchbox"
       value={searchText}
