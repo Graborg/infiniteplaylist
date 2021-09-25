@@ -14,16 +14,17 @@ body {
 }
 button {
   background-color: white;
-  color: #476098;
   border-radius: 2px;
-  box-shadow: 0 0 0 1px #476098;
   border: none;
   padding: 8px;
   font-size: 16px;
 }
 button:active {
-  background-color: #476098;
-  color: white;
+  background-color: rgba(173, 185, 212, 0.44);
+  color: #476098;
+}
+button:disabled{
+  background: #dadada
 }
 p {
   margin: 0;
