@@ -106,7 +106,7 @@ let make = () => {
     | LoadingFilms =>
       <div style={ReactDOMStyle.make(~width="100%", ())}>
         <Title />
-        <div id="content"> <p> {React.string("Loading...")} </p> </div>
+        <div id="content"> <p id="spinner"> {React.string("Loading...")} </p> </div>
         <div id="underfilmlist-items">
           <Inputfield disabled=true /> <RandomBtn disabled=true />
         </div>
