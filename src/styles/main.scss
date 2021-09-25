@@ -295,15 +295,14 @@ input#searchbox {
     background-color: transparent;
   }
   &:disabled ~ .searchbox__label {
-    background-color: transparent;
-    color: #0000004d;
+    background-color: #dadada;
   }
 }
 // Default props
 .searchbox__label {
   position: absolute;
   font-weight: lighter;
-  top: 7px;
+  top: -10px;
   background-color: white;
   left: 4px;
   display: block;
@@ -317,7 +316,7 @@ input#searchbox {
     position: absolute;
     color: #4760987a;
     font-weight: lighter;
-    top: 27px;
+    top:7px;
     left: 9px;
     display: block;
     transition: 0.3s;
