@@ -105,16 +105,15 @@ let make = () => {
     | ErrorFetchingFilms => React.string("An error occurred!")
     | LoadingFilms =>
       <div style={ReactDOMStyle.make(~width="100%", ())}>
-        <Title />
-        <div id="content"> <p id="spinner"> {React.string("Loading...")} </p> </div>
-        <div id="underfilmlist-items">
-          <Inputfield disabled=true /> <RandomBtn disabled=true />
+        <div id="content">
+          <p id="spinner" style={ReactDOMStyle.make(~fontSize="100px", ())}>
+            {React.string(`🐄`)}
+          </p>
         </div>
       </div>
     | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
     | LoadedFilms(films, selected, seenFilms) =>
       <div style={ReactDOMStyle.make(~width="100%", ())}>
-        <Title />
         <div id="content">
           <div key="filmlist" style={ReactDOMStyle.make(~width="100%", ())}>
             <FilmList films selected markFilmAsSeen />
@@ -128,7 +127,7 @@ let make = () => {
                     ->Belt.Array.mapWithIndex((i, film) => {
                       let lastElement = i === Js.Array.length(films) - 1
                       let selected = selected == film.name
-                      <FilmlistItem
+                      <FilmListItem
                         key={Belt.Float.toString(film.id) ++ "h"}
                         film
                         lastElement
@@ -140,10 +139,6 @@ let make = () => {
                   </div>
                 </div>
               : <div />}
-          </div>
-          <div id="underfilmlist-items">
-            <Inputfield addFilmToList />
-            <RandomBtn films doSelectFilm nextElector={getNextElector(seenFilms)} />
           </div>
         </div>
       </div>

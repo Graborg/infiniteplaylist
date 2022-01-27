@@ -4,7 +4,7 @@ var React = require("react");
 var ReactDom = require("react-dom");
 var Belt_Option = require("rescript/lib/js/belt_Option.js");
 var Caml_option = require("rescript/lib/js/caml_option.js");
-var App$RescriptProjectTemplate = require("./App.bs.js");
+var App$RescriptProjectTemplate = require("./components/App/App.bs.js");
 
 import './styles/main.scss'
 ;

@@ -349,8 +349,18 @@ input#searchbox {
     animation-duration: 4000ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
+      transform-box: fill-box;
+  transform-origin: center;
 }
 @keyframes spin {
-    from {transform:rotate(0deg);}
-    to {transform:rotate(360deg);}
+  from {
+    transform:rotate(0deg);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  to {
+    transform:rotate(360deg);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
 }

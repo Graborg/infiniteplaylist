@@ -25,7 +25,8 @@
     "rescript": "^9.1.4",
     "rescript-debounce-react": "^1.0.0",
     "sass": "^1.38.0",
-    "sass-loader": "^12.1.0"
+    "sass-loader": "^12.1.0",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "css-loader": "^5.2.6",
