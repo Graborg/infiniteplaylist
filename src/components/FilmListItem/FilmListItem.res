@@ -13,9 +13,9 @@ let creatorToString = (creator: Todoist.creator) =>
 @react.component
 let make = (
   ~film: Todoist.film,
-  ~lastElement: bool,
-  ~selected: bool,
-  ~click: Todoist.film => unit,
+  ~click: Todoist.film => unit=_ => Js.log("You forgot to set a onClick handler"),
+  ~selected: bool=false,
+  (),
 ) => {
   let (checked, setCheck) = React.useState(_ => false)
 
@@ -32,7 +32,7 @@ let make = (
         // ~padding="21px 0 13px",
         ~padding="21px 5px 13px",
         ~margin="0 10px",
-        ~borderBottom=lastElement ? "" : "1px #cecece solid",
+        //~borderBottom=lastElement ? "" : "1px #cecece solid",
         ~justifyContent="space-between",
         ~boxSizing="border-box",
         ~minHeight="56px",

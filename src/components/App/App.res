@@ -100,48 +100,19 @@ let make = () => {
     })
   }
 
-  {
-    switch state {
+  <div>
+    <Header />
+    {switch state {
     | ErrorFetchingFilms => React.string("An error occurred!")
-    | LoadingFilms =>
-      <div style={ReactDOMStyle.make(~width="100%", ())}>
-        <div id="content">
-          <p id="spinner" style={ReactDOMStyle.make(~fontSize="100px", ())}>
-            {React.string(`🐄`)}
-          </p>
-        </div>
-      </div>
+    | LoadingFilms => <Spinner />
     | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
     | LoadedFilms(films, selected, seenFilms) =>
-      <div style={ReactDOMStyle.make(~width="100%", ())}>
-        <div id="content">
-          <div key="filmlist" style={ReactDOMStyle.make(~width="100%", ())}>
-            <FilmList films selected markFilmAsSeen />
-            {Js.Array.length(seenFilms) > 0
-              ? <div>
-                  <p style={ReactDOMStyle.make(~margin="10px 0 10px 10px", ())}>
-                    {React.string("Peliculas vistas")}
-                  </p>
-                  <div className="film-list">
-                    {seenFilms
-                    ->Belt.Array.mapWithIndex((i, film) => {
-                      let lastElement = i === Js.Array.length(films) - 1
-                      let selected = selected == film.name
-                      <FilmListItem
-                        key={Belt.Float.toString(film.id) ++ "h"}
-                        film
-                        lastElement
-                        selected
-                        click=unDooSeenFilm
-                      />
-                    })
-                    ->React.array}
-                  </div>
-                </div>
-              : <div />}
-          </div>
-        </div>
+      <div>
+        <h3> {React.string("Not seen")} </h3>
+        <FilmList films selected markFilmAsSeen />
+        <h3> {React.string("Seen")} </h3>
+        <SeenFilmList films=seenFilms />
       </div>
-    }
-  }
+    }}
+  </div>
 }
