@@ -6,14 +6,20 @@ html {
   --color-background: #FDF1F0; 
   --font-logo: 'Faster One';
   --font-header: 'Fraunces';
+  --font-fancy: 'Fraunces';
 }
 
 html,
 body {
   width: 100%;
+  height: 100%;
   margin: 0;
   background-color: var(--color-background);
   font-family: var(--font-header);
+}
+#root {
+  background-color: var(--color-background);
+  height: 100%;
 }
 
 p {

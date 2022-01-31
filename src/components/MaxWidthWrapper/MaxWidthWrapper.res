@@ -1,8 +1,6 @@
 let maxWidthWrapper = Emotion.css(`
   position: relative;
   max-width: min(100%, calc(1200px + 32px * 2));
-  margin-left: auto;
-  margin-right: auto;
   padding-left: 16px;
   padding-right: 16px;
   @media (min-width: calc(1100 / 16rem)) {

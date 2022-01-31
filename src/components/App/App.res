@@ -99,20 +99,26 @@ let make = () => {
       Js.Promise.resolve()
     })
   }
+  let wrapper = Emotion.css(`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  `)
 
-  <div>
-    <Header />
-    {switch state {
+  {
+    switch state {
     | ErrorFetchingFilms => React.string("An error occurred!")
     | LoadingFilms => <Spinner />
-    | NotLoggedin => <a href=todoistLoginLink> {React.string("Log into Todoist")} </a>
+    | NotLoggedin => <div className=wrapper> <Header /> <LoginButton /> <Footer /> </div>
     | LoadedFilms(films, selected, seenFilms) =>
-      <div>
+      <div className=wrapper>
+        <Header />
         <h3> {React.string("Not seen")} </h3>
         <FilmList films selected markFilmAsSeen />
         <h3> {React.string("Seen")} </h3>
         <SeenFilmList films=seenFilms />
       </div>
-    }}
-  </div>
+    }
+  }
 }
