@@ -1,17 +1,56 @@
 @send external contains: (Dom.element, {..}) => bool = "contains"
 @val external window: {..} = "window"
-@react.component
-let make = (~addFilmToList=?, ~disabled=false) => {
-  open TheMovieDB
-  open Belt
-  let (showList, toggleList) = React.useState(_ => true)
 
-  let ((searchText, suggestedFilms, activeOption), setText) = React.useState(_ => (
-    "",
-    NoResultsInit,
-    -1,
-  ))
+open TheMovieDB
+open Emotion
+
+let wrapper = css(`
+  position: relative;
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+`)
+
+let inputField = css(`
+  background-color: transparent;
+  width: 100%;
+  padding: 10px;
+  padding-left: 34px;
+  border: 0;
+  font-family: var(--font-bread);
+`)
+
+let label = css(`
+  position: absolute;
+  top: -12px;
+  left: 8px;
+  padding-right: 5px;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  font-weight: 700;
+`)
+let searchIcon = css(`
+  position: absolute;
+  left: 5px;
+  top: 7px;
+  color: var(--color-primary);
+`)
+
+let handleNewFilm = (film: filmResult) => Js.log(film["title"])
+
+@react.component
+let make = (~disabled: bool=false, ()) => {
+  let (showList, toggleList) = React.useState(_ => true)
+  let (searchText, setText) = React.useState(_ => "")
+  let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
+
+  let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
+    TheMovieDBAdapter.search(text, res => {
+      setResults(_ => res)
+    }) |> ignore
+  })
+
   let wrapperRef = React.useRef(Js.Nullable.null)
+
   React.useEffect0(() => {
     let handleClickOutside = (event: ReactEvent.Mouse.t) =>
       switch wrapperRef.current->Js.Nullable.toOption {
@@ -21,122 +60,23 @@ let make = (~addFilmToList=?, ~disabled=false) => {
     window["addEventListener"]("mousedown", handleClickOutside)
     None
   })
-  let selectItemFromList = film => {
-    Option.map(addFilmToList, func => func(film))->ignore
-    setText(((_, _, _)) => ("", NoResultsInit, -1))
-  }
-  let searchDebounced = ReactDebounce.useDebounced(text =>
-    TheMovieDBAdapter.search(text, res =>
-      setText(((searchString, _prevRes, activeOptionState)) => (
-        searchString,
-        res,
-        activeOptionState,
-      ))
-    ) |> ignore
-  )
-  <div ref={ReactDOM.Ref.domRef(wrapperRef)} id="searchbox-wrapper">
-    <ul id="suggested-films">
-      {showList
-        ? switch suggestedFilms {
-          | NoResultsInit => React.string("")
-          | NoResultsFound => <li> {React.string("No results found")} </li>
-          | Results(suggestedFilmList) =>
-            Belt.Array.slice(suggestedFilmList, ~offset=0, ~len=5)
-            ->Belt.Array.mapWithIndex((i, film) =>
-              <li
-                className={i === activeOption ? "highlight" : ""}
-                onClick={item => {
-                  ReactEvent.Mouse.target(item)["innerText"]->selectItemFromList->ignore
-                }}>
-                <p>
-                  {switch (film["title"], film["year"]) {
-                  | (Some(title), Some("")) => React.string(title)
-                  | (Some(title), None) => React.string(title)
-                  | (Some(title), Some(year)) => React.string(`${title} (${year})`)
-                  | (_, _) => React.string("<error no title>")
-                  }}
-                </p>
-              </li>
-            )
-            ->React.array
-          }
-        : React.string("")}
-    </ul>
+
+  <div className=wrapper ref={ReactDOM.Ref.domRef(wrapperRef)}>
+    <label htmlFor="searchbox" className=label> {React.string(`Add new movie to list`)} </label>
+    <ReactFeather.Search className=searchIcon size=24 />
     <input
+      className={inputField}
       disabled
-      placeholder="Añada pelicula"
+      placeholder="Star wars: The empire str.."
       id="searchbox"
       value={searchText}
       onFocus={e => toggleList(_ => true)}
-      onKeyDown={e => {
-        let keyCode = ReactEvent.Keyboard.keyCode(e)
-        // Enter
-        if keyCode === 13 {
-          switch suggestedFilms {
-          | NoResultsInit => ignore()
-          | NoResultsFound => ignore()
-          | Results(suggestedFilms) =>
-            suggestedFilms[activeOption]
-            ->Option.flatMap(e =>
-              Option.map(e["title"], title => {
-                let year = Option.mapWithDefault(e["year"], "", year => " (" ++ year ++ ")")
-                title ++ year
-              })
-            )
-            ->Option.map(selectItemFromList)
-            ->ignore
-          }
-        } else if (
-          // Up arrow
-          keyCode === 38
-        ) {
-          setText(((searchString, suggestedFilmsState, activeOptionState)) => {
-            switch suggestedFilmsState {
-            | NoResultsInit => (searchString, suggestedFilmsState, activeOptionState)
-            | NoResultsFound => (searchString, suggestedFilmsState, activeOptionState)
-            | Results(filmList) =>
-              let optionsLength = Belt.Array.length(filmList)
-              let newActiveOptionState =
-                activeOptionState === optionsLength ? optionsLength : activeOptionState + 1
-              let selectedFromDropdown =
-                Belt.Array.get(filmList, newActiveOptionState)
-                ->Belt.Option.flatMap(filmItem => filmItem["title"])
-                ->Belt.Option.getWithDefault("")
-              (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
-            }
-          })
-        } else if (
-          // Down arrow
-          keyCode === 40
-        ) {
-          setText(((searchString, suggestedFilmsState, activeOptionState)) => {
-            switch suggestedFilmsState {
-            | NoResultsInit => (searchString, suggestedFilmsState, activeOptionState)
-            | NoResultsFound => (searchString, suggestedFilmsState, activeOptionState)
-            | Results(filmList) =>
-              let newActiveOptionState = activeOptionState === 0 ? 0 : activeOptionState - 1
-              let selectedFromDropdown =
-                Belt.Array.get(filmList, newActiveOptionState)
-                ->Belt.Option.flatMap(filmItem => filmItem["title"])
-                ->Belt.Option.getWithDefault("")
-
-              (selectedFromDropdown, suggestedFilmsState, newActiveOptionState)
-            }
-          })
-        }
-      }}
       onChange={e => {
-        let currentValue = ReactEvent.Form.target(e)["value"]
-        setText(((_searchString, suggestedFilmsState, _activeOptionState)) => (
-          currentValue,
-          suggestedFilmsState,
-          -1,
-        ))
-        searchDebounced(currentValue)
+        let currentText = ReactEvent.Form.target(e)["value"]
+        setText(currentText)
+        searchDebounced(currentText)
       }}
     />
-    <label htmlFor="searchbox" className="searchbox__label">
-      {React.string(`Añada pelicula`)}
-    </label>
+    <SearchResults showList results handleNewFilm />
   </div>
 }

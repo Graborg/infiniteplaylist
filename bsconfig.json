@@ -16,7 +16,8 @@
     "rescript-debounce-react", 
     "bs-css",
     "bs-css-emotion",
-    "@heliaxdev/rescript-react-feather"
+    "@heliaxdev/rescript-react-feather",
+    "rescript-throttle-react"
   ],
   "warnings": {
     "error" : "+101"

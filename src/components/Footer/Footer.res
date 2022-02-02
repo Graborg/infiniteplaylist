@@ -1,5 +1,5 @@
 let wrapper = Emotion.css(`
-  background-color: black;
+  background-color: transparent;
   height: 100px;
 `)
 

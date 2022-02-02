@@ -110,15 +110,19 @@ let make = () => {
     switch state {
     | ErrorFetchingFilms => React.string("An error occurred!")
     | LoadingFilms => <Spinner />
-    | NotLoggedin => <div className=wrapper> <Header /> <LoginButton /> <Footer /> </div>
-    | LoadedFilms(films, selected, seenFilms) =>
+    | NotLoggedin =>
       <div className=wrapper>
+        <MaxWidthWrapper> <Header /> </MaxWidthWrapper> <LoginButton /> <Footer />
+      </div>
+    | LoadedFilms(films, selected, seenFilms) =>
+      <MaxWidthWrapper>
         <Header />
+        <SearchField />
         <h3> {React.string("Not seen")} </h3>
         <FilmList films selected markFilmAsSeen />
         <h3> {React.string("Seen")} </h3>
         <SeenFilmList films=seenFilms />
-      </div>
+      </MaxWidthWrapper>
     }
   }
 }
