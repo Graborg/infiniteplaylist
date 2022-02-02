@@ -40,15 +40,11 @@ let names = css(`
 
 @react.component
 let make = () =>
-  <MaxWidthWrapper>
-    <div className={wrapper}>
-      <div className={nameWrapper}>
-        <p className={ampersand}> {React.string("&")} </p>
-        <p className={names}> {React.string("Ferma Karmi's")} </p>
-      </div>
-      <p className={logo}> {React.string("Infinite Playlist")} </p>
-      <div className={icons}>
-        <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} />
-      </div>
+  <div className={wrapper}>
+    <div className={nameWrapper}>
+      <p className={ampersand}> {React.string("&")} </p>
+      <p className={names}> {React.string("Ferma Karmi's")} </p>
     </div>
-  </MaxWidthWrapper>
+    <p className={logo}> {React.string("Infinite Playlist")} </p>
+    <div className={icons}> <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} /> </div>
+  </div>
