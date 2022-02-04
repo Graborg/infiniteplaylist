@@ -31,88 +31,6 @@ let moveDownInList = (~length, ~maxResultLength, ~changeOption) => {
 let moveUpInList = (~changeOption) =>
   changeOption(oldActiveOption => oldActiveOption === 0 ? 0 : oldActiveOption - 1)
 
-let itemWrapper = Emotion.css(`
-  display: grid; 
-  grid-template-columns: 2fr 1fr; 
-  grid-template-rows:  1fr auto;
-  grid-template-areas:
-    'header poster'
-    'plot poster';
-  padding: 12px 8px;
-  column-gap: 12px;
-  row-gap: 12px;
-  border-bottom: 1px solid var(--color-primary);
-  font-size: 1rem;
-`)
-
-let itemHeader = Emotion.css(`
-  grid-area: header;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  gap: 4px;
-  color: var(--color-lightest-gray);
-  font-family: var(--font-fancy);
-`)
-
-let titleWrapper = Emotion.css(`
-  display: flex;
-  overflow: hidden;
-  white-space: nowrap;
-  gap: 4px;
-  font-weight: bold;
-  font-size: 1.125rem;
-  color: var(--color-black);
-`)
-
-let itemTitle = Emotion.css(`
-  text-overflow: ellipsis;
-  overflow:hidden;
-  white-space: nowrap;
-  font-style: oblique 12deg;
-`)
-
-let itemPlot = Emotion.css(`
-  grid-area: plot;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-  overflow: hidden;
-  height: fit-content;
-  color: var(--color-black);
-`)
-
-let poster = Emotion.css(`
-  max-width:100%;
-  height: 100%;
-  grid-area: poster;
-  border-radius: 4px;
-`)
-
-let resultItem = (film: TheMovieDB.filmResult, active: bool, clickHandler, i) =>
-  <li key={Belt.Int.toString(i)} onClick={item => clickHandler(film)}>
-    {switch (film["title"], film["genres"], film["year"], film["poster_path"], film["plot"]) {
-    | (Some(title), Some(genres), Some(year), Some(poster_path), Some(plot)) =>
-      <div className=itemWrapper>
-        <div className=itemHeader>
-          <p className=titleWrapper>
-            <span className=itemTitle> {React.string(title)} </span>
-            <span> {React.string(`(${year})`)} </span>
-            <span> {React.string(`•`)} </span>
-            <span> {React.string(`2h 35m`)} </span>
-          </p>
-          <span>
-            {React.string(genres->Belt.Array.slice(~offset=0, ~len=2)->Js.Array2.joinWith("/"))}
-          </span>
-        </div>
-        <p className=itemPlot> {React.string(plot)} </p>
-        <img className=poster src={poster_uri ++ poster_path} />
-      </div>
-    | (Some(title), _, _, _, _) => React.string(title)
-    | (_, _, _, _, _) => React.string("<error no title>")
-    }}
-  </li>
-
 @react.component
 let make = (
   ~showList: bool,
@@ -148,9 +66,13 @@ let make = (
         | NoResultsInit => React.string("")
         | NoResultsFound => <li> {React.string("No results found")} </li>
         | Results(suggestedFilmList) =>
-          Belt.Array.slice(suggestedFilmList, ~offset=0, ~len=maxResultLength)
-          ->Belt.Array.mapWithIndex((i, film) =>
-            resultItem(film, i === activeOption, handleNewFilm, i)
+          suggestedFilmList
+          ->Belt.Array.slice(~offset=0, ~len=maxResultLength)
+          ->Belt.Array.mapWithIndex((_i, film) =>
+            switch film["id"] {
+            | Some(id) => <SearchListItem film clickHandler=handleNewFilm key=id />
+            | _ => <p> {React.string("Can't render item")} </p>
+            }
           )
           ->React.array
         }}

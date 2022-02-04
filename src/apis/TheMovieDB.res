@@ -7,6 +7,7 @@ type filmResult = {
   "year": option<Js.String2.t>,
   "poster_path": option<Js.String2.t>,
   "plot": option<string>,
+  "id": option<string>,
   "genres": option<array<Js.String2.t>>,
 }
 
@@ -54,6 +55,9 @@ module TheMovieDBAdapter = {
                   Belt.Map.String.getWithDefault(TheMovieDBGenres.genres, Js.Json.stringify(g), "")
                 )
               ),
+              "id": Js.Dict.get(filmObj, "id")
+              ->Belt.Option.map(Js.Json.stringify)
+              ->Belt.Option.map(trimQuotes),
               "plot": Js.Dict.get(filmObj, "overview")
               ->Belt.Option.map(Js.Json.stringify)
               ->Belt.Option.map(trimQuotes),
