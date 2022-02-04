@@ -1,5 +1,6 @@
 html {
-  --color-primary: #C1666B;
+  --color-primary: hsl(357, 42%, 58%);
+  --color-primary-light: hsl(357, 42%, 58%, 0.5);
   --color-lighter-gray: #3C4248;
   --color-lightest-gray: #4E5359;
   --color-black: #292F36;
@@ -40,6 +41,7 @@ body {
 #root {
   background-color: var(--color-background);
   height: 100%;
+  border-top: 2px solid var(--color-primary-light);
 }
 ul {
   list-style: none;

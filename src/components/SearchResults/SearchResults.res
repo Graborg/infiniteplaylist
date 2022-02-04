@@ -13,6 +13,8 @@ let wrapper = Emotion.css(`
   position: absolute;
   width: 100%;
   border: 1px solid var(--color-primary);
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
 `)
 let highlightedItem = Emotion.css(`
   background-color: var(--color-primary);

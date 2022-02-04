@@ -5,11 +5,10 @@ let wrapper = css(`
   align-items: center;
   height: 70px;
   color: #3C4248;
-  border-top: 1px solid hsl(357, 42%, 58%, .5);
 `)
 
 let logo = css(`
-  font-family: Faster One;
+  font-family: var(--font-logo);
   justify-self: center;
   line-height: 0.8;
   font-size: 1.3rem;

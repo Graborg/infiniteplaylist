@@ -1,18 +1,32 @@
-let itemWrapper = Emotion.css(`
+open Emotion
+
+let itemWrapper = css(`
   display: grid; 
   grid-template-columns: 2fr 1fr; 
   grid-template-rows:  1fr auto;
   grid-template-areas:
     'header poster'
     'plot poster';
-  padding: 12px 8px;
   column-gap: 12px;
   row-gap: 12px;
-  border-bottom: 1px solid var(--color-primary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-primary-light);
   font-size: 1rem;
 `)
 
-let itemHeader = Emotion.css(`
+let listItem = css(
+  `
+  padding: 12px 8px 0 8px;
+  &:last-child .${itemWrapper}  {
+    border-bottom: 0;
+  }
+  &:focus-visible {
+    outline: 5px auto;
+  }
+`,
+)
+
+let itemHeader = css(`
   grid-area: header;
   display: flex;
   flex-direction: column;
@@ -22,7 +36,7 @@ let itemHeader = Emotion.css(`
   font-family: var(--font-fancy);
 `)
 
-let titleWrapper = Emotion.css(`
+let titleWrapper = css(`
   display: flex;
   overflow: hidden;
   white-space: nowrap;
@@ -32,7 +46,7 @@ let titleWrapper = Emotion.css(`
   color: var(--color-black);
 `)
 
-let itemTitle = Emotion.css(`
+let itemTitle = css(`
   text-overflow: ellipsis;
   overflow:hidden;
   white-space: nowrap;
@@ -40,7 +54,7 @@ let itemTitle = Emotion.css(`
   padding-right: 1px;
 `)
 
-let itemPlot = Emotion.css(`
+let itemPlot = css(`
   grid-area: plot;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -50,18 +64,22 @@ let itemPlot = Emotion.css(`
   color: var(--color-black);
 `)
 
-let poster = posterHasLoaded => 
-  Emotion.css(`
+let poster = posterHasLoaded =>
+  css(
+    `
   max-width:100%;
   height: 100%;
   grid-area: poster;
   border-radius: 4px;
   display: ${posterHasLoaded ? "block" : "none"};
-`)
+`,
+  )
 
-let posterSkeleton = posterHasLoaded => 
-  Emotion.css(`
-    display: ${posterHasLoaded ? "none" : "block" };
+let posterSkeleton = posterHasLoaded =>
+  css(
+    `
+    display: ${posterHasLoaded ? "none" : "block"};
+    min-height: 175px;
     background: var(--color-lightest-gray);
     grid-area: poster;
     border-radius: 4px;
@@ -86,12 +104,13 @@ let posterSkeleton = posterHasLoaded =>
         transform: translateX(100%);
       }
     }
-  `)
+  `,
+  )
 @react.component
 let make = (~film: TheMovieDB.filmResult, ~clickHandler) => {
   let (posterHasLoaded, setPosterLoading) = React.useState(() => false)
 
-  <li onClick={item => clickHandler(film)}>
+  <li tabIndex=0 className=listItem onClick={item => clickHandler(film)}>
     {switch (film["title"], film["genres"], film["year"], film["poster_path"], film["plot"]) {
     | (Some(title), Some(genres), Some(year), Some(poster_path), Some(plot)) =>
       <div className=itemWrapper>
@@ -107,10 +126,12 @@ let make = (~film: TheMovieDB.filmResult, ~clickHandler) => {
           </span>
         </div>
         <p className=itemPlot> {React.string(plot)} </p>
-        <div className=posterSkeleton(posterHasLoaded) />
-        <img className=poster(posterHasLoaded) onLoad={(_) => 
-          setPosterLoading((_) => true)
-        } src={TheMovieDB.poster_uri ++ poster_path } />
+        <div className={posterSkeleton(posterHasLoaded)} />
+        <img
+          className={poster(posterHasLoaded)}
+          onLoad={_ => setPosterLoading(_ => true)}
+          src={TheMovieDB.poster_uri ++ poster_path}
+        />
       </div>
     | (Some(title), _, _, _, _) => React.string(title)
     | (_, _, _, _, _) => React.string("<error no title>")

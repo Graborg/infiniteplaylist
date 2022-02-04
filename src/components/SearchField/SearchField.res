@@ -6,18 +6,21 @@ open Emotion
 
 let wrapper = css(`
   position: relative;
-  border: 1px solid var(--color-primary);
-  border-radius: 4px;
 `)
 
-let inputField = css(`
+let inputField = showList =>
+  css(
+    `
   background-color: transparent;
   width: 100%;
   padding: 10px;
   padding-left: 34px;
   border: 0;
   font-family: var(--font-bread);
-`)
+  border: 1px solid var(--color-primary);
+  border-radius: ${showList ? "4px 4px 0 0" : "4px"};
+`,
+  )
 
 let label = css(`
   position: absolute;
@@ -65,7 +68,7 @@ let make = (~disabled: bool=false, ()) => {
     <label htmlFor="searchbox" className=label> {React.string(`Add new movie to list`)} </label>
     <ReactFeather.Search className=searchIcon size=24 />
     <input
-      className={inputField}
+      className={inputField(showList)}
       disabled
       placeholder="Star wars: The empire str.."
       id="searchbox"
