@@ -1,10 +1,13 @@
 let api_key = "6457e32b10837b9f9a7bbdf1e6aa0aa0"
 let base_uri = "https://api.themoviedb.org/3/"
+let poster_uri = "https://www.themoviedb.org/t/p/original/"
 
 type filmResult = {
-  "category": option<string>,
   "title": option<Js.String2.t>,
   "year": option<Js.String2.t>,
+  "poster_path": option<Js.String2.t>,
+  "plot": option<string>,
+  "genres": option<array<Js.String2.t>>,
 }
 
 type results =
@@ -44,7 +47,19 @@ module TheMovieDBAdapter = {
               ->Belt.Option.map(Js.Json.stringify)
               ->Belt.Option.map(trimQuotes)
               ->Belt.Option.flatMap(date => Js.String2.split(date, "-")->Belt.Array.get(0)),
-              "category": Js.Dict.get(filmObj, "title")->Belt.Option.map(Js.Json.stringify),
+              "genres": Js.Dict.get(filmObj, "genre_ids")
+              ->Belt.Option.flatMap(Js.Json.decodeArray)
+              ->Belt.Option.map(genres =>
+                Js.Array2.map(genres, g =>
+                  Belt.Map.String.getWithDefault(TheMovieDBGenres.genres, Js.Json.stringify(g), "")
+                )
+              ),
+              "plot": Js.Dict.get(filmObj, "overview")
+              ->Belt.Option.map(Js.Json.stringify)
+              ->Belt.Option.map(trimQuotes),
+              "poster_path": Js.Dict.get(filmObj, "poster_path")
+              ->Belt.Option.map(Js.Json.stringify)
+              ->Belt.Option.map(trimQuotes),
             }
           )
         )

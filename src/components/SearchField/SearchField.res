@@ -39,7 +39,7 @@ let handleNewFilm = (film: filmResult) => Js.log(film["title"])
 
 @react.component
 let make = (~disabled: bool=false, ()) => {
-  let (showList, toggleList) = React.useState(_ => true)
+  let (showList, toggleList) = React.useState(_ => false)
   let (searchText, setText) = React.useState(_ => "")
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
 
@@ -70,11 +70,17 @@ let make = (~disabled: bool=false, ()) => {
       placeholder="Star wars: The empire str.."
       id="searchbox"
       value={searchText}
-      onFocus={e => toggleList(_ => true)}
+      onFocus={e => {
+        switch results {
+        | Results(_) => toggleList(_ => true)
+        | _ => ignore()
+        }
+      }}
       onChange={e => {
         let currentText = ReactEvent.Form.target(e)["value"]
         setText(currentText)
         searchDebounced(currentText)
+        toggleList(_ => true)
       }}
     />
     <SearchResults showList results handleNewFilm />
