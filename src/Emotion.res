@@ -5,4 +5,3 @@
 @module("@emotion/css") external cx: array<string> => string = "cx"
 
 @module("@emotion/css") external injectGlobal: string => unit = "injectGlobal"
-@module("@emotion/styled") external default: 'a => 'a = "default"

@@ -100,10 +100,17 @@ let make = () => {
     })
   }
   let wrapper = Emotion.css(`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  `)
+  let listTitle = Emotion.css(`
+    font-size: calc(20rem/16);
+    width: fit-content;
+    padding-bottom: 4px;
+    padding-top: 24px;
+    border-bottom: 1px solid var(--color-black);
   `)
 
   {
@@ -118,7 +125,7 @@ let make = () => {
       <MaxWidthWrapper>
         <Header />
         <SearchField />
-        <h3> {React.string("Not seen")} </h3>
+        <h3 className=listTitle> {React.string("Not seen")} </h3>
         <FilmList films selected markFilmAsSeen />
         <h3> {React.string("Seen")} </h3>
         <SeenFilmList films=seenFilms />
