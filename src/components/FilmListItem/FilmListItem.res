@@ -21,7 +21,7 @@ let make = (
 
   {
     <div
-      key={Belt.Float.toString(film.id)}
+      key={Belt.Int.toString(film.id)}
       className="film-item inputGroup"
       onClick={_ => {
         setCheck(prevState => !prevState)

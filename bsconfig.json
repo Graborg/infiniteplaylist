@@ -13,6 +13,7 @@
   "suffix": ".bs.js",
   "bs-dependencies": ["@rescript/react", 
     "bs-fetch", 
+    "@glennsl/bs-json", 
     "bs-css",
     "bs-css-emotion",
     "@heliaxdev/rescript-react-feather",

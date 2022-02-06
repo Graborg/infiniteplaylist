@@ -54,7 +54,7 @@ let make = () => {
     None
   })
   let markFilmAsSeen = (film: Todoist.film) => {
-    let _k = Todoist.setFilmAsSeen(film)
+    // let _k = Todoist.setFilmAsSeen(film)
     Js.Global.setTimeout(() => {
       setState((LoadedFilms(films, selected, seenFilms)) => {
         let newUnseen = Js.Array2.filter(films, f => f.name !== film.name)
@@ -65,7 +65,7 @@ let make = () => {
   }
 
   let unDooSeenFilm = (film: Todoist.film) => {
-    let _k = Todoist.setFilmAsUnseen(film)
+    //let _k = Todoist.setFilmAsUnseen(film)
     Js.Global.setTimeout(() => {
       setState((LoadedFilms(films, selected, seenFilms)) => {
         let newSeenFilms = Js.Array2.filter(seenFilms, f => f.name !== film.name)
@@ -84,21 +84,21 @@ let make = () => {
 
     selectedByKarmi > selectedByFerma ? Ferma : Karmi
   }
-  let addFilmToList = (filmName: string) => {
-    Todoist.addFilm(filmName) |> Js.Promise.then_(((creator, filmId)) => {
-      let film: Todoist.film = {
-        name: filmName,
-        seen: false,
-        id: filmId,
-        creator: creator,
-      }
-      setState((LoadedFilms(films, selected, seenFilms)) => {
-        let newUnseen = Js.Array.concat([film], films)
-        LoadedFilms(newUnseen, selected, seenFilms)
-      })
-      Js.Promise.resolve()
-    })
-  }
+  /* let addFilmToList = (filmName: string) => { */
+  /* Todoist.addFilm(filmName) |> Js.Promise.then_(((creator, filmId)) => { */
+  /* let film: Todoist.film = { */
+  /* name: filmName, */
+  /* seen: false, */
+  /* id: filmId, */
+  /* creator: creator, */
+  /* } */
+  /* setState((LoadedFilms(films, selected, seenFilms)) => { */
+  /* let newUnseen = Js.Array.concat([film], films) */
+  /* LoadedFilms(newUnseen, selected, seenFilms) */
+  /* }) */
+  /* Js.Promise.resolve() */
+  /* }) */
+  /* } */
   let wrapper = Emotion.css(`
     height: 100%;
     display: flex;
