@@ -38,10 +38,8 @@ let searchIcon = css(`
   color: var(--color-primary);
 `)
 
-let handleNewFilm = (film: filmResult) => Js.log(film["title"])
-
 @react.component
-let make = (~disabled: bool=false, ()) => {
+let make = (~addFilmHandler, ~disabled: bool=false, ()) => {
   let (showList, toggleList) = React.useState(_ => false)
   let (searchText, setText) = React.useState(_ => "")
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
@@ -86,6 +84,6 @@ let make = (~disabled: bool=false, ()) => {
         toggleList(_ => true)
       }}
     />
-    <SearchResults showList results handleNewFilm />
+    <SearchResults showList results handleNewFilm=addFilmHandler />
   </div>
 }

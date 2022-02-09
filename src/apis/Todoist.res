@@ -6,6 +6,7 @@ let todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects"
 let todoistProjectUrl = "https://api.todoist.com/rest/v1/tasks?project_id="
 let tasksUrl = "https://api.todoist.com/rest/v1/tasks"
 let randomString = "fox0BUFvugh1kau"
+let targetProjectName = "FermaandKarmisInfinitePlaylist"
 let todoistLoginLink =
   "http://todoist.com/oauth/authorize?client_id=" ++
   clientId ++
@@ -16,6 +17,9 @@ open Js.Promise
 type creator =
   | Karmi
   | Ferma
+
+let getCreator = (userId: int) => userId === 13612164 ? Karmi : Ferma
+
 type film = {
   seen: bool,
   id: int,
@@ -32,8 +36,10 @@ let getTokenLocalStorage = () =>
   Dom.Storage.getItem(localStorageNamespace, Dom.Storage.localStorage)
 let getProjectIdLocalStorage = () =>
   Dom.Storage.getItem(localStorageProjectIdNamespace, Dom.Storage.localStorage)
-let setProjectIdLocalStorage = projectId =>
+let setProjectIdLocalStorage = projectId => {
   Dom.Storage.setItem(localStorageProjectIdNamespace, projectId, Dom.Storage.localStorage)
+  projectId
+}
 
 let authorizationHeader = token =>
   Fetch.RequestInit.make(
@@ -83,21 +89,30 @@ let authorizationHeader = token =>
 /* ) */
 /* } */
 /* } */
+type payload = {
+  projectId: string,
+  content: string,
+}
 
-let addFilm = (filmName: string) => {
+let encodePayload = (projectId: string, content: option<string>) => {
+  open Json.Encode
+  object_(list{
+    ("project_id", string(projectId)),
+    ("content", string(Belt.Option.getWithDefault(content, ""))),
+  }) |> Json.stringify
+}
+
+let addFilm = (film: TheMovieDB.filmResult) => {
   let token = getTokenLocalStorage()
-  let payload = Js.Dict.empty()
   let projectId = getProjectIdLocalStorage()
-  let projectIdFloat = Belt.Option.flatMap(projectId, Belt.Float.fromString)
-  switch (token, projectIdFloat) {
+  switch (token, projectId) {
   | (Some(token), Some(projectId)) => {
-      Js.Dict.set(payload, "content", Js.Json.string(filmName))
-      Js.Dict.set(payload, "project_id", Js.Json.number(projectId))
+      let payload = encodePayload(projectId, film["title"])
       Fetch.fetchWithInit(
         tasksUrl,
         Fetch.RequestInit.make(
           ~method_=Post,
-          ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
+          ~body=Fetch.BodyInit.make(payload),
           ~headers=Fetch.HeadersInit.make({
             "Content-Type": "application/json",
             "Authorization": "Bearer " ++ token,
@@ -106,63 +121,38 @@ let addFilm = (filmName: string) => {
         ),
       )
       |> then_(Fetch.Response.json)
-      |> then_(res => {
-        let decoded = Js.Json.decodeObject(res)
-        switch decoded {
-        | Some(film) => {
-            let id =
-              Js.Dict.get(film, "id")
-              ->Belt.Option.getWithDefault(Js.Json.string("0"))
-              ->Js.Json.decodeNumber
-              ->Belt.Option.getWithDefault(1.0)
-            let creator =
-              Js.Dict.get(film, "creator")
-              ->Belt.Option.getWithDefault(Js.Json.string(""))
-              ->Js.Json.decodeNumber
-              ->Belt.Option.getWithDefault(1.0)
-              ->Belt.Float.toInt
-            Js.Promise.resolve((creator === 13612164 ? Karmi : Ferma, id))
-          }
-        }
-      })
+      |> ignore
     }
+  | (_, _) => ()
   }
 }
 
+type project = {
+  id: int,
+  name: string,
+}
+
+let decodeProject = json => {
+  open Json.Decode
+  {
+    id: json |> field("id", int),
+    name: json |> field("name", string),
+  }
+}
+
+let decodeProjects = json => {
+  open Json.Decode
+  json |> array(decodeProject)
+}
+
 let getProjectId = token =>
-  Fetch.fetchWithInit(todoistProjectsUrl, authorizationHeader(token))
+  todoistProjectsUrl->Fetch.fetchWithInit(authorizationHeader(token))
   |> then_(Fetch.Response.json)
   |> then_(res => {
-    let decoded = Js.Json.decodeArray(res)
-    switch decoded {
-    | Some(list) =>
-      let projectId =
-        Belt.Array.map(list, e => Js.Json.decodeObject(e))
-        ->Belt.Array.keep(e =>
-          Js.Dict.get(
-            Belt.Option.getWithDefault(e, Js.Dict.empty()),
-            "name",
-          )->Belt.Option.getWithDefault(Js.Json.string("")) ===
-            Js.Json.string("FermaandKarmisInfinitePlaylist")
-        )
-        ->Belt.Array.map(e => Js.Dict.get(Belt.Option.getWithDefault(e, Js.Dict.empty()), "id"))
-        ->Belt.Array.get(0)
-
-      switch projectId {
-      | Some(id) =>
-        switch id {
-        | Some(projectId) => {
-            let idStringyfied = Js.Json.stringify(projectId)
-            setProjectIdLocalStorage(idStringyfied)
-            Js.Promise.resolve(idStringyfied)
-          }
-
-        | None => {
-            Js.log("Project ID not found")
-            Js.Promise.resolve("")
-          }
-        }
-      }
+    let project = res->decodeProjects->Belt.Array.getBy(p => p.name === targetProjectName)
+    switch project {
+    | Some(p) => p.id->Belt.Int.toString->setProjectIdLocalStorage->Js.Promise.resolve
+    | None => Js.Promise.reject(Not_found)
     }
   })
 
@@ -200,7 +190,6 @@ type data = {seen: bool}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-let getCreator = (userId: int) => userId === 13612164 ? Karmi : Ferma
 let getFilms = token =>
   getProjectId(token) |> then_(id =>
     Fetch.fetchWithInit(todoistProjectUrl ++ id, authorizationHeader(token))
@@ -233,47 +222,37 @@ let getFilms = token =>
     )
   )
 
+let encodeTokenPayload = (~code, ~clientSecret, ~clientId) => {
+  open Json.Encode
+  object_(list{
+    ("code", string(code)),
+    ("client_secret", string(clientSecret)),
+    ("client_id", string(clientId)),
+  }) |> Json.stringify
+}
+
+let decodeTokenPayload = json => {
+  open Json.Decode
+  json |> field("access_token", string)
+}
+
 let setToken = code => {
-  switch code {
-  | Some(code) =>
-    let payload = Js.Dict.empty()
-    Js.Dict.set(payload, "code", Js.Json.string(code))
-    Js.Dict.set(payload, "client_secret", Js.Json.string(clientSecret))
-    Js.Dict.set(payload, "client_id", Js.Json.string(clientId))
-
-    Fetch.fetchWithInit(
-      "https://todoist.com/oauth/access_token",
-      Fetch.RequestInit.make(
-        ~method_=Post,
-        ~body=Fetch.BodyInit.make(Js.Json.stringify(Js.Json.object_(payload))),
-        ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
-        (),
-      ),
-    )
-    |> then_(Fetch.Response.json)
-    |> then_(jsonResponse => {
-      let decoded = Js.Json.decodeObject(jsonResponse)
-      let maybeToken = switch decoded {
-      | Some(payload) => Js.Dict.get(payload, "access_token")
-      | None => None
-      }
-
-      switch maybeToken {
-      | Some(token) =>
-        let tokenWithoutQuotes = token->Js.Json.stringify->trimQuotes->setTokenLocalStorage
-        Js.Promise.resolve(tokenWithoutQuotes)
-      | None => Js.Promise.reject(Not_found)
-      }
-    })
-  | None => Js.Promise.reject(Not_found)
-  }
+  let payload = encodeTokenPayload(~code, ~clientSecret, ~clientId)
+  Fetch.fetchWithInit(
+    "https://todoist.com/oauth/access_token",
+    Fetch.RequestInit.make(
+      ~method_=Post,
+      ~body=Fetch.BodyInit.make(payload),
+      ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
+      (),
+    ),
+  )
+  |> then_(Fetch.Response.json)
+  |> then_(res => decodeTokenPayload(res)->setTokenLocalStorage |> Js.Promise.resolve)
 }
 
-let searchStringToCode = search => {
-  let code =
-    search->Js.String2.split("&s")->Belt.Array.getBy(e => Js.String2.startsWith(e, "code="))
-  switch code {
-  | Some(v) => Some(Js.String2.split(v, "=")[1])
-  | None => None
-  }
-}
+let searchStringToCode = search =>
+  search
+  ->Js.String2.split("&s")
+  ->Belt.Array.getBy(e => Js.String2.startsWith(e, "code="))
+  ->Belt.Option.flatMap(c => c->Js.String2.split("=")->Belt.Array.get(1))

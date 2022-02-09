@@ -33,13 +33,15 @@ let make = () => {
       | "" => setState(_preState => NotLoggedin)
       | search =>
         Todoist.searchStringToCode(search)
-        |> Todoist.setToken
-        |> Js.Promise.then_(Todoist.getFilms)
-        |> Js.Promise.then_(films => {
-          setState(_preState => LoadedFilms(films, "", []))
-          Js.Promise.resolve()
-        })
-        |> ignore
+        ->Belt.Option.map(e =>
+          Todoist.setToken(e)
+          |> Js.Promise.then_(Todoist.getFilms)
+          |> Js.Promise.then_(films => {
+            setState(_preState => LoadedFilms(films, "", []))
+            Js.Promise.resolve()
+          })
+        )
+        ->ignore
       }
     | Some(token) =>
       Todoist.getFilms(token)
@@ -84,21 +86,22 @@ let make = () => {
 
     selectedByKarmi > selectedByFerma ? Ferma : Karmi
   }
-  /* let addFilmToList = (filmName: string) => { */
-  /* Todoist.addFilm(filmName) |> Js.Promise.then_(((creator, filmId)) => { */
-  /* let film: Todoist.film = { */
-  /* name: filmName, */
-  /* seen: false, */
-  /* id: filmId, */
-  /* creator: creator, */
-  /* } */
-  /* setState((LoadedFilms(films, selected, seenFilms)) => { */
-  /* let newUnseen = Js.Array.concat([film], films) */
-  /* LoadedFilms(newUnseen, selected, seenFilms) */
-  /* }) */
-  /* Js.Promise.resolve() */
-  /* }) */
-  /* } */
+  let addFilmToList = (filmName: TheMovieDB.filmResult) => {
+    filmName |> Todoist.addFilm
+    /* |> Js.Promise.then_(((creator, filmId)) => { */
+    /* let film: Todoist.film = { */
+    /* name: filmName, */
+    /* seen: false, */
+    /* id: filmId, */
+    /* creator: creator, */
+    /* } */
+    /* setState((LoadedFilms(films, selected, seenFilms)) => { */
+    /* let newUnseen = Js.Array.concat([film], films) */
+    /* LoadedFilms(newUnseen, selected, seenFilms) */
+    /* }) */
+    /* Js.Promise.resolve() */
+    /* }) */
+  }
   let wrapper = Emotion.css(`
     height: 100%;
     display: flex;
@@ -124,7 +127,7 @@ let make = () => {
     | LoadedFilms(films, selected, seenFilms) =>
       <MaxWidthWrapper>
         <Header />
-        <SearchField />
+        <SearchField addFilmHandler=addFilmToList />
         <h3 className=listTitle> {React.string("Not seen")} </h3>
         <FilmList films selected markFilmAsSeen />
         <h3> {React.string("Seen")} </h3>
