@@ -11,18 +11,12 @@ let todoistLoginLink =
   "&scope=data:read_write,data:delete&state=" ++
   randomString
 
-type creator =
-  | Karmi
-  | Ferma
-
-let getCreator = (userId: int) => userId === 13612164 ? Karmi : Ferma
-
-type film = {
-  seen: bool,
-  id: int,
-  name: string,
-  creator: creator,
-}
+/* type film = { */
+/* seen: bool, */
+/* id: int, */
+/* name: string, */
+/* creator: creator, */
+/* } */
 
 let authorizationHeader = token =>
   Fetch.RequestInit.make(
@@ -77,15 +71,15 @@ type payload = {
   content: string,
 }
 
-let encodePayload = (projectId: string, content: option<string>) => {
+let encodePayload = (projectId: string, content: FilmType.film) => {
   open Json.Encode
   object_(list{
     ("project_id", string(projectId)),
-    ("content", string(Belt.Option.getWithDefault(content, ""))),
+    ("content", string(content.title)),
   }) |> Json.stringify
 }
 
-let addFilm = (film: TheMovieDB.filmResult) => {
+let addFilm = (film: FilmType.film) => {
   open Js.Promise
   open Fetch
 
@@ -93,7 +87,7 @@ let addFilm = (film: TheMovieDB.filmResult) => {
   let projectId = LocalStorage.getProjectId()
   switch (token, projectId) {
   | (Some(token), Some(projectId)) => {
-      let payload = encodePayload(projectId, film["title"])
+      let payload = encodePayload(projectId, film)
       fetchWithInit(
         tasksUrl,
         RequestInit.make(
@@ -105,11 +99,9 @@ let addFilm = (film: TheMovieDB.filmResult) => {
           }),
           (),
         ),
-      )
-      |> then_(Response.json)
-      |> ignore
+      ) |> then_(Response.json)
     }
-  | (_, _) => ()
+  | (_, _) => reject(Not_found)
   }
 }
 
@@ -177,13 +169,14 @@ let decodeTasks = json => {
   json |> array(decodeTask)
 }
 
-type data = {seen: bool}
+type filmMetaData = {seen: bool}
 @scope("JSON") @val
-external parseIntoMyData: string => data = "parse"
+external parseIntoMyData: string => filmMetaData = "parse"
 
 let getFilms = token => {
   open Js.Promise
   open Fetch
+  open FilmType
   getProjectId(token) |> then_(id =>
     fetchWithInit(todoistProjectUrl ++ id, authorizationHeader(token))
     |> then_(Response.json)
@@ -193,22 +186,38 @@ let getFilms = token => {
       ->Js.Array2.map(film => {
         switch film.description {
         | None => {
-            seen: false,
             id: film.id,
-            name: film.content,
-            creator: getCreator(film.creator),
+            title: film.content,
+            creator: getUserVariant(film.creator),
+            releaseDate: None,
+            posterPath: None,
+            plot: None,
+            genres: None,
+            language: None,
+            seen: false,
           }
+
         | Some("") => {
             seen: false,
             id: film.id,
-            name: film.content,
-            creator: getCreator(film.creator),
+            title: film.content,
+            releaseDate: None,
+            posterPath: None,
+            plot: None,
+            genres: None,
+            language: None,
+            creator: getUserVariant(film.creator),
           }
         | Some(description) => {
             seen: parseIntoMyData(description).seen,
             id: film.id,
-            name: film.content,
-            creator: getCreator(film.creator),
+            title: film.content,
+            releaseDate: None,
+            posterPath: None,
+            plot: None,
+            genres: None,
+            language: None,
+            creator: getUserVariant(film.creator),
           }
         }
       }) |> resolve

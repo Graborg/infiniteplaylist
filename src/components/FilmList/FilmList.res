@@ -1,9 +1,9 @@
 @react.component
-let make = (~films: array<Todoist.film>, ~selected, ~markFilmAsSeen) =>
+let make = (~films: array<FilmType.film>, ~selected, ~markFilmAsSeen) =>
   <div className="film-list">
     {films
     ->Belt.Array.map(film => {
-      let selected = selected == film.name
+      let selected = selected == film.title
       <FilmListItem key={Belt.Int.toString(film.id) ++ "h"} film selected click=markFilmAsSeen />
     })
     ->React.array}

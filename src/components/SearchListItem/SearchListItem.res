@@ -107,12 +107,12 @@ let posterSkeleton = posterHasLoaded =>
   `,
   )
 @react.component
-let make = (~film: TheMovieDB.filmResult, ~clickHandler) => {
+let make = (~film: TheMovieDB.searchResult, ~clickHandler: TheMovieDB.searchResult => unit) => {
   let (posterHasLoaded, setPosterLoading) = React.useState(() => false)
 
   <li tabIndex=0 className=listItem onClick={item => clickHandler(film)}>
-    {switch (film["title"], film["genres"], film["year"], film["poster_path"], film["plot"]) {
-    | (Some(title), Some(genres), Some(year), Some(poster_path), Some(plot)) =>
+    {switch (film.title, film.genres, film.releaseDate, film.posterPath, film.plot) {
+    | (title, Some(genres), Some(year), Some(poster_path), Some(plot)) =>
       <div className=itemWrapper>
         <div className=itemHeader>
           <p className=titleWrapper>
@@ -133,8 +133,7 @@ let make = (~film: TheMovieDB.filmResult, ~clickHandler) => {
           src={TheMovieDB.poster_uri ++ poster_path}
         />
       </div>
-    | (Some(title), _, _, _, _) => React.string(title)
-    | (_, _, _, _, _) => React.string("<error no title>")
+    | (title, _, _, _, _) => React.string(title)
     }}
   </li>
 }

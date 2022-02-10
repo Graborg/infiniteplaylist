@@ -17,7 +17,8 @@
     "bs-css",
     "bs-css-emotion",
     "@heliaxdev/rescript-react-feather",
-    "rescript-throttle-react"
+    "rescript-throttle-react",
+    "rescript-firebase"
   ],
   "warnings": {
     "error" : "+101"

@@ -1,5 +1,4 @@
 @val external window: {..} = "window"
-open TheMovieDB
 
 type keyCode =
   | Enter
@@ -37,7 +36,7 @@ let moveUpInList = (~changeOption) =>
 let make = (
   ~showList: bool,
   ~results: TheMovieDB.results,
-  ~handleNewFilm: TheMovieDB.filmResult => unit,
+  ~handleNewFilm: TheMovieDB.searchResult => unit,
 ) => {
   let (activeOption, changeOption) = React.useState(() => -1)
   let maxResultLength = 5
@@ -71,10 +70,7 @@ let make = (
           suggestedFilmList
           ->Belt.Array.slice(~offset=0, ~len=maxResultLength)
           ->Belt.Array.mapWithIndex((_i, film) =>
-            switch film["id"] {
-            | Some(id) => <SearchListItem film clickHandler=handleNewFilm key=id />
-            | _ => <p> {React.string("Can't render item")} </p>
-            }
+            <SearchListItem film clickHandler=handleNewFilm key={Belt.Int.toString(film.id)} />
           )
           ->React.array
         }}

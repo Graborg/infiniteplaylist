@@ -34,7 +34,8 @@ let horn = %raw(`
     }
 `)
 let creatorToString = creator => {
-  open Todoist
+  open FilmType
+
   switch creator {
   | Some(Karmi) => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
   | Some(Ferma) => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
@@ -43,6 +44,7 @@ let creatorToString = creator => {
 }
 
 let getCreatorColor = creator => {
+  open FilmType
   open Todoist
   switch creator {
   | Some(Ferma) => "#476098"
@@ -50,18 +52,19 @@ let getCreatorColor = creator => {
   | None => ""
   }
 }
-let electFilm = (~setState, ~doSelectFilm, ~nextElector, ~films: array<Todoist.film>=[], ()) => {
+let electFilm = (~setState, ~doSelectFilm, ~nextElector, ~films: array<FilmType.film>=[], ()) => {
   confetti()->ignore
   horn()->ignore
 
   switch (doSelectFilm, nextElector) {
   | (Some(selectFilmFunc), Some(elector)) =>
     {
-      let filmsOfCreator = films->Js.Array2.filter((film: Todoist.film) => film.creator === elector)
+      let filmsOfCreator =
+        films->Js.Array2.filter((film: FilmType.film) => film.creator === elector)
       let randomIndex = filmsOfCreator->Belt.Array.length->Random.int
       Belt.Array.get(filmsOfCreator, randomIndex)->Belt.Option.map(film => {
-        selectFilmFunc(film.name)
-        setState(_prevState => FilmElected(film.name))
+        selectFilmFunc(film.title)
+        setState(_prevState => FilmElected(film.title))
       })
     }->ignore
   | (Some(_), None) => Js.log("no function passed to RandomBtn")
@@ -71,12 +74,7 @@ let electFilm = (~setState, ~doSelectFilm, ~nextElector, ~films: array<Todoist.f
 }
 
 @react.component
-let make = (
-  ~films=[],
-  ~doSelectFilm=?,
-  ~nextElector: option<Todoist.creator>=?,
-  ~disabled=false,
-) => {
+let make = (~films=[], ~doSelectFilm=?, ~nextElector: option<FilmType.user>=?, ~disabled=false) => {
   let (state, setState) = React.useState(() => NoElection)
   <div>
     {switch state {

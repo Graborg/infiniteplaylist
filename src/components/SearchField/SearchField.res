@@ -39,7 +39,7 @@ let searchIcon = css(`
 `)
 
 @react.component
-let make = (~addFilmHandler, ~disabled: bool=false, ()) => {
+let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=false, ()) => {
   let (showList, toggleList) = React.useState(_ => false)
   let (searchText, setText) = React.useState(_ => "")
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)

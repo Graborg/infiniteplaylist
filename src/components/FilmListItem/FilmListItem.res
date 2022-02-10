@@ -4,7 +4,7 @@ type mouseOver =
   | MouseIsOver
   | MouseNotOver
 
-let creatorToString = (creator: Todoist.creator) =>
+let creatorToString = (creator: FilmType.user) =>
   switch creator {
   | Karmi => j`🐘 ` ++ "Karmi" ++ j` 🐘`
   | Ferma => j`🐄 ` ++ "Ferma" ++ j` 🐄`
@@ -12,8 +12,8 @@ let creatorToString = (creator: Todoist.creator) =>
 
 @react.component
 let make = (
-  ~film: Todoist.film,
-  ~click: Todoist.film => unit=_ => Js.log("You forgot to set a onClick handler"),
+  ~film: FilmType.film,
+  ~click: FilmType.film => unit=_ => Js.log("You forgot to set a onClick handler"),
   ~selected: bool=false,
   (),
 ) => {
@@ -42,7 +42,7 @@ let make = (
       )}>
       <p>
         {selected ? React.string(j`🤠` ++ " ") : React.string("")}
-        {React.string(film.name)}
+        {React.string(film.title)}
         {selected ? React.string(" " ++ j`🤠`) : React.string("")}
       </p>
       <p style={ReactDOMStyle.make(~border="black 5px", ())}>
