@@ -27,7 +27,8 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
 
   React.useEffect0(() => {
-    switch Dom.Storage.getItem(localStorageNamespace, Dom.Storage.localStorage) {
+    open Js.Promise
+    switch LocalStorage.getToken() {
     | None =>
       switch url.search {
       | "" => setState(_preState => NotLoggedin)
@@ -35,21 +36,21 @@ let make = () => {
         Todoist.searchStringToCode(search)
         ->Belt.Option.map(e =>
           Todoist.setToken(e)
-          |> Js.Promise.then_(Todoist.getFilms)
-          |> Js.Promise.then_(films => {
+          |> then_(Todoist.getFilms)
+          |> then_(films => {
             setState(_preState => LoadedFilms(films, "", []))
-            Js.Promise.resolve()
+            resolve()
           })
         )
         ->ignore
       }
     | Some(token) =>
       Todoist.getFilms(token)
-      |> Js.Promise.then_((films: array<Todoist.film>) => {
+      |> then_((films: array<Todoist.film>) => {
         let unseen = films->Js.Array2.filter(film => !film.seen)
         let seen = films->Js.Array2.filter(film => film.seen)
         setState(_prevState => LoadedFilms(unseen, "", seen))
-        Js.Promise.resolve()
+        resolve()
       })
       |> ignore
     }

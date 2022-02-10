@@ -1,5 +1,3 @@
-let localStorageNamespace = "todoist-token"
-let localStorageProjectIdNamespace = "todoist-project"
 let clientSecret = "93820ee048244655adc1bb55475f0297"
 let clientId = "be81e104bbad4668a009dbf1ae3221c6"
 let todoistProjectsUrl = "https://api.todoist.com/rest/v1/projects"
@@ -13,7 +11,6 @@ let todoistLoginLink =
   "&scope=data:read_write,data:delete&state=" ++
   randomString
 
-open Js.Promise
 type creator =
   | Karmi
   | Ferma
@@ -25,20 +22,6 @@ type film = {
   id: int,
   name: string,
   creator: creator,
-}
-let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
-
-let setTokenLocalStorage = token => {
-  Dom.Storage.setItem(localStorageNamespace, token, Dom.Storage.localStorage)
-  token
-}
-let getTokenLocalStorage = () =>
-  Dom.Storage.getItem(localStorageNamespace, Dom.Storage.localStorage)
-let getProjectIdLocalStorage = () =>
-  Dom.Storage.getItem(localStorageProjectIdNamespace, Dom.Storage.localStorage)
-let setProjectIdLocalStorage = projectId => {
-  Dom.Storage.setItem(localStorageProjectIdNamespace, projectId, Dom.Storage.localStorage)
-  projectId
 }
 
 let authorizationHeader = token =>
@@ -103,24 +86,27 @@ let encodePayload = (projectId: string, content: option<string>) => {
 }
 
 let addFilm = (film: TheMovieDB.filmResult) => {
-  let token = getTokenLocalStorage()
-  let projectId = getProjectIdLocalStorage()
+  open Js.Promise
+  open Fetch
+
+  let token = LocalStorage.getToken()
+  let projectId = LocalStorage.getProjectId()
   switch (token, projectId) {
   | (Some(token), Some(projectId)) => {
       let payload = encodePayload(projectId, film["title"])
-      Fetch.fetchWithInit(
+      fetchWithInit(
         tasksUrl,
-        Fetch.RequestInit.make(
+        RequestInit.make(
           ~method_=Post,
-          ~body=Fetch.BodyInit.make(payload),
-          ~headers=Fetch.HeadersInit.make({
+          ~body=BodyInit.make(payload),
+          ~headers=HeadersInit.make({
             "Content-Type": "application/json",
             "Authorization": "Bearer " ++ token,
           }),
           (),
         ),
       )
-      |> then_(Fetch.Response.json)
+      |> then_(Response.json)
       |> ignore
     }
   | (_, _) => ()
@@ -145,16 +131,21 @@ let decodeProjects = json => {
   json |> array(decodeProject)
 }
 
-let getProjectId = token =>
-  todoistProjectsUrl->Fetch.fetchWithInit(authorizationHeader(token))
-  |> then_(Fetch.Response.json)
+let getProjectId = token => {
+  open Js.Promise
+  open Fetch
+  open Belt
+
+  todoistProjectsUrl->fetchWithInit(authorizationHeader(token))
+  |> then_(Response.json)
   |> then_(res => {
-    let project = res->decodeProjects->Belt.Array.getBy(p => p.name === targetProjectName)
+    let project = res->decodeProjects->Array.getBy(p => p.name === targetProjectName)
     switch project {
-    | Some(p) => p.id->Belt.Int.toString->setProjectIdLocalStorage->Js.Promise.resolve
-    | None => Js.Promise.reject(Not_found)
+    | Some(p) => p.id->Int.toString->LocalStorage.setProjectId->resolve
+    | None => reject(Not_found)
     }
   })
+}
 
 type description = {seen: bool}
 
@@ -190,10 +181,12 @@ type data = {seen: bool}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-let getFilms = token =>
+let getFilms = token => {
+  open Js.Promise
+  open Fetch
   getProjectId(token) |> then_(id =>
-    Fetch.fetchWithInit(todoistProjectUrl ++ id, authorizationHeader(token))
-    |> then_(Fetch.Response.json)
+    fetchWithInit(todoistProjectUrl ++ id, authorizationHeader(token))
+    |> then_(Response.json)
     |> then_(res =>
       res
       ->decodeTasks
@@ -218,9 +211,10 @@ let getFilms = token =>
             creator: getCreator(film.creator),
           }
         }
-      }) |> Js.Promise.resolve
+      }) |> resolve
     )
   )
+}
 
 let encodeTokenPayload = (~code, ~clientSecret, ~clientId) => {
   open Json.Encode
@@ -237,18 +231,21 @@ let decodeTokenPayload = json => {
 }
 
 let setToken = code => {
+  open Js.Promise
+  open Fetch
+
   let payload = encodeTokenPayload(~code, ~clientSecret, ~clientId)
-  Fetch.fetchWithInit(
+  fetchWithInit(
     "https://todoist.com/oauth/access_token",
-    Fetch.RequestInit.make(
+    RequestInit.make(
       ~method_=Post,
-      ~body=Fetch.BodyInit.make(payload),
-      ~headers=Fetch.HeadersInit.make({"Content-Type": "application/json"}),
+      ~body=BodyInit.make(payload),
+      ~headers=HeadersInit.make({"Content-Type": "application/json"}),
       (),
     ),
   )
-  |> then_(Fetch.Response.json)
-  |> then_(res => decodeTokenPayload(res)->setTokenLocalStorage |> Js.Promise.resolve)
+  |> then_(Response.json)
+  |> then_(res => decodeTokenPayload(res)->LocalStorage.setToken |> resolve)
 }
 
 let searchStringToCode = search =>
