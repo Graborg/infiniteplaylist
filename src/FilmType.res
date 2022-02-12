@@ -14,4 +14,4 @@ type film = {
   seen: bool,
 }
 
-let getUserVariant = (userId: int) => userId === 13612164 ? Karmi : Ferma
+let getUserVariant = (userId: string) => userId === "zRruowROmFRMBIxbOQ9OGbGQJHF3" ? Karmi : Ferma

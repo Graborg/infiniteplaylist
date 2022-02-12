@@ -1,3 +1,12 @@
+@val external window: 'a = "window"
+let _ = {
+  open Firebase.Auth
+  require
+}
+let _ = {
+  open Firebase.Firestore
+  require
+}
 type state =
   | LoadingFilms
   | ErrorFetchingFilms
@@ -28,11 +37,68 @@ let listTitle = Emotion.css(`
   border-bottom: 1px solid var(--color-black);
 `)
 
+type conf = {
+  apiKey: string,
+  authDomain: string,
+  projectId: string,
+  storageBucket: string,
+  messagingSenderId: string,
+  appId: string,
+}
+
+let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
+  open Firebase
+  open Js.Promise
+  firebase
+  ->firestore
+  ->Firestore.collection("userFilmLists")
+  ->Firestore.Collection.doc(userId)
+  ->Firestore.Collection.DocRef.get()
+    |> then_(docRef => {
+      let movieList = docRef->Firestore.DocSnapshot.data()
+
+      Belt.Array.map(movieList["filmList"], (film): FilmType.film => {
+        {
+          id: film["id"],
+          creator: userId->FilmType.getUserVariant,
+          title: film["title"],
+          releaseDate: film["releaseDate"],
+          plot: film["plot"],
+          posterPath: film["posterPath"],
+          language: film["language"],
+          genres: film["genres"],
+          seen: film["seen"],
+        }
+      }) |> resolve
+    })
+}
+
+let addFilmToList: (string, FilmType.film) => Js.Promise.t<unit> = (userId, film) => {
+  open Firebase
+  firebase
+  ->firestore
+  ->Firestore.collection("userFilmLists")
+  ->Firestore.Collection.doc(userId)
+  ->Firestore.Collection.DocRef.set(film, ())
+  /* let i = */
+  /* firebase->firestore->Firestore.collection("movies")->Firestore.Collection.get() */
+  /* |> then_(querySnapshot => */
+  /* querySnapshot */
+  /* ->Firestore.QuerySnapshot.docs */
+  /* ->Belt.Array.map(snapshot => { */
+  /* let data = snapshot->Firestore.DocSnapshot.data() */
+  /* /1* Js.log(snapshot->Firestore.DocRef.id) *1/ */
+  /* Js.log(data["title"]) */
+
+  /* data */
+  /* }) |> resolve */
+  /* ) */
+}
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
   let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
-  //let (user, setUser) = React.useState(() => None)
+  let (userId, setUserId) = React.useState(() => None)
 
   let doSelectFilm = filmId =>
     setState(prevState =>
@@ -41,6 +107,52 @@ let make = () => {
       | _ => prevState
       }
     )
+
+  React.useEffect0(() => {
+    open Firebase
+    let conf: conf = {
+      apiKey: "AIzaSyCTc74dSk1h1ImyBHcYyHx4X0E2kJloe9I",
+      authDomain: "fermaandkarmisinfiniteplaylist.firebaseapp.com",
+      projectId: "fermaandkarmisinfiniteplaylist",
+      storageBucket: "fermaandkarmisinfiniteplaylist.appspot.com",
+      messagingSenderId: "491628845187",
+      appId: "1:491628845187:web:4067c45aee702242bfa3b6",
+    }
+    firebase->initializeApp(conf)
+
+    None
+  })
+
+  let addFilmHandler: TheMovieDB.searchResult => unit = item => {
+    let film: FilmType.film = {
+      id: item.id,
+      title: item.title,
+      creator: Karmi, //TODO: Make dynamic from login
+      releaseDate: item.releaseDate,
+      posterPath: item.posterPath,
+      plot: item.plot,
+      language: item.language,
+      genres: item.genres,
+      seen: false,
+    }
+    open Js.Promise
+    switch userId {
+    | None => Js.Console.error("Can't add movie if not logged in")
+    | Some(id) =>
+      addFilmToList(id, film)
+      |> then_(_ =>
+        setState(state =>
+          switch state {
+          | LoadedFilms(films, seenFilms) => {
+              let newUnseen = Js.Array.concat([film], films)
+              LoadedFilms(newUnseen, seenFilms)
+            }
+          }
+        ) |> resolve
+      )
+      |> ignore
+    }
+  }
 
   let url = RescriptReactRouter.useUrl()
 
@@ -51,32 +163,49 @@ let make = () => {
   /* None */
   /* }) */
   React.useEffect0(() => {
+    open Firebase
     open Js.Promise
+    firebase
+    ->auth
+    ->Auth.onAuthStateChanged((user: Auth.User.t) => {
+      let userId = user->Auth.User.uid
+      setUserId(_ => Some(userId))
+      getUserMovieList(userId)
+      |> then_((movieList: array<FilmType.film>) => {
+        let unseen = movieList->Js.Array2.filter(film => !film.seen)
+        let seen = movieList->Js.Array2.filter(film => film.seen)
+        setState(_prevState => LoadedFilms(unseen, seen))
+
+        resolve()
+      })
+      |> ignore
+    })
     switch LocalStorage.getToken() {
     | None =>
       switch url.search {
       | "" => setState(_preState => NotLoggedin)
       | search =>
-        Todoist.searchStringToCode(search)
-        ->Belt.Option.map(e =>
-          Todoist.setToken(e)
-          |> then_(Todoist.getFilms)
-          |> then_(films => {
-            setState(_preState => LoadedFilms(films, []))
-            resolve()
+        if firebase->auth->Auth.isSignInWithEmailLink(~link=window["location"]["href"]) {
+          firebase
+          ->auth
+          ->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link=window["location"]["href"])
+          |> then_(res => {
+            let i =
+              firebase
+              ->firestore
+              ->Firestore.collection("movies")
+              ->Firestore.Collection.add({
+                "listId": 2,
+                "title": "LOL",
+                "description": "DESC",
+              }) |> then_(res => Js.log(res) |> resolve)
+            Js.log(res)
+            resolve(res)
           })
-        )
-        ->ignore
+          |> ignore
+        }
       }
-    | Some(token) =>
-      Todoist.getFilms(token)
-      |> then_((films: array<FilmType.film>) => {
-        let unseen = films->Js.Array2.filter(film => !film.seen)
-        let seen = films->Js.Array2.filter(film => film.seen)
-        setState(_prevState => LoadedFilms(unseen, seen))
-        resolve()
-      })
-      |> ignore
+    | Some(token) => ignore()
     }
     None
   })
@@ -112,35 +241,6 @@ let make = () => {
     selectedByKarmi > selectedByFerma ? FilmType.Ferma : FilmType.Karmi
   }
 
-  let addFilmToList: TheMovieDB.searchResult => unit = searchItem => {
-    open Js.Promise
-    let film: FilmType.film = {
-      id: searchItem.id,
-      title: searchItem.title,
-      creator: Karmi, //TODO: Make dynamic from login
-      releaseDate: searchItem.releaseDate,
-      posterPath: searchItem.posterPath,
-      plot: searchItem.plot,
-      language: searchItem.language,
-      genres: searchItem.genres,
-      seen: false,
-    }
-    film
-    |> Todoist.addFilm
-    |> then_(_ => {
-      let _u = setState(state =>
-        switch state {
-        | LoadedFilms(films, seenFilms) => {
-            let newUnseen = Js.Array.concat([film], films)
-            LoadedFilms(newUnseen, seenFilms)
-          }
-        }
-      )
-      resolve("")
-    })
-    |> ignore
-  }
-
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
   | LoadingFilms => <Spinner />
@@ -151,7 +251,7 @@ let make = () => {
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
       <Header />
-      <SearchField addFilmHandler=addFilmToList />
+      <SearchField addFilmHandler />
       <h3 className=listTitle> {React.string("Not seen")} </h3>
       <FilmList films selected=filmRandomlySelected markFilmAsSeen />
       <h3> {React.string("Seen")} </h3>
