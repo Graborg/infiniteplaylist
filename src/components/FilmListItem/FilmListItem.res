@@ -1,5 +1,3 @@
-open Todoist
-
 type mouseOver =
   | MouseIsOver
   | MouseNotOver

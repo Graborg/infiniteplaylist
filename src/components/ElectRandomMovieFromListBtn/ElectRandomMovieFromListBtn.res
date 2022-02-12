@@ -1,5 +1,3 @@
-open Todoist
-
 type state =
   | NoElection
   | FilmElected(string)
@@ -45,7 +43,6 @@ let creatorToString = creator => {
 
 let getCreatorColor = creator => {
   open FilmType
-  open Todoist
   switch creator {
   | Some(Ferma) => "#476098"
   | Some(Karmi) => "#8b9862"
