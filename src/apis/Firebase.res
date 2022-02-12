@@ -11,3 +11,4 @@ external initializeApp: (firebase, 'a) => unit = "initializeApp"
 
 @send external auth: firebase => Auth.t = "auth"
 @send external firestore: firebase => Firestore.t = "firestore"
+@get external firestoreObj: firebase => Firestore.t = "firestore"

@@ -98,11 +98,18 @@ let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
 
 let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film) => {
   open Firebase
+  open Firestore
+
   firebase
   ->firestore
-  ->Firestore.collection("userFilmLists")
-  ->Firestore.Collection.doc(userId)
-  ->Firestore.Collection.DocRef.set({"filmList": [film]}, ())
+  ->collection("userFilmLists")
+  ->Collection.doc(userId)
+  ->Collection.DocRef.update(
+    {
+      "filmList": firebase->firestoreObj->fieldValue->FieldValue.arrayUnion(film),
+    },
+    (),
+  )
 }
 @react.component
 let make = () => {
@@ -172,12 +179,6 @@ let make = () => {
 
   let url = RescriptReactRouter.useUrl()
 
-  /* React.useEffect0(() => { */
-  /* open FilmType */
-  /* let user = LocalStorage.getUser() */
-  /* setUser(_ => FilmType.getCreator(user)->Some(Ferma)) */
-  /* None */
-  /* }) */
   React.useEffect0(() => {
     open Firebase
     open Js.Promise
@@ -206,15 +207,6 @@ let make = () => {
           ->auth
           ->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link=window["location"]["href"])
           |> then_(res => {
-            let i =
-              firebase
-              ->firestore
-              ->Firestore.collection("movies")
-              ->Firestore.Collection.add({
-                "listId": 2,
-                "title": "LOL",
-                "description": "DESC",
-              }) |> then_(res => Js.log(res) |> resolve)
             Js.log(res)
             resolve(res)
           })

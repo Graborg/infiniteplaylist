@@ -14,6 +14,11 @@ module QuerySnapshot = {
   @get external docs: t => array<DocSnapshot.t> = "docs"
   @get external size: t => int = "size"
 }
+module FieldValue = {
+  type t
+
+  @send external arrayUnion: (t, 'a) => t = "arrayUnion"
+}
 
 module Collection = {
   type t
@@ -27,8 +32,8 @@ module Collection = {
     @send external data: (t, unit) => 'a = "data"
     @send external get: (t, unit) => Js.Promise.t<DocSnapshot.t> = "get"
     @send external delete: (t, unit) => Js.Promise.t<unit> = "delete"
-    @send
-    external set: (t, 'a, ~options: setOptions=?, unit) => Js.Promise.t<unit> = "set"
+    @send external set: (t, 'a, ~options: setOptions=?, unit) => Js.Promise.t<unit> = "set"
+    @send external update: (t, 'a, ~options: setOptions=?, unit) => Js.Promise.t<unit> = "update"
   }
 
   @send external add: (t, 'a) => Js.Promise.t<DocRef.t> = "add"
@@ -54,6 +59,7 @@ module Collection = {
 @module external require: t = "firebase/firestore"
 
 @send external collection: (t, string) => Collection.t = "collection"
+@get external fieldValue: t => FieldValue.t = "FieldValue"
 
 module Transaction = {
   type firestore = t
