@@ -6,7 +6,7 @@
     "subdirs" : true
   },
   "package-specs": {
-    "module": "commonjs",
+    "module": "es6",
     "in-source": true
   },
   "bsc-flags": ["-bs-super-errors", "-bs-no-version-header"],
@@ -18,7 +18,6 @@
     "bs-css-emotion",
     "@heliaxdev/rescript-react-feather",
     "rescript-throttle-react",
-    "rescript-firebase"
   ],
   "warnings": {
     "error" : "+101"
