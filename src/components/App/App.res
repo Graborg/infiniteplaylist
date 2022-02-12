@@ -21,7 +21,40 @@ type url = {
   /* the url's query params, if any. The ? symbol is stripped out for you */
   search: string,
 }
+type firebaseFilm = {
+  id: int,
+  title: string,
+  creatorId: string,
+  releaseDate: option<string>,
+  posterPath: option<string>,
+  plot: option<string>,
+  language: option<string>,
+  genres: option<array<string>>,
+  seen: bool,
+}
 
+let filmToFirebaseFilm: FilmType.film => firebaseFilm = film => {
+  id: film.id,
+  creatorId: film.creator->FilmType.getUserId,
+  title: film.title,
+  releaseDate: film.releaseDate,
+  plot: film.plot,
+  posterPath: film.posterPath,
+  language: film.language,
+  genres: film.genres,
+  seen: film.seen,
+}
+let firebaseFilmToFilm: firebaseFilm => FilmType.film = firebaseFilm => {
+  id: firebaseFilm.id,
+  creator: firebaseFilm.creatorId->FilmType.getUserVariant,
+  title: firebaseFilm.title,
+  releaseDate: firebaseFilm.releaseDate,
+  plot: firebaseFilm.plot,
+  posterPath: firebaseFilm.posterPath,
+  language: firebaseFilm.language,
+  genres: firebaseFilm.genres,
+  seen: firebaseFilm.seen,
+}
 let wrapper = Emotion.css(`
   height: 100%;
   display: flex;
@@ -57,42 +90,19 @@ let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
     |> then_(docRef => {
       let movieList = docRef->Firestore.DocSnapshot.data()
 
-      Belt.Array.map(movieList["filmList"], (film): FilmType.film => {
-        {
-          id: film["id"],
-          creator: userId->FilmType.getUserVariant,
-          title: film["title"],
-          releaseDate: film["releaseDate"],
-          plot: film["plot"],
-          posterPath: film["posterPath"],
-          language: film["language"],
-          genres: film["genres"],
-          seen: film["seen"],
-        }
+      Belt.Array.map(movieList["filmList"], (film: firebaseFilm): FilmType.film => {
+        firebaseFilmToFilm(film)
       }) |> resolve
     })
 }
 
-let addFilmToList: (string, FilmType.film) => Js.Promise.t<unit> = (userId, film) => {
+let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film) => {
   open Firebase
   firebase
   ->firestore
   ->Firestore.collection("userFilmLists")
   ->Firestore.Collection.doc(userId)
-  ->Firestore.Collection.DocRef.set(film, ())
-  /* let i = */
-  /* firebase->firestore->Firestore.collection("movies")->Firestore.Collection.get() */
-  /* |> then_(querySnapshot => */
-  /* querySnapshot */
-  /* ->Firestore.QuerySnapshot.docs */
-  /* ->Belt.Array.map(snapshot => { */
-  /* let data = snapshot->Firestore.DocSnapshot.data() */
-  /* /1* Js.log(snapshot->Firestore.DocRef.id) *1/ */
-  /* Js.log(data["title"]) */
-
-  /* data */
-  /* }) |> resolve */
-  /* ) */
+  ->Firestore.Collection.DocRef.set({"filmList": [film]}, ())
 }
 @react.component
 let make = () => {
@@ -124,33 +134,39 @@ let make = () => {
   })
 
   let addFilmHandler: TheMovieDB.searchResult => unit = item => {
-    let film: FilmType.film = {
-      id: item.id,
-      title: item.title,
-      creator: Karmi, //TODO: Make dynamic from login
-      releaseDate: item.releaseDate,
-      posterPath: item.posterPath,
-      plot: item.plot,
-      language: item.language,
-      genres: item.genres,
-      seen: false,
-    }
     open Js.Promise
     switch userId {
     | None => Js.Console.error("Can't add movie if not logged in")
-    | Some(id) =>
-      addFilmToList(id, film)
-      |> then_(_ =>
-        setState(state =>
-          switch state {
-          | LoadedFilms(films, seenFilms) => {
-              let newUnseen = Js.Array.concat([film], films)
-              LoadedFilms(newUnseen, seenFilms)
+    | Some(id) => {
+        let firebaseFilm: firebaseFilm = {
+          id: item.id,
+          title: item.title,
+          creatorId: id,
+          releaseDate: item.releaseDate,
+          posterPath: item.posterPath,
+          plot: item.plot,
+          language: item.language,
+          genres: item.genres,
+          seen: false,
+        }
+        addFilmToList(id, firebaseFilm)
+        |> then_(_ =>
+          setState(state =>
+            switch state {
+            | LoadedFilms(films, seenFilms) => {
+                let film = firebaseFilmToFilm(firebaseFilm)
+                let newUnseen = Js.Array.concat([film], films)
+                LoadedFilms(newUnseen, seenFilms)
+              }
+            | _ => {
+                Js.Console.error("Can't add movie to filmlist state if not loaded")
+                state
+              }
             }
-          }
-        ) |> resolve
-      )
-      |> ignore
+          ) |> resolve
+        )
+        |> ignore
+      }
     }
   }
 

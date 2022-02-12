@@ -15,3 +15,8 @@ type film = {
 }
 
 let getUserVariant = (userId: string) => userId === "zRruowROmFRMBIxbOQ9OGbGQJHF3" ? Karmi : Ferma
+let getUserId = (user: user) =>
+  switch user {
+  | Karmi => "zRruowROmFRMBIxbOQ9OGbGQJHF3"
+  | Ferma => ""
+  }
