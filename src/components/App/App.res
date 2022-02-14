@@ -1,12 +1,4 @@
 @val external window: 'a = "window"
-let _ = {
-  open Firebase.Auth
-  require
-}
-let _ = {
-  open Firebase.Firestore
-  require
-}
 type state =
   | LoadingFilms
   | ErrorFetchingFilms
@@ -70,15 +62,6 @@ let listTitle = Emotion.css(`
   border-bottom: 1px solid var(--color-black);
 `)
 
-type conf = {
-  apiKey: string,
-  authDomain: string,
-  projectId: string,
-  storageBucket: string,
-  messagingSenderId: string,
-  appId: string,
-}
-
 let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
   open Firebase
   open Js.Promise
@@ -114,29 +97,18 @@ let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film)
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
-  let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
+  //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
   let (userId, setUserId) = React.useState(() => None)
 
-  let doSelectFilm = filmId =>
-    setState(prevState =>
-      switch prevState {
-      | LoadedFilms(list, seenFilms) => LoadedFilms(list, seenFilms)
-      | _ => prevState
-      }
-    )
+  /* let doSelectFilm = filmId => */
+  /* setState(prevState => */
+  /* switch prevState { */
+  /* | LoadedFilms(list, seenFilms) => LoadedFilms(list, seenFilms) */
+  /* | _ => prevState */
+  /* } */
+  /* ) */
 
   React.useEffect0(() => {
-    open Firebase
-    let conf: conf = {
-      apiKey: "AIzaSyCTc74dSk1h1ImyBHcYyHx4X0E2kJloe9I",
-      authDomain: "fermaandkarmisinfiniteplaylist.firebaseapp.com",
-      projectId: "fermaandkarmisinfiniteplaylist",
-      storageBucket: "fermaandkarmisinfiniteplaylist.appspot.com",
-      messagingSenderId: "491628845187",
-      appId: "1:491628845187:web:4067c45aee702242bfa3b6",
-    }
-    firebase->initializeApp(conf)
-
     None
   })
 
@@ -177,8 +149,6 @@ let make = () => {
     }
   }
 
-  let url = RescriptReactRouter.useUrl()
-
   React.useEffect0(() => {
     open Firebase
     open Js.Promise
@@ -189,6 +159,7 @@ let make = () => {
       setUserId(_ => Some(userId))
       getUserMovieList(userId)
       |> then_((movieList: array<FilmType.film>) => {
+        Js.log("user logged in")
         let unseen = movieList->Js.Array2.filter(film => !film.seen)
         let seen = movieList->Js.Array2.filter(film => film.seen)
         setState(_prevState => LoadedFilms(unseen, seen))
@@ -197,57 +168,60 @@ let make = () => {
       })
       |> ignore
     })
-    switch LocalStorage.getToken() {
-    | None =>
-      switch url.search {
-      | "" => setState(_preState => NotLoggedin)
-      | search =>
-        if firebase->auth->Auth.isSignInWithEmailLink(~link=window["location"]["href"]) {
-          firebase
-          ->auth
-          ->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link=window["location"]["href"])
-          |> then_(res => {
-            Js.log(res)
-            resolve(res)
-          })
-          |> ignore
-        }
+    None
+  })
+
+  let urlParts = RescriptReactRouter.useUrl()
+  React.useEffect0(() => {
+    open Firebase
+    open Js.Promise
+    let url: string = window["location"]["href"]
+    switch urlParts.path {
+    | list{"loginCallback"} =>
+      if firebase->auth->Auth.isSignInWithEmailLink(~link=url) {
+        firebase->auth->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link=url)
+        |> then_(_ => RescriptReactRouter.push("/")->resolve)
+        |> ignore
       }
-    | Some(token) => ignore()
+    | list{} => setState(_preState => NotLoggedin)
+    | _ => setState(_preState => NotLoggedin)
     }
     None
   })
 
   let markFilmAsSeen = (film: FilmType.film) => {
-    // let _k = Todoist.setFilmAsSeen(film)
     Js.Global.setTimeout(() => {
-      setState((LoadedFilms(films, seenFilms)) => {
-        let newUnseen = Js.Array2.filter(films, f => f.title !== film.title)
-        let newSeenFilms = Js.Array.concat(seenFilms, [film])
-        LoadedFilms(newUnseen, newSeenFilms)
+      setState(pastState => {
+        switch pastState {
+        | LoadedFilms(films, seenFilms) =>
+          let newUnseen = Js.Array2.filter(films, f => f.title !== film.title)
+          let newSeenFilms = Js.Array.concat(seenFilms, [film])
+          LoadedFilms(newUnseen, newSeenFilms)
+        | _ => pastState
+        }
       })
     }, 500) |> ignore
   }
 
-  let unDooSeenFilm = (film: FilmType.film) => {
-    //let _k = Todoist.setFilmAsUnseen(film)
-    Js.Global.setTimeout(() => {
-      setState((LoadedFilms(films, seenFilms)) => {
-        let newSeenFilms = Js.Array2.filter(seenFilms, f => f.title !== film.title)
-        let newUnseen = Js.Array.concat(films, [film])
-        LoadedFilms(newUnseen, newSeenFilms)
-      })
-    }, 500) |> ignore
-  }
+  /* let unDooSeenFilm = (film: FilmType.film) => { */
+  /* //let _k = Todoist.setFilmAsUnseen(film) */
+  /* Js.Global.setTimeout(() => { */
+  /* setState((LoadedFilms(films, seenFilms)) => { */
+  /* let newSeenFilms = Js.Array2.filter(seenFilms, f => f.title !== film.title) */
+  /* let newUnseen = Js.Array.concat(films, [film]) */
+  /* LoadedFilms(newUnseen, newSeenFilms) */
+  /* }) */
+  /* }, 500) |> ignore */
+  /* } */
 
-  let getNextElector = (seenFilms: array<FilmType.film>) => {
-    let selectedByKarmi =
-      Js.Array2.filter(seenFilms, film => film.creator === FilmType.Karmi)->Js.Array.length
-    let selectedByFerma =
-      Js.Array2.filter(seenFilms, film => film.creator === Ferma)->Js.Array.length
+  /* let getNextElector = (seenFilms: array<FilmType.film>) => { */
+  /* let selectedByKarmi = */
+  /* Js.Array2.filter(seenFilms, film => film.creator === FilmType.Karmi)->Js.Array.length */
+  /* let selectedByFerma = */
+  /* Js.Array2.filter(seenFilms, film => film.creator === Ferma)->Js.Array.length */
 
-    selectedByKarmi > selectedByFerma ? FilmType.Ferma : FilmType.Karmi
-  }
+  /* selectedByKarmi > selectedByFerma ? FilmType.Ferma : FilmType.Karmi */
+  /* } */
 
   switch state {
   | ErrorFetchingFilms => React.string("An error occurred!")
@@ -261,7 +235,7 @@ let make = () => {
       <Header />
       <SearchField addFilmHandler />
       <h3 className=listTitle> {React.string("Not seen")} </h3>
-      <FilmList films selected=filmRandomlySelected markFilmAsSeen />
+      <FilmList films selected="" markFilmAsSeen />
       <h3> {React.string("Seen")} </h3>
       <SeenFilmList films=seenFilms />
     </MaxWidthWrapper>

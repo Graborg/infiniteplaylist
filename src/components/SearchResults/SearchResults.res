@@ -1,4 +1,6 @@
-@val external window: {..} = "window"
+@val @scope("window") external addEventListener: (string, 'a => unit) => unit = "addEventListener"
+@val @scope("window")
+external removeEventListener: (string, 'a => unit) => unit = "removeEventListener"
 
 type keyCode =
   | Enter
@@ -38,28 +40,28 @@ let make = (
   ~results: TheMovieDB.results,
   ~handleNewFilm: TheMovieDB.searchResult => unit,
 ) => {
-  let (activeOption, changeOption) = React.useState(() => -1)
   let maxResultLength = 5
-  let keyHandler = e =>
-    switch results {
-    | NoResultsInit => ignore()
-    | NoResultsFound => ignore()
-    | Results(films) => {
-        let length = Array.length(films)
-        let key = Belt.Map.Int.get(keyCodesToVariant, ReactEvent.Keyboard.keyCode(e))
-        switch key {
-        | Some(Enter) => Js.log("enter")
-        | Some(UpArrow) => moveUpInList(~changeOption)
-        | Some(DownArrow) => moveDownInList(~length, ~maxResultLength, ~changeOption)
-        | None => ignore()
-        }
-      }
-    }
-  React.useEffect(() => {
-    window["addEventListener"]("keydown", keyHandler)
+  /* let keyHandler = e => */
+  /* switch results { */
+  /* | NoResultsInit => ignore() */
+  /* | NoResultsFound => ignore() */
+  /* | Results(films) => { */
+  /* let length = Array.length(films) */
+  /* let key = Belt.Map.Int.get(keyCodesToVariant, ReactEvent.Keyboard.keyCode(e)) */
+  /* switch key { */
+  /* | Some(Enter) => Js.log("enter") */
+  /* | Some(UpArrow) => moveUpInList(~changeOption) */
+  /* | Some(DownArrow) => moveDownInList(~length, ~maxResultLength, ~changeOption) */
+  /* | None => ignore() */
+  /* } */
+  /* } */
+  /* } */
 
-    Some(() => window["removeEventListener"]("keydown", keyHandler))
-  })
+  /* React.useEffect(() => { */
+  /* addEventListener("keydown", keyHandler) */
+
+  /* Some(() => removeEventListener("keydown", keyHandler)) */
+  /* }) */
 
   showList
     ? <ul className=wrapper>

@@ -3,7 +3,7 @@
 let sendLoginEmail = _ => {
   open Firebase
   let acos: Firebase_Auth.actionCodeSettings = {
-    url: "http://localhost:8000",
+    url: "http://localhost:8000/loginCallback",
     handleCodeInApp: true,
   }
   firebase

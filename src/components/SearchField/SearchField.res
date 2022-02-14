@@ -1,5 +1,5 @@
 @send external contains: (Dom.element, {..}) => bool = "contains"
-@val external window: {..} = "window"
+@val @scope("window") external addEventListener: (string, 'a => unit) => unit = "addEventListener"
 
 open TheMovieDB
 open Emotion
@@ -58,7 +58,8 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
       | Some(dom) if dom->contains(ReactEvent.Mouse.target(event)) => ()
       | _ => toggleList(_ => false)
       }
-    window["addEventListener"]("mousedown", handleClickOutside)
+    addEventListener("mousedown", handleClickOutside)
+
     None
   })
 
