@@ -109,7 +109,7 @@ external confirmPasswordReset: (t, ~code: string, ~newPassword: string) => Js.Pr
 external signInWithPopup: (t, Provider.t) => Js.Promise.t<Result.t> = "signInWithPopup"
 
 @send
-external onAuthStateChanged: (t, User.t => unit) => unit = "onAuthStateChanged"
+external onAuthStateChanged: (t, Js.Nullable.t<User.t> => unit) => unit = "onAuthStateChanged"
 
 @send external signOut: (t, unit) => unit = "signOut"
 

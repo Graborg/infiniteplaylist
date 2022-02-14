@@ -6,47 +6,11 @@ type state =
   | NotLoggedin
 
 type url = {
-  /* path takes window.location.pathname, like "/book/title/edit" and turns it into `["book", "title", "edit"]` */
   path: list<string>,
-  /* the url's hash, if any. The # symbol is stripped out for you */
   hash: string,
-  /* the url's query params, if any. The ? symbol is stripped out for you */
   search: string,
 }
-type firebaseFilm = {
-  id: int,
-  title: string,
-  creatorId: string,
-  releaseDate: option<string>,
-  posterPath: option<string>,
-  plot: option<string>,
-  language: option<string>,
-  genres: option<array<string>>,
-  seen: bool,
-}
 
-let filmToFirebaseFilm: FilmType.film => firebaseFilm = film => {
-  id: film.id,
-  creatorId: film.creator->FilmType.getUserId,
-  title: film.title,
-  releaseDate: film.releaseDate,
-  plot: film.plot,
-  posterPath: film.posterPath,
-  language: film.language,
-  genres: film.genres,
-  seen: film.seen,
-}
-let firebaseFilmToFilm: firebaseFilm => FilmType.film = firebaseFilm => {
-  id: firebaseFilm.id,
-  creator: firebaseFilm.creatorId->FilmType.getUserVariant,
-  title: firebaseFilm.title,
-  releaseDate: firebaseFilm.releaseDate,
-  plot: firebaseFilm.plot,
-  posterPath: firebaseFilm.posterPath,
-  language: firebaseFilm.language,
-  genres: firebaseFilm.genres,
-  seen: firebaseFilm.seen,
-}
 let wrapper = Emotion.css(`
   height: 100%;
   display: flex;
@@ -62,43 +26,11 @@ let listTitle = Emotion.css(`
   border-bottom: 1px solid var(--color-black);
 `)
 
-let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
-  open Firebase
-  open Js.Promise
-  firebase
-  ->firestore
-  ->Firestore.collection("userFilmLists")
-  ->Firestore.Collection.doc(userId)
-  ->Firestore.Collection.DocRef.get()
-    |> then_(docRef => {
-      let movieList = docRef->Firestore.DocSnapshot.data()
-
-      Belt.Array.map(movieList["filmList"], (film: firebaseFilm): FilmType.film => {
-        firebaseFilmToFilm(film)
-      }) |> resolve
-    })
-}
-
-let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film) => {
-  open Firebase
-  open Firestore
-
-  firebase
-  ->firestore
-  ->collection("userFilmLists")
-  ->Collection.doc(userId)
-  ->Collection.DocRef.update(
-    {
-      "filmList": firebase->firestoreObj->fieldValue->FieldValue.arrayUnion(film),
-    },
-    (),
-  )
-}
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
   //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
-  let (userId, setUserId) = React.useState(() => None)
+  let userId = FirebaseAdapter.useUserId()
 
   /* let doSelectFilm = filmId => */
   /* setState(prevState => */
@@ -107,13 +39,28 @@ let make = () => {
   /* | _ => prevState */
   /* } */
   /* ) */
+  React.useEffect1(() => {
+    open Js.Promise
+    switch userId {
+    | Some(id) =>
+      id
+      |> FirebaseAdapter.getUserMovieList
+      |> then_((movieList: array<FilmType.film>) => {
+        let unseen = movieList->Js.Array2.filter(film => !film.seen)
+        let seen = movieList->Js.Array2.filter(film => film.seen)
+        setState(_prevState => LoadedFilms(unseen, seen))
 
-  React.useEffect0(() => {
+        resolve()
+      })
+    | None => resolve()
+    } |> ignore
+
     None
-  })
+  }, [userId])
 
   let addFilmHandler: TheMovieDB.searchResult => unit = item => {
     open Js.Promise
+    open FirebaseAdapter
     switch userId {
     | None => Js.Console.error("Can't add movie if not logged in")
     | Some(id) => {
@@ -128,12 +75,12 @@ let make = () => {
           genres: item.genres,
           seen: false,
         }
-        addFilmToList(id, firebaseFilm)
+        FirebaseAdapter.addFilmToList(id, firebaseFilm)
         |> then_(_ =>
           setState(state =>
             switch state {
             | LoadedFilms(films, seenFilms) => {
-                let film = firebaseFilmToFilm(firebaseFilm)
+                let film = convertToFilm(firebaseFilm)
                 let newUnseen = Js.Array.concat([film], films)
                 LoadedFilms(newUnseen, seenFilms)
               }
@@ -149,40 +96,16 @@ let make = () => {
     }
   }
 
-  React.useEffect0(() => {
-    open Firebase
-    open Js.Promise
-    firebase
-    ->auth
-    ->Auth.onAuthStateChanged((user: Auth.User.t) => {
-      let userId = user->Auth.User.uid
-      setUserId(_ => Some(userId))
-      getUserMovieList(userId)
-      |> then_((movieList: array<FilmType.film>) => {
-        Js.log("user logged in")
-        let unseen = movieList->Js.Array2.filter(film => !film.seen)
-        let seen = movieList->Js.Array2.filter(film => film.seen)
-        setState(_prevState => LoadedFilms(unseen, seen))
-
-        resolve()
-      })
-      |> ignore
-    })
-    None
-  })
-
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect0(() => {
-    open Firebase
     open Js.Promise
     let url: string = window["location"]["href"]
+
     switch urlParts.path {
-    | list{"loginCallback"} =>
-      if firebase->auth->Auth.isSignInWithEmailLink(~link=url) {
-        firebase->auth->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link=url)
-        |> then_(_ => RescriptReactRouter.push("/")->resolve)
-        |> ignore
-      }
+    | list{"authCallback"} =>
+      FirebaseAdapter.handleAuthCallback(~link=url)
+      |> then_(_ => RescriptReactRouter.push("/")->resolve)
+      |> ignore
     | list{} => setState(_preState => NotLoggedin)
     | _ => setState(_preState => NotLoggedin)
     }
