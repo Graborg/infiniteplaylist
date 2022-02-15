@@ -40,12 +40,12 @@ let make = () => {
   /* } */
   /* ) */
   React.useEffect1(() => {
-    open Js.Promise
+    open Promise
     switch userId {
     | Some(id) =>
       id
-      |> FirebaseAdapter.getUserMovieList
-      |> then_((movieList: array<FilmType.film>) => {
+      ->FirebaseAdapter.getUserMovieList
+      ->then((movieList: array<FilmType.film>) => {
         let unseen = movieList->Js.Array2.filter(film => !film.seen)
         let seen = movieList->Js.Array2.filter(film => film.seen)
         setState(_prevState => LoadedFilms(unseen, seen))
@@ -53,13 +53,13 @@ let make = () => {
         resolve()
       })
     | None => resolve()
-    } |> ignore
+    }->ignore
 
     None
   }, [userId])
 
   let addFilmHandler: TheMovieDB.searchResult => unit = item => {
-    open Js.Promise
+    open Promise
     open FirebaseAdapter
     switch userId {
     | None => Js.Console.error("Can't add movie if not logged in")
@@ -76,7 +76,7 @@ let make = () => {
           seen: false,
         }
         FirebaseAdapter.addFilmToList(id, firebaseFilm)
-        |> then_(_ =>
+        ->then(_ =>
           setState(state =>
             switch state {
             | LoadedFilms(films, seenFilms) => {
@@ -89,23 +89,23 @@ let make = () => {
                 state
               }
             }
-          ) |> resolve
+          )->resolve
         )
-        |> ignore
+        ->ignore
       }
     }
   }
 
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect0(() => {
-    open Js.Promise
+    open Promise
     let url: string = window["location"]["href"]
 
     switch urlParts.path {
     | list{"authCallback"} =>
       FirebaseAdapter.handleAuthCallback(~link=url)
-      |> then_(_ => RescriptReactRouter.push("/")->resolve)
-      |> ignore
+      ->then(_ => RescriptReactRouter.push("/")->resolve)
+      ->ignore
     | list{} => setState(_preState => NotLoggedin)
     | _ => setState(_preState => NotLoggedin)
     }
@@ -123,7 +123,7 @@ let make = () => {
         | _ => pastState
         }
       })
-    }, 500) |> ignore
+    }, 500)->ignore
   }
 
   /* let unDooSeenFilm = (film: FilmType.film) => { */
@@ -134,7 +134,7 @@ let make = () => {
   /* let newUnseen = Js.Array.concat(films, [film]) */
   /* LoadedFilms(newUnseen, newSeenFilms) */
   /* }) */
-  /* }, 500) |> ignore */
+  /* }, 500) -> ignore */
   /* } */
 
   /* let getNextElector = (seenFilms: array<FilmType.film>) => { */

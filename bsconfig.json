@@ -18,6 +18,7 @@
     "bs-css-emotion",
     "@heliaxdev/rescript-react-feather",
     "rescript-throttle-react",
+    "@ryyppy/rescript-promise"
   ],
   "warnings": {
     "error" : "+101"

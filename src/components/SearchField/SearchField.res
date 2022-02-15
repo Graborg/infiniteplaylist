@@ -47,7 +47,7 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
   let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
     TheMovieDBAdapter.search(text, res => {
       setResults(_ => res)
-    }) |> ignore
+    })->ignore
   })
 
   let wrapperRef = React.useRef(Js.Nullable.null)

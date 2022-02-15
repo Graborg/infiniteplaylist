@@ -15,7 +15,7 @@ module User = {
   @get external phoneNumber: t => Js.Nullable.t<string> = "phoneNumber"
 
   @send
-  external getIdToken: (t, unit) => Js.Promise.t<string> = "getIdToken"
+  external getIdToken: (t, unit) => Promise.t<string> = "getIdToken"
 }
 
 module Result = {
@@ -70,14 +70,11 @@ module Provider = {
 }
 
 @send
-external signInAnonymously: t => Js.Promise.t<Result.t> = "signInAnonymously"
+external signInAnonymously: t => Promise.t<Result.t> = "signInAnonymously"
 
 @send
-external signInWithEmailAndPassword: (
-  t,
-  ~email: string,
-  ~password: string,
-) => Js.Promise.t<Result.t> = "signInWithEmailAndPassword"
+external signInWithEmailAndPassword: (t, ~email: string, ~password: string) => Promise.t<Result.t> =
+  "signInWithEmailAndPassword"
 
 type actionCodeSettings = {url: string, handleCodeInApp: bool}
 @send
@@ -85,28 +82,28 @@ external sendPasswordResetEmail: (
   t,
   ~email: string,
   ~actionCodeSettings: Js.Nullable.t<actionCodeSettings>,
-) => Js.Promise.t<unit> = "sendPasswordResetEmail"
+) => Promise.t<unit> = "sendPasswordResetEmail"
 
 @send
 external sendSignInLinkToEmail: (
   t,
   ~email: string,
   ~actionCodeSettings: actionCodeSettings,
-) => Js.Promise.t<unit> = "sendSignInLinkToEmail"
+) => Promise.t<unit> = "sendSignInLinkToEmail"
 
 @send
 external isSignInWithEmailLink: (t, ~link: string) => bool = "isSignInWithEmailLink"
 
 @send
-external signInWithEmailLink: (t, ~email: string, ~link: string) => Js.Promise.t<User.t> =
+external signInWithEmailLink: (t, ~email: string, ~link: string) => Promise.t<User.t> =
   "signInWithEmailLink"
 
 @send
-external confirmPasswordReset: (t, ~code: string, ~newPassword: string) => Js.Promise.t<unit> =
+external confirmPasswordReset: (t, ~code: string, ~newPassword: string) => Promise.t<unit> =
   "confirmPasswordReset"
 
 @send
-external signInWithPopup: (t, Provider.t) => Js.Promise.t<Result.t> = "signInWithPopup"
+external signInWithPopup: (t, Provider.t) => Promise.t<Result.t> = "signInWithPopup"
 
 @send
 external onAuthStateChanged: (t, Js.Nullable.t<User.t> => unit) => unit = "onAuthStateChanged"

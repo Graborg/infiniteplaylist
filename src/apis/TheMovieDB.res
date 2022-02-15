@@ -43,15 +43,14 @@ let decodeSearchResult = json => {
 let decodeSearchResults = json =>
   json |> Json.Decode.field("results", Json.Decode.array(decodeSearchResult))
 
-let trimQuotes = str => str->Js.String2.replace("\"", "")->Js.String2.replace("\"", "")
 module TheMovieDBAdapter = {
-  open Js.Promise
+  open Promise
   open Belt
 
   let search = (str: string, callback: results => unit) =>
     Fetch.fetch(base_uri ++ "search/movie?api_key=" ++ api_key ++ "&query=" ++ str)
-    |> then_(Fetch.Response.json)
-    |> then_(res =>
+    ->then(Fetch.Response.json)
+    ->then(res =>
       res
       ->decodeSearchResults
       ->Belt.Array.map((decodedFilm): searchResult => {

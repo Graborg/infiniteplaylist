@@ -59,7 +59,7 @@ let useUserId: unit => option<string> = () => {
   userId
 }
 
-let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film) =>
+let addFilmToList: (string, firebaseFilm) => Promise.t<unit> = (userId, film) =>
   firebase
   ->firestore
   ->collection(collectionName)
@@ -71,19 +71,23 @@ let addFilmToList: (string, firebaseFilm) => Js.Promise.t<unit> = (userId, film)
     (),
   )
 
-let getUserMovieList: string => Js.Promise.t<array<FilmType.film>> = userId => {
-  open Js.Promise
-  firebase->firestore->collection(collectionName)->Collection.doc(userId)->Collection.DocRef.get()
-    |> then_(docRef => {
-      let movieList: userFilmListResult = docRef->DocSnapshot.data()
+let getUserMovieList: string => Promise.t<array<FilmType.film>> = userId => {
+  open Promise
+  firebase
+  ->firestore
+  ->collection(collectionName)
+  ->Collection.doc(userId)
+  ->Collection.DocRef.get()
+  ->then(docRef => {
+    let movieList: userFilmListResult = docRef->DocSnapshot.data()
 
-      Belt.Array.map(movieList.filmList, (film: firebaseFilm): FilmType.film => {
-        convertToFilm(film)
-      }) |> resolve
-    })
+    Belt.Array.map(movieList.filmList, (film: firebaseFilm): FilmType.film => {
+      convertToFilm(film)
+    }) |> resolve
+  })
 }
-let handleAuthCallback: (~link: string) => Js.Promise.t<Firebase.Auth.User.t> = (~link) => {
-  open Js.Promise
+let handleAuthCallback: (~link: string) => Promise.t<Firebase.Auth.User.t> = (~link) => {
+  open Promise
   if firebase->auth->Firebase.Auth.isSignInWithEmailLink(~link) {
     firebase->auth->Firebase.Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link)
   } else {
