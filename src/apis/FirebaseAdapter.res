@@ -50,7 +50,8 @@ let useUserId: unit => option<string> = () => {
     switch Js.Nullable.toOption(user) {
     | Some(user) => {
         Js.log("user is logged in")
-        setUserId(_ => Some(user->Auth.User.uid))
+        LocalStorage.setToken(user->Auth.User.uid)->ignore
+        setUserId(_ => user->Auth.User.uid->Some)
       }
     | None => ()
     }
@@ -71,26 +72,24 @@ let addFilmToList: (string, firebaseFilm) => Promise.t<unit> = (userId, film) =>
     (),
   )
 
-let getUserMovieList: string => Promise.t<array<FilmType.film>> = userId => {
-  open Promise
+let getUserMovieList: string => Promise.t<array<FilmType.film>> = userId =>
   firebase
   ->firestore
   ->collection(collectionName)
   ->Collection.doc(userId)
   ->Collection.DocRef.get()
-  ->then(docRef => {
+  ->Promise.thenResolve(docRef => {
     let movieList: userFilmListResult = docRef->DocSnapshot.data()
 
     Belt.Array.map(movieList.filmList, (film: firebaseFilm): FilmType.film => {
       convertToFilm(film)
-    }) |> resolve
+    })
   })
-}
-let handleAuthCallback: (~link: string) => Promise.t<Firebase.Auth.User.t> = (~link) => {
-  open Promise
-  if firebase->auth->Firebase.Auth.isSignInWithEmailLink(~link) {
-    firebase->auth->Firebase.Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link)
+
+let handleAuthCallback: (~link: string) => Promise.t<Auth.User.t> = (~link) => {
+  if firebase->auth->Auth.isSignInWithEmailLink(~link) {
+    firebase->auth->Auth.signInWithEmailLink(~email="mgraborg@gmail.com", ~link)
   } else {
-    reject(Not_found)
+    Promise.reject(Not_found)
   }
 }

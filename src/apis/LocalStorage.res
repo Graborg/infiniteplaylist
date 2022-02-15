@@ -1,18 +1,11 @@
-let tokenNamespace = "todoist-token"
+let tokenNamespace = "firebase-token"
 let projectNamespace = "todoist-project"
 
 open Dom.Storage
 
-let setToken = token => {
+let setToken: string => string = token => {
   setItem(tokenNamespace, token, localStorage)
   token
 }
 
-let getToken = () => getItem(tokenNamespace, localStorage)
-
-let getProjectId = () => getItem(projectNamespace, localStorage)
-
-let setProjectId = projectId => {
-  setItem(projectNamespace, projectId, localStorage)
-  projectId
-}
+let getToken: unit => option<string> = () => getItem(tokenNamespace, localStorage)

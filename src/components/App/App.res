@@ -101,14 +101,21 @@ let make = () => {
     open Promise
     let url: string = window["location"]["href"]
 
-    switch urlParts.path {
-    | list{"authCallback"} =>
+    switch (urlParts.path, LocalStorage.getToken()) {
+    | (list{"loginCallback"}, None) =>
       FirebaseAdapter.handleAuthCallback(~link=url)
-      ->then(_ => RescriptReactRouter.push("/")->resolve)
+      ->thenResolve(_ => RescriptReactRouter.push("/"))
+      ->catch(_ => RescriptReactRouter.push("/loginError")->resolve)
       ->ignore
-    | list{} => setState(_preState => NotLoggedin)
-    | _ => setState(_preState => NotLoggedin)
+    | (list{"loginCallback"}, Some(_)) => {
+        setState(_prevState => LoadingFilms)
+        RescriptReactRouter.push("/")
+      }
+    | (list{}, Some(_)) => setState(_prevState => LoadingFilms)
+    | (list{}, None) => setState(_prevState => NotLoggedin)
+    | _ => setState(prevState => prevState)
     }
+
     None
   })
 
