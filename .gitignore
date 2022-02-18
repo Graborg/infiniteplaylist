@@ -6,3 +6,4 @@
 .firebase
 *.bs.js
 public
+.env*

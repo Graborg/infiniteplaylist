@@ -1,4 +1,6 @@
-let api_key = "6457e32b10837b9f9a7bbdf1e6aa0aa0"
+@val @scope(("process", "env")) external api_key: string = "THE_MOVIE_DB_API_KEY"
+
+let api_key = api_key
 let base_uri = "https://api.themoviedb.org/3/"
 let poster_uri = "https://www.themoviedb.org/t/p/original/"
 

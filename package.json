@@ -4,7 +4,7 @@
   "scripts": {
     "webpack": "webpack -w",
     "webpack:production": "NODE_ENV=production webpack",
-    "server": "webpack serve",
+    "server": "webpack serve --env ENVIRONMENT=dev",
     "build": "rescript build -with-deps",
     "clean": "rescript clean -with-deps",
     "start": "rescript build -w"
@@ -26,6 +26,7 @@
     "bs-fetch": "^0.6.2",
     "bs-platform": "^9.0.2",
     "canvas-confetti": "^1.4.0",
+    "dotenv": "^16.0.0",
     "emotion": "^11.0.0",
     "firebase": "^8.10.1",
     "react": "^17.0.2",

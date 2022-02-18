@@ -20,14 +20,14 @@ let fieldWrapper = css(`
 `)
 
 @react.component
-let make = (~userId, ~doneHandler) => {
+let make = (~user, ~doneHandler) => {
   let (partnerEmail, setPartnerEmail) = React.useState(_ => "")
 
   let addPartner = partnerEmail => {
-    FirebaseAdapter.setPartner(~userId, ~partnerEmail)
+    FirebaseAdapter.setPartner(~userId=user->Firebase.Auth.User.uid, ~partnerEmail)
     ->Promise.thenResolve(_ => {
       RescriptReactRouter.push("/")
-      doneHandler()
+      doneHandler(user)
     })
     ->ignore
   }

@@ -1,7 +1,7 @@
 @val external window: 'a = "window"
 type state =
   | LoadingFilms
-  | Onboarding(string)
+  | Onboarding(Firebase.Auth.User.t)
   | Error
   | InvalidLoginLinkError
   | LoginEmailNotFoundError
@@ -42,10 +42,8 @@ let make = () => {
   /* | _ => prevState */
   /* } */
   /* ) */
-  let loadAndSetFilms = (userId, email) =>
-    userId
-    ->FirebaseAdapter.getFilmLists(email)
-    ->Promise.thenResolve((movieList: array<FilmType.film>) => {
+  let loadAndSetFilms = (user: Firebase.Auth.User.t) =>
+    FirebaseAdapter.getFilmLists(user)->Promise.thenResolve((movieList: array<FilmType.film>) => {
       open Js.Array2
 
       let unseen = movieList->filter(film => !film.seen)
@@ -69,21 +67,14 @@ let make = () => {
     ->ignore
   }
 
-  let handleOnboardingDone = () =>
-    setState(prevState => {
-      switch prevState {
-      | Onboarding(_) => LoadingFilms
-      | _ => prevState
-      }
-    })
+  let handleOnboardingDone = user => loadAndSetFilms(user)
 
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
-    open Firebase.Auth.User
     switch (urlParts.path, firebaseUser) {
-    | (list{"invitePartner"}, Some(u)) => setState(_ => Onboarding(uid(u)))
-    | (_, Some(u)) => {
-        loadAndSetFilms(uid(u), email(u))->ignore
+    | (list{"invitePartner"}, Some(user)) => setState(_ => Onboarding(user))
+    | (_, Some(user)) => {
+        loadAndSetFilms(user)->ignore
         RescriptReactRouter.push("/")
       }
     | (list{"loginCallback"}, None) => handleLoginCallback()
@@ -179,7 +170,7 @@ let make = () => {
       "The link is invalid, please try checking your inbox or try the login button again",
     )
   | Error => React.string("Something went wrong!! :(")
-  | Onboarding(userId) => <Onboarding userId doneHandler=handleOnboardingDone />
+  | Onboarding(user) => <Onboarding user doneHandler=handleOnboardingDone />
   | LoadingFilms => <Spinner />
   | NotLoggedin => <Login />
   | LoadedFilms(films, seenFilms) =>

@@ -1,11 +1,13 @@
+@val @scope(("process", "env")) external loginCallbackUrl: string = "FIREBASE_URL_LOGIN_CALLBACK"
 open Firebase
 open Firestore
+open Firebase.Auth.User
 
 let collectionName = "userFilmLists"
 let filmListField = "filmList"
 
 let acos: Firebase_Auth.actionCodeSettings = {
-  url: "http://localhost:8000/loginCallback",
+  url: loginCallbackUrl,
   handleCodeInApp: true,
 }
 
@@ -130,11 +132,11 @@ let getUserFilmList: string => Promise.t<array<FilmType.film>> = userId =>
     }
   })
 
-let getFilmLists: (string, string) => Promise.t<array<FilmType.film>> = (userId, email) =>
-  Promise.all2((getPartnerFilmList(email), getUserFilmList(userId)))->Promise.thenResolve(((
-    f1,
-    f2,
-  )) => Belt.Array.concat(f1, f2))
+let getFilmLists: Firebase.Auth.User.t => Promise.t<array<FilmType.film>> = user =>
+  Promise.all2((
+    getPartnerFilmList(user->email),
+    getUserFilmList(user->uid),
+  ))->Promise.thenResolve(((f1, f2)) => Belt.Array.concat(f1, f2))
 
 let sendSignInLink: (~email: string) => Promise.t<'a> = (~email) =>
   firebase
