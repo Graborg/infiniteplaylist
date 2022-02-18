@@ -1,7 +1,10 @@
 @val external window: 'a = "window"
 type state =
   | LoadingFilms
-  | ErrorFetchingFilms
+  | Onboarding(string)
+  | Error
+  | InvalidLoginLinkError
+  | LoginEmailNotFoundError
   | LoadedFilms(array<FilmType.film>, array<FilmType.film>)
   | NotLoggedin
 
@@ -30,7 +33,7 @@ let listTitle = Emotion.css(`
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
   //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
-  let userId = FirebaseAdapter.useUserId()
+  let firebaseUser = FirebaseAdapter.useUser()
 
   /* let doSelectFilm = filmId => */
   /* setState(prevState => */
@@ -39,35 +42,71 @@ let make = () => {
   /* | _ => prevState */
   /* } */
   /* ) */
-  React.useEffect1(() => {
-    open Promise
-    switch userId {
-    | Some(id) =>
-      id
-      ->FirebaseAdapter.getUserMovieList
-      ->then((movieList: array<FilmType.film>) => {
-        let unseen = movieList->Js.Array2.filter(film => !film.seen)
-        let seen = movieList->Js.Array2.filter(film => film.seen)
-        setState(_prevState => LoadedFilms(unseen, seen))
+  let loadAndSetFilms = (userId, email) =>
+    userId
+    ->FirebaseAdapter.getFilmLists(email)
+    ->Promise.thenResolve((movieList: array<FilmType.film>) => {
+      open Js.Array2
 
-        resolve()
-      })
-    | None => resolve()
-    }->ignore
+      let unseen = movieList->filter(film => !film.seen)
+      let seen = movieList->filter(film => film.seen)
+      setState(_ => LoadedFilms(unseen, seen))
+    })
+
+  let handleLoginCallback = () => {
+    open Promise
+    open FirebaseAdapter
+    let url: string = window["location"]["href"]
+    handleAuthCallback(~link=url)
+    ->thenResolve(_ => RescriptReactRouter.push("/invitePartner"))
+    ->catch(error =>
+      switch error {
+      | InvalidLink => RescriptReactRouter.push("/invalidEmailLinkError")
+      | EmailNotFound => RescriptReactRouter.push("/emailNotFoundError")
+      | _ => RescriptReactRouter.replace("/error")
+      }->resolve
+    )
+    ->ignore
+  }
+
+  let handleOnboardingDone = () =>
+    setState(prevState => {
+      switch prevState {
+      | Onboarding(_) => LoadingFilms
+      | _ => prevState
+      }
+    })
+
+  let urlParts = RescriptReactRouter.useUrl()
+  React.useEffect2(() => {
+    open Firebase.Auth.User
+    switch (urlParts.path, firebaseUser) {
+    | (list{"invitePartner"}, Some(u)) => setState(_ => Onboarding(uid(u)))
+    | (_, Some(u)) => {
+        loadAndSetFilms(uid(u), email(u))->ignore
+        RescriptReactRouter.push("/")
+      }
+    | (list{"loginCallback"}, None) => handleLoginCallback()
+    | (list{"emailNotFoundError"}, None) => setState(_prevState => LoginEmailNotFoundError)
+    | (list{"invalidEmailLinkError"}, None) => setState(_prevState => InvalidLoginLinkError)
+    | (list{}, None) => setState(_prevState => NotLoggedin)
+    | _ => setState(prevState => prevState)
+    }
 
     None
-  }, [userId])
+  }, (urlParts.search, firebaseUser))
 
   let addFilmHandler: TheMovieDB.searchResult => unit = item => {
     open Promise
     open FirebaseAdapter
-    switch userId {
+    open Firebase.Auth.User
+    switch firebaseUser {
     | None => Js.Console.error("Can't add movie if not logged in")
-    | Some(id) => {
+    | Some(user) => {
         let firebaseFilm: firebaseFilm = {
           id: item.id,
           title: item.title,
-          creatorId: id,
+          creatorId: uid(user),
           releaseDate: item.releaseDate,
           posterPath: item.posterPath,
           plot: item.plot,
@@ -75,7 +114,7 @@ let make = () => {
           genres: item.genres,
           seen: false,
         }
-        FirebaseAdapter.addFilmToList(id, firebaseFilm)
+        FirebaseAdapter.addFilmToList(uid(user), firebaseFilm)
         ->then(_ =>
           setState(state =>
             switch state {
@@ -95,29 +134,6 @@ let make = () => {
       }
     }
   }
-
-  let urlParts = RescriptReactRouter.useUrl()
-  React.useEffect0(() => {
-    open Promise
-    let url: string = window["location"]["href"]
-
-    switch (urlParts.path, LocalStorage.getToken()) {
-    | (list{"loginCallback"}, None) =>
-      FirebaseAdapter.handleAuthCallback(~link=url)
-      ->thenResolve(_ => RescriptReactRouter.push("/"))
-      ->catch(_ => RescriptReactRouter.push("/loginError")->resolve)
-      ->ignore
-    | (list{"loginCallback"}, Some(_)) => {
-        setState(_prevState => LoadingFilms)
-        RescriptReactRouter.push("/")
-      }
-    | (list{}, Some(_)) => setState(_prevState => LoadingFilms)
-    | (list{}, None) => setState(_prevState => NotLoggedin)
-    | _ => setState(prevState => prevState)
-    }
-
-    None
-  })
 
   let markFilmAsSeen = (film: FilmType.film) => {
     Js.Global.setTimeout(() => {
@@ -154,12 +170,18 @@ let make = () => {
   /* } */
 
   switch state {
-  | ErrorFetchingFilms => React.string("An error occurred!")
+  | LoginEmailNotFoundError =>
+    React.string(
+      "Could not log you in, make sure you are using the same browser/session as when you requested the email",
+    )
+  | InvalidLoginLinkError =>
+    React.string(
+      "The link is invalid, please try checking your inbox or try the login button again",
+    )
+  | Error => React.string("Something went wrong!! :(")
+  | Onboarding(userId) => <Onboarding userId doneHandler=handleOnboardingDone />
   | LoadingFilms => <Spinner />
-  | NotLoggedin =>
-    <div className=wrapper>
-      <MaxWidthWrapper> <Header /> </MaxWidthWrapper> <LoginButton /> <Footer />
-    </div>
+  | NotLoggedin => <Login />
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
       <Header />
