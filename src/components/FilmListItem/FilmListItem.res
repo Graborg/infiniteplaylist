@@ -42,6 +42,12 @@ let poster = Emotion.css(`
   object-fit: contain;
 `)
 
+let filmTitle = Emotion.css(`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`)
+
 @react.component
 let make = (
   ~film: FilmType.film,
@@ -63,7 +69,7 @@ let make = (
       }}>
       <p className={creatorBanner(film.creator)}> {React.string(creatorToString(film.creator))} </p>
       <img className=poster src={getPosterPath(posterPath)} />
-      <p> {React.string(title)} </p>
+      <p className=filmTitle> {React.string(title)} </p>
     </li>
   | (title, _, _, _, _) => React.string(title)
   }
