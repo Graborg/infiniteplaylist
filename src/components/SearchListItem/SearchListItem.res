@@ -72,6 +72,7 @@ let poster = posterHasLoaded =>
   grid-area: poster;
   border-radius: 4px;
   display: ${posterHasLoaded ? "block" : "none"};
+  object-fit: contain;
 `,
   )
 

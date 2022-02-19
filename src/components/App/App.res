@@ -72,15 +72,15 @@ let make = () => {
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
     switch (urlParts.path, firebaseUser) {
-    | (list{"invitePartner"}, Some(user)) => setState(_ => Onboarding(user))
-    | (_, Some(user)) => {
+    | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
+    | (_, SomeUser(user)) => {
         loadAndSetFilms(user)->ignore
         RescriptReactRouter.push("/")
       }
-    | (list{"loginCallback"}, None) => handleLoginCallback()
-    | (list{"emailNotFoundError"}, None) => setState(_prevState => LoginEmailNotFoundError)
-    | (list{"invalidEmailLinkError"}, None) => setState(_prevState => InvalidLoginLinkError)
-    | (list{}, None) => setState(_prevState => NotLoggedin)
+    | (list{"loginCallback"}, NoUser) => handleLoginCallback()
+    | (list{"emailNotFoundError"}, NoUser) => setState(_prevState => LoginEmailNotFoundError)
+    | (list{"invalidEmailLinkError"}, NoUser) => setState(_prevState => InvalidLoginLinkError)
+    | (list{}, NoUser) => setState(_prevState => NotLoggedin)
     | _ => setState(prevState => prevState)
     }
 
@@ -92,8 +92,9 @@ let make = () => {
     open FirebaseAdapter
     open Firebase.Auth.User
     switch firebaseUser {
-    | None => Js.Console.error("Can't add movie if not logged in")
-    | Some(user) => {
+    | NoUser => Js.Console.error("Can't add movie if not logged in")
+    | LoadingUser => Js.Console.error("Can't add movie if not logged in")
+    | SomeUser(user) => {
         let firebaseFilm: firebaseFilm = {
           id: item.id,
           title: item.title,

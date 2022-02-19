@@ -60,21 +60,29 @@ let convertFromFilm: FilmType.film => firebaseFilm = film => {
   seen: film.seen,
 }
 
-let useUser: unit => option<Auth.User.t> = () => {
-  let (user, setUser) = React.useState(() => None)
+type optionalFirebaseUser =
+  | SomeUser(Auth.User.t)
+  | LoadingUser
+  | NoUser
 
-  firebase
-  ->auth
-  ->Auth.onAuthStateChanged((user: Js.Nullable.t<Auth.User.t>) =>
-    switch Js.Nullable.toOption(user) {
-    | Some(user) => {
-        Js.log("user is logged in")
-        LocalStorage.setUserId(user->Auth.User.uid)->ignore
-        setUser(_ => Some(user))
+let useUser: unit => optionalFirebaseUser = () => {
+  let (user, setUser) = React.useState(() => LoadingUser)
+
+  React.useEffect0(() => {
+    firebase
+    ->auth
+    ->Auth.onAuthStateChanged((user: Js.Nullable.t<Auth.User.t>) =>
+      switch Js.Nullable.toOption(user) {
+      | Some(user) => {
+          Js.log("user is logged in")
+          LocalStorage.setUserId(user->Auth.User.uid)->ignore
+          setUser(_ => SomeUser(user))
+        }
+      | None => setUser(_ => NoUser)
       }
-    | None => ()
-    }
-  )
+    )
+    None
+  })
   user
 }
 
