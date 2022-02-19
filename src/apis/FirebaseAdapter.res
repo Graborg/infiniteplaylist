@@ -1,13 +1,22 @@
-@val @scope(("process", "env")) external loginCallbackUrl: string = "FIREBASE_URL_LOGIN_CALLBACK"
+@val @scope("process") external env: {..} = "env"
 open Firebase
 open Firestore
 open Firebase.Auth.User
 
+let conf: firebaseConfig = {
+  apiKey: env["FIREBASE_API_KEY"],
+  authDomain: env["FIREBASE_AUTH_DOMAIN"],
+  projectId: env["FIREBASE_PROJECT_ID"],
+  storageBucket: env["FIREBASE_STORAGE_BUCKET"],
+  messagingSenderId: env["FIREBASE_MESSAGING_SENDER_ID"],
+  appId: env["FIREBASE_APP_ID"],
+}
+firebase->initializeApp(conf)
 let collectionName = "userFilmLists"
 let filmListField = "filmList"
 
 let acos: Firebase_Auth.actionCodeSettings = {
-  url: loginCallbackUrl,
+  url: env["FIREBASE_URL_LOGIN_CALLBACK"],
   handleCodeInApp: true,
 }
 

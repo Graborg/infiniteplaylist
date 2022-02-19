@@ -1,5 +1,4 @@
 const path = require("path");
-const fs = require("fs");
 const outputDir = path.join(__dirname, "public/");
 const dotenv = require('dotenv');
 const webpack = require('webpack');
@@ -7,11 +6,11 @@ const webpack = require('webpack');
 const isProd = process.env.NODE_ENV === "production";
 
 module.exports = env => {
-
   const currentPath = path.join(__dirname);
-  const fileName = env === "dev" ? ".env-dev" : ".env"
+  const fileName = env.ENVIRONMENT === "dev" ? ".env-dev" : ".env"
   const fileEnv = dotenv.config({path: currentPath + "/" + fileName}).parsed;
 
+  console.log("env variables", fileEnv)
 
   const envKeys = Object.keys(fileEnv).reduce((prev, next) => {
     prev[`process.env.${next}`] = JSON.stringify(fileEnv[next]);

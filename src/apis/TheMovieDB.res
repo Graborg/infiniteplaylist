@@ -34,11 +34,11 @@ let decodeSearchResult = json => {
   {
     id: json |> field("id", int),
     title: json |> field("title", string),
-    release_date: json |> field("release_date", optional(string)),
-    poster_path: json |> field("poster_path", optional(string)),
-    overview: json |> field("overview", optional(string)),
-    original_language: json |> field("original_language", optional(string)),
-    genre_ids: json |> field("genre_ids", optional(array(int))),
+    release_date: json |> optional(field("release_date", string)),
+    poster_path: json |> optional(field("poster_path", string)),
+    overview: json |> optional(field("overview", string)),
+    original_language: json |> optional(field("original_language", string)),
+    genre_ids: json |> optional(field("genre_ids", array(int))),
   }
 }
 

@@ -14,9 +14,13 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
 
   let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
-    TheMovieDBAdapter.search(text, res => {
-      setResults(_ => res)
-    })->ignore
+    switch text {
+    | "" => setResults(_ => TheMovieDB.NoResultsInit)
+    | searchText =>
+      TheMovieDBAdapter.search(searchText, res => {
+        setResults(_ => res)
+      })->ignore
+    }
   })
 
   let onFocusHandler = _ => {
