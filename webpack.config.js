@@ -30,7 +30,7 @@ module.exports = env => {
     devServer: {
       compress: true,
       contentBase: outputDir,
-      port: process.env.PORT || 8000,
+      port: process.env.PORT || 3000,
       historyApiFallback: true,
     },
     module: {
