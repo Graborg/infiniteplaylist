@@ -39,7 +39,7 @@ let poster = Emotion.css(`
   height: 100%;
   grid-area: poster;
   border-radius: 10px;
-  object-fit: contain;
+  border: 1px solid var(--color-lightest-gray);
 `)
 
 let filmTitle = Emotion.css(`
