@@ -4,9 +4,43 @@ type mouseOver =
 
 let creatorToString = (creator: FilmType.user) =>
   switch creator {
-  | Karmi => j`🐘 ` ++ "Karmi" ++ j` 🐘`
-  | Ferma => j`🐄 ` ++ "Ferma" ++ j` 🐄`
+  | Karmi => "Karmi" ++ j` 🐘`
+  | Ferma => "Ferma" ++ j` 🐄`
   }
+
+let item = Emotion.css(`
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  padding-bottom: 10px;
+  border-bottom: 1px solid black;
+  position: relative;
+  
+`)
+
+let creatorBanner = creator =>
+  Emotion.css(
+    `
+  position: absolute;
+  top: 5px;
+  left: -5px;
+  background-color: var(${creator === FilmType.Karmi ? "--color-user-one" : "--color-user-two"} );
+  border-radius: 2px;
+  font-family: var(--font-fancy);
+  padding: 4px 4px;
+  color: var(--color-background);
+  font-weight: 700;
+
+`,
+  )
+
+let poster = Emotion.css(`
+  max-width:100%;
+  height: 100%;
+  grid-area: poster;
+  border-radius: 10px;
+  object-fit: contain;
+`)
 
 @react.component
 let make = (
@@ -15,37 +49,22 @@ let make = (
   ~selected: bool=false,
   (),
 ) => {
+  open TheMovieDB
   let (checked, setCheck) = React.useState(_ => false)
 
-  {
-    <div
+  switch (film.title, film.genres, film.releaseDate, film.posterPath, film.plot) {
+  | (title, Some(genres), Some(year), Some(posterPath), Some(plot)) =>
+    <li
       key={Belt.Int.toString(film.id)}
-      className="film-item inputGroup"
+      className=item
       onClick={_ => {
         setCheck(prevState => !prevState)
         click(film)
-      }}
-      style={ReactDOMStyle.make(
-        ~display="flex",
-        // ~padding="21px 0 13px",
-        ~padding="21px 5px 13px",
-        ~margin="0 10px",
-        //~borderBottom=lastElement ? "" : "1px #cecece solid",
-        ~justifyContent="space-between",
-        ~boxSizing="border-box",
-        ~minHeight="56px",
-        ~textDecoration=checked ? "line-through" : "",
-        ~color={film.creator === Ferma ? "#476098" : "#8b9862"},
-        (),
-      )}>
-      <p>
-        {selected ? React.string(j`🤠` ++ " ") : React.string("")}
-        {React.string(film.title)}
-        {selected ? React.string(" " ++ j`🤠`) : React.string("")}
-      </p>
-      <p style={ReactDOMStyle.make(~border="black 5px", ())}>
-        {React.string(creatorToString(film.creator))}
-      </p>
-    </div>
+      }}>
+      <p className={creatorBanner(film.creator)}> {React.string(creatorToString(film.creator))} </p>
+      <img className=poster src={getPosterPath(posterPath)} />
+      <p> {React.string(title)} </p>
+    </li>
+  | (title, _, _, _, _) => React.string(title)
   }
 }

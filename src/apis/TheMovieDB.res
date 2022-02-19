@@ -29,6 +29,8 @@ type results =
   | NoResultsFound
   | Results(array<searchResult>)
 
+let getPosterPath: string => string = posterPath => poster_uri ++ posterPath
+
 let decodeSearchResult = json => {
   open Json.Decode
   {

@@ -18,5 +18,5 @@ let getUserVariant = (userId: string) => userId === "zRruowROmFRMBIxbOQ9OGbGQJHF
 let getUserId = (user: user) =>
   switch user {
   | Karmi => "zRruowROmFRMBIxbOQ9OGbGQJHF3"
-  | Ferma => ""
+  | Ferma => "lkBK5zcmFmYGte7kGjfsEvGyfDD2"
   }
