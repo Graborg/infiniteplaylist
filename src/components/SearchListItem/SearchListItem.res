@@ -12,6 +12,9 @@ let itemWrapper = css(`
   padding-bottom: 12px;
   border-bottom: 1px solid var(--color-primary-light);
   font-size: 1rem;
+  @media (min-width: 600px) {
+    grid-template-rows: auto 1fr;
+  }
 `)
 
 let listItem = css(
@@ -36,11 +39,16 @@ let itemHeader = css(`
   font-family: var(--font-fancy);
 `)
 
-let titleWrapper = css(`
+let metaWrapper = css(`
   display: flex;
   overflow: hidden;
   white-space: nowrap;
   gap: 4px;
+`)
+
+let titleWrapper = css(`
+display: flex;
+  white-space: nowrap;
   font-weight: bold;
   font-size: 1.125rem;
   color: var(--color-black);
@@ -49,9 +57,8 @@ let titleWrapper = css(`
 let itemTitle = css(`
   text-overflow: ellipsis;
   overflow:hidden;
-  white-space: nowrap;
   font-style: oblique 12deg;
-  padding-right: 1px;
+  padding-right: 4px;
 `)
 
 let itemPlot = css(`
@@ -62,6 +69,10 @@ let itemPlot = css(`
   overflow: hidden;
   height: fit-content;
   color: var(--color-black);
+  @media (min-width: 450px) {
+
+  -webkit-line-clamp: 8;
+  }
 `)
 
 let poster = posterHasLoaded =>
@@ -107,24 +118,28 @@ let posterSkeleton = posterHasLoaded =>
     }
   `,
   )
+
+let yearFromDate: string => string = date => Js.String2.slice(date, ~from=0, ~to_=4)
 @react.component
 let make = (~film: TheMovieDB.searchResult, ~clickHandler: TheMovieDB.searchResult => unit) => {
   let (posterHasLoaded, setPosterLoading) = React.useState(() => false)
 
   <li tabIndex=0 className=listItem onClick={item => clickHandler(film)}>
     {switch (film.title, film.genres, film.releaseDate, film.posterPath, film.plot) {
-    | (title, Some(genres), Some(year), Some(poster_path), Some(plot)) =>
+    | (title, Some(genres), Some(releaseDate), Some(poster_path), Some(plot)) =>
       <div className=itemWrapper>
         <div className=itemHeader>
           <p className=titleWrapper>
             <span className=itemTitle> {React.string(title)} </span>
-            <span> {React.string(year)} </span>
+            <span> {React.string(" (" ++ releaseDate->yearFromDate ++ ")")} </span>
+          </p>
+          <p className=metaWrapper>
+            <span>
+              {React.string(genres->Belt.Array.slice(~offset=0, ~len=2)->Js.Array2.joinWith("/"))}
+            </span>
             <span> {React.string(`•`)} </span>
             <span> {React.string(`2h 35m`)} </span>
           </p>
-          <span>
-            {React.string(genres->Belt.Array.slice(~offset=0, ~len=2)->Js.Array2.joinWith("/"))}
-          </span>
         </div>
         <p className=itemPlot> {React.string(plot)} </p>
         <div className={posterSkeleton(posterHasLoaded)} />
