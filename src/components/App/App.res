@@ -105,26 +105,23 @@ let make = () => {
           genres: item.genres,
           seen: false,
         }
-        setState(state => {
-          switch state {
-          | LoadedFilms(films, seenFilms) => {
-              let film = firebaseFilm->convertToFilm
-              let alreadyInList = films->Js.Array2.map(f => f.id)->Js.Array2.includes(film.id)
-              if alreadyInList {
-                Js.Console.error("Item already in list")
-                state
-              } else {
+        switch state {
+        | LoadedFilms(films, seenFilms) => {
+            let film = firebaseFilm->convertToFilm
+            let alreadyInList = films->Js.Array2.map(f => f.id)->Js.Array2.includes(film.id)
+
+            if alreadyInList {
+              Js.Console.error("Item already in list")
+            } else {
+              setState(_ => {
                 let newUnseen = Js.Array.concat([film], films)
                 LoadedFilms(newUnseen, seenFilms)
-              }
-            }
-          | _ => {
-              Js.Console.error("Can't add movie to filmlist state if not loaded")
-              state
+              })
+              user->uid->addFilmToList(firebaseFilm)->ignore
             }
           }
-        })
-        user->uid->addFilmToList(firebaseFilm)->ignore
+        | _ => Js.Console.error("Can't add movie to filmlist state if not loaded")
+        }
       }
     }
   }
