@@ -13,6 +13,11 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
   let (showList, toggleList) = React.useState(_ => false)
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
 
+  let handleNewFilm = film => {
+    toggleList(_ => false)
+    addFilmHandler(film)
+  }
+
   let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
     switch text {
     | "" => setResults(_ => TheMovieDB.NoResultsInit)
@@ -57,6 +62,6 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
       disabled
       icon=#Search
     />
-    <SearchResults showList results handleNewFilm=addFilmHandler />
+    <SearchResults showList results handleNewFilm />
   </div>
 }

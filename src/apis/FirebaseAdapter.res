@@ -102,7 +102,7 @@ let setPartner: (~userId: string, ~partnerEmail: string) => Promise.t<unit> = (
     (),
   )
 }
-let addFilmToList: (string, firebaseFilm) => Promise.t<unit> = (userId, film) =>
+let addFilmToList: (string, firebaseFilm) => Promise.t<'a> = (userId, film) =>
   firebase
   ->firestore
   ->collection(collectionName)

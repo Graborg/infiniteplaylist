@@ -124,7 +124,15 @@ let yearFromDate: string => string = date => Js.String2.slice(date, ~from=0, ~to
 let make = (~film: TheMovieDB.searchResult, ~clickHandler: TheMovieDB.searchResult => unit) => {
   let (posterHasLoaded, setPosterLoading) = React.useState(() => false)
 
-  <li tabIndex=0 className=listItem onClick={item => clickHandler(film)}>
+  <li
+    tabIndex=0
+    className=listItem
+    onKeyDown={key => {
+      if ReactEvent.Keyboard.key(key) === "Enter" {
+        clickHandler(film)
+      }
+    }}
+    onClick={_ => clickHandler(film)}>
     {switch (film.title, film.genres, film.releaseDate, film.posterPath, film.plot) {
     | (title, Some(genres), Some(releaseDate), Some(poster_path), Some(plot)) =>
       <div className=itemWrapper>

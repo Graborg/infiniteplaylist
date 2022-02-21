@@ -88,7 +88,6 @@ let make = () => {
   }, (urlParts.search, firebaseUser))
 
   let addFilmHandler: TheMovieDB.searchResult => unit = item => {
-    open Promise
     open FirebaseAdapter
     open Firebase.Auth.User
     switch firebaseUser {
@@ -106,23 +105,26 @@ let make = () => {
           genres: item.genres,
           seen: false,
         }
-        FirebaseAdapter.addFilmToList(uid(user), firebaseFilm)
-        ->then(_ =>
-          setState(state =>
-            switch state {
-            | LoadedFilms(films, seenFilms) => {
-                let film = convertToFilm(firebaseFilm)
+        setState(state => {
+          switch state {
+          | LoadedFilms(films, seenFilms) => {
+              let film = firebaseFilm->convertToFilm
+              let alreadyInList = films->Js.Array2.map(f => f.id)->Js.Array2.includes(film.id)
+              if alreadyInList {
+                Js.Console.error("Item already in list")
+                state
+              } else {
                 let newUnseen = Js.Array.concat([film], films)
                 LoadedFilms(newUnseen, seenFilms)
               }
-            | _ => {
-                Js.Console.error("Can't add movie to filmlist state if not loaded")
-                state
-              }
             }
-          )->resolve
-        )
-        ->ignore
+          | _ => {
+              Js.Console.error("Can't add movie to filmlist state if not loaded")
+              state
+            }
+          }
+        })
+        user->uid->addFilmToList(firebaseFilm)->ignore
       }
     }
   }

@@ -20,22 +20,6 @@ let wrapper = Emotion.css(`
   right: 0;
   z-index: 1;
 `)
-let highlightedItem = Emotion.css(`
-  background-color: var(--color-primary);
-`)
-
-let moveDownInList = (~length, ~maxResultLength, ~changeOption) => {
-  let lastIndex = min(length, maxResultLength) - 1
-  changeOption(oldActiveOption => {
-    let newActiveOption = oldActiveOption + 1
-    newActiveOption >= min(lastIndex, maxResultLength)
-      ? min(lastIndex, maxResultLength)
-      : newActiveOption
-  })
-}
-
-let moveUpInList = (~changeOption) =>
-  changeOption(oldActiveOption => oldActiveOption === 0 ? 0 : oldActiveOption - 1)
 
 @react.component
 let make = (
@@ -44,32 +28,12 @@ let make = (
   ~handleNewFilm: TheMovieDB.searchResult => unit,
 ) => {
   let maxResultLength = 5
-  /* let keyHandler = e => */
-  /* switch results { */
-  /* | NoResultsInit => ignore() */
-  /* | NoResultsFound => ignore() */
-  /* | Results(films) => { */
-  /* let length = Array.length(films) */
-  /* let key = Belt.Map.Int.get(keyCodesToVariant, ReactEvent.Keyboard.keyCode(e)) */
-  /* switch key { */
-  /* | Some(Enter) => Js.log("enter") */
-  /* | Some(UpArrow) => moveUpInList(~changeOption) */
-  /* | Some(DownArrow) => moveDownInList(~length, ~maxResultLength, ~changeOption) */
-  /* | None => ignore() */
-  /* } */
-  /* } */
-  /* } */
-
-  /* React.useEffect(() => { */
-  /* addEventListener("keydown", keyHandler) */
-
-  /* Some(() => removeEventListener("keydown", keyHandler)) */
-  /* }) */
 
   showList
     ? <ul className=wrapper>
         {switch results {
         | NoResultsInit => React.string("")
+
         | NoResultsFound => <li> {React.string("No results found")} </li>
         | Results(suggestedFilmList) =>
           suggestedFilmList
