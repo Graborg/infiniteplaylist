@@ -2,13 +2,6 @@
 @val @scope("window")
 external removeEventListener: (string, 'a => unit) => unit = "removeEventListener"
 
-type keyCode =
-  | Enter
-  | UpArrow
-  | DownArrow
-
-let keyCodesToVariant = Belt.Map.Int.fromArray([(13, Enter), (38, UpArrow), (40, DownArrow)])
-
 let wrapper = Emotion.css(`
   background-color: var(--color-background);
   position: absolute;
@@ -33,7 +26,6 @@ let make = (
     ? <ul className=wrapper>
         {switch results {
         | NoResultsInit => React.string("")
-
         | NoResultsFound => <li> {React.string("No results found")} </li>
         | Results(suggestedFilmList) =>
           suggestedFilmList

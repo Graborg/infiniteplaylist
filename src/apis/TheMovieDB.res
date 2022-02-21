@@ -54,24 +54,26 @@ module TheMovieDBAdapter = {
   let search = (str: string, callback: results => unit) =>
     Fetch.fetch(base_uri ++ "search/movie?api_key=" ++ api_key ++ "&query=" ++ str)
     ->then(Fetch.Response.json)
-    ->then(res =>
-      res
-      ->decodeSearchResults
-      ->Belt.Array.map((decodedFilm): searchResult => {
-        id: decodedFilm.id,
-        title: decodedFilm.title,
-        releaseDate: decodedFilm.release_date,
-        posterPath: decodedFilm.poster_path,
-        plot: decodedFilm.overview,
-        language: decodedFilm.original_language,
-        genres: decodedFilm.genre_ids->Option.map(genreIds =>
-          Array.map(genreIds, genreId =>
-            Map.String.getWithDefault(TheMovieDBGenres.genres, Int.toString(genreId), "")
-          )
-        ),
-      })
-      ->Results
+    ->then(res => {
+      let decodedResult = decodeSearchResults(res)
+      switch decodedResult {
+      | [] => NoResultsFound
+      | filmList =>
+        Belt.Array.map(filmList, (decodedFilm): searchResult => {
+          id: decodedFilm.id,
+          title: decodedFilm.title,
+          releaseDate: decodedFilm.release_date,
+          posterPath: decodedFilm.poster_path,
+          plot: decodedFilm.overview,
+          language: decodedFilm.original_language,
+          genres: decodedFilm.genre_ids->Option.map(genreIds =>
+            Array.map(genreIds, genreId =>
+              Map.String.getWithDefault(TheMovieDBGenres.genres, Int.toString(genreId), "")
+            )
+          ),
+        })->Results
+      }
       ->callback
       ->resolve
-    )
+    })
 }

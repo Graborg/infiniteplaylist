@@ -21,10 +21,7 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
   let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
     switch text {
     | "" => setResults(_ => TheMovieDB.NoResultsInit)
-    | searchText =>
-      TheMovieDBAdapter.search(searchText, res => {
-        setResults(_ => res)
-      })->ignore
+    | searchText => TheMovieDBAdapter.search(searchText, res => setResults(_ => res))->ignore
     }
   })
 
@@ -51,7 +48,14 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
     None
   })
 
-  <div className=wrapper ref={ReactDOM.Ref.domRef(wrapperRef)}>
+  <div
+    onKeyDown={key => {
+      if ReactEvent.Keyboard.key(key) === "Escape" {
+        toggleList(_ => false)
+      }
+    }}
+    className=wrapper
+    ref={ReactDOM.Ref.domRef(wrapperRef)}>
     <InputField
       id="searchbox"
       placeholder="Star wars: The empire str.."
