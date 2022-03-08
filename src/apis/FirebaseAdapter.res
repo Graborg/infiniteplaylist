@@ -86,10 +86,11 @@ let useUser: unit => optionalFirebaseUser = () => {
   user
 }
 
-let setPartner: (~userId: string, ~partnerEmail: string) => Promise.t<unit> = (
-  ~userId,
-  ~partnerEmail,
-) => {
+let setPartner: (
+  ~userId: string,
+  ~partnerEmail: string,
+  ~partnerNick: string,
+) => Promise.t<unit> = (~userId, ~partnerEmail, ~partnerNick) => {
   firebase
   ->firestore
   ->collection(collectionName)
@@ -97,6 +98,7 @@ let setPartner: (~userId: string, ~partnerEmail: string) => Promise.t<unit> = (
   ->Collection.DocRef.set(
     {
       "partnerEmail": partnerEmail,
+      "partnerNick": partnerNick,
     },
     ~options=Collection.DocRef.setOptions(~merge=true),
     (),
