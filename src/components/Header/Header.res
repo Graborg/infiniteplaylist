@@ -38,23 +38,29 @@ let names = css(`
 `)
 
 @react.component
-let make = () => {
+let make = (~isLoggedIn=false) => {
   let randomNicks = ["Bae", "Peanut"]
 
   let userNick = LocalStorage.getUserNick()
   let partnerNick = LocalStorage.getPartnerNick()
   <div className={wrapper}>
-    <div className={nameWrapper}>
-      <p className={ampersand}> {React.string("&")} </p>
-      <p className={names}>
-        {React.string(
-          Belt.Option.getWithDefault(partnerNick, Belt.Array.getExn(randomNicks, 0)) ++
-          " " ++
-          Belt.Option.getWithDefault(userNick, Belt.Array.getExn(randomNicks, 1)) ++ "'s",
-        )}
-      </p>
-    </div>
-    <p className={logo}> {React.string("Infinite Playlist")} </p>
-    <div className={icons}> <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} /> </div>
+    {isLoggedIn
+      ? <div className={nameWrapper}>
+          <p className={ampersand}> {React.string("&")} </p>
+          <p className={names}>
+            {React.string(
+              Belt.Option.getWithDefault(partnerNick, Belt.Array.getExn(randomNicks, 0)) ++
+              " " ++
+              Belt.Option.getWithDefault(userNick, Belt.Array.getExn(randomNicks, 1)) ++ "'s",
+            )}
+          </p>
+        </div>
+      : <div />}
+    <a href="/"> <p className={logo}> {React.string("Infinite Playlist")} </p> </a>
+    {isLoggedIn
+      ? <div className={icons}>
+          <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} />
+        </div>
+      : <div />}
   </div>
 }

@@ -175,7 +175,7 @@ let make = () => {
   | NotLoggedin => <NotLoggedinPage />
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
-      <Header />
+      <Header isLoggedIn=true />
       <SearchField addFilmHandler />
       <h3 className=listTitle> {React.string("Not seen")} </h3>
       <FilmList films selected="" markFilmAsSeen />
