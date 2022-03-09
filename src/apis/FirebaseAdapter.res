@@ -157,7 +157,11 @@ let getFilmLists: Firebase.Auth.User.t => Promise.t<array<FilmType.film>> = user
     getUserFilmList(user->uid),
   ))->Promise.thenResolve(((f1, f2)) => Belt.Array.concat(f1, f2))
 
-let sendSignInLink: (~email: string) => Promise.t<'a> = (~email) =>
+let sendSignInLink: (~email: string, ~nickname: string=?, unit) => Promise.t<'a> = (
+  ~email: string,
+  ~nickname: option<string>=?,
+  (),
+) =>
   firebase
   ->auth
   ->Auth.sendSignInLinkToEmail(~email, ~actionCodeSettings=acos)

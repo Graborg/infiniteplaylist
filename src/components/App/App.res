@@ -172,7 +172,7 @@ let make = () => {
   | Error => React.string("Something went wrong!! :(")
   | Onboarding(user) => <Onboarding user doneHandler=handleOnboardingDone />
   | LoadingFilms => <Spinner />
-  | NotLoggedin => <Login />
+  | NotLoggedin => <NotLoggedinPage />
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
       <Header />
