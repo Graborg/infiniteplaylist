@@ -34,7 +34,11 @@ type firebaseFilm = {
   genres: option<array<string>>,
   seen: bool,
 }
-type userFilmListResult = {filmList: option<array<firebaseFilm>>}
+type userFilmListResult = {
+  filmList: option<array<firebaseFilm>>,
+  partnerEmail: option<string>,
+  partnerNick: option<string>,
+}
 
 let convertToFilm: firebaseFilm => FilmType.film = firebaseFilm => {
   id: firebaseFilm.id,
@@ -104,6 +108,19 @@ let setPartner: (
     (),
   )
 }
+
+let partnerIsSet: string => Promise.t<bool> = userId => {
+  firebase
+  ->firestore
+  ->collection(collectionName)
+  ->Collection.doc(userId)
+  ->Collection.DocRef.get()
+  ->Promise.thenResolve(collection => {
+    let res: userFilmListResult = collection->Firestore.DocSnapshot.data()
+
+    Belt.Option.isSome(res.partnerNick) && Belt.Option.isSome(res.partnerEmail)
+  })
+}
 let addFilmToList: (string, firebaseFilm) => Promise.t<'a> = (userId, film) =>
   firebase
   ->firestore
@@ -168,15 +185,19 @@ let sendSignInLink: (~email: string, ~nickname: string=?, unit) => Promise.t<'a>
   ->Promise.thenResolve(_ => email)
 
 let handleAuthCallback: (~link: string) => Promise.t<'a> = (~link) => {
+  open Promise
   let maybeEmail = LocalStorage.getEmail()
+  let maybeNickname = LocalStorage.getUserNick()
   let linkIsValid = firebase->auth->Auth.isSignInWithEmailLink(~link)
-  switch (maybeEmail, linkIsValid) {
-  | (Some(email), true) =>
+  switch (maybeEmail, maybeNickname, linkIsValid) {
+  | (Some(email), Some(nickname), true) =>
     firebase
     ->auth
     ->Auth.signInWithEmailLink(~email, ~link)
-    ->Promise.catch(_error => Promise.reject(InvalidLink))
-  | (None, _) => Promise.reject(EmailNotFound)
-  | (Some(_email), false) => Promise.reject(InvalidLink)
+    ->then(user => firebase->auth->Auth.updateProfile(user, ~displayName=nickname))
+    ->catch(_error => Promise.reject(InvalidLink))
+  | (None, _, _) => Promise.reject(EmailNotFound)
+  | (Some(_email), _, false) => Promise.reject(InvalidLink)
+  | (_, _, _) => Promise.reject(InvalidLink)
   }
 }

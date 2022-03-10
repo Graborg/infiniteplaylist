@@ -52,18 +52,16 @@ let make = () => {
     })
 
   let handleLoginCallback = () => {
-    open Promise
     open FirebaseAdapter
     let url: string = window["location"]["href"]
     handleAuthCallback(~link=url)
-    ->thenResolve(_ => RescriptReactRouter.push("/invitePartner"))
-    ->catch(error =>
-      switch error {
-      | InvalidLink => RescriptReactRouter.push("/invalidEmailLinkError")
-      | EmailNotFound => RescriptReactRouter.push("/emailNotFoundError")
-      | _ => RescriptReactRouter.replace("/error")
-      }->resolve
-    )
+    /* ->catch(error => */
+    /* switch error { */
+    /* | InvalidLink => RescriptReactRouter.push("/invalidEmailLinkError") */
+    /* | EmailNotFound => RescriptReactRouter.push("/emailNotFoundError") */
+    /* | _ => RescriptReactRouter.replace("/error") */
+    /* }->resolve */
+    /* ) */
     ->ignore
   }
 
@@ -72,12 +70,19 @@ let make = () => {
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
     switch (urlParts.path, firebaseUser) {
+    | (list{}, SomeUser(user)) => loadAndSetFilms(user)->ignore
     | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
-    | (_, SomeUser(user)) => {
-        loadAndSetFilms(user)->ignore
-        RescriptReactRouter.push("/")
-      }
-    | (list{"loginCallback"}, NoUser) => handleLoginCallback()
+    | (list{"loginCallback"}, SomeUser(user)) =>
+      FirebaseAdapter.partnerIsSet(Firebase.Auth.User.uid(user))
+      ->Promise.thenResolve(partnerIsSet => {
+        if partnerIsSet {
+          RescriptReactRouter.push("/")
+        } else {
+          RescriptReactRouter.push("/invitePartner")
+        }
+      })
+      ->ignore
+    | (list{"loginCallback"}, NoUser) => handleLoginCallback()->ignore
     | (list{"emailNotFoundError"}, NoUser) => setState(_prevState => LoginEmailNotFoundError)
     | (list{"invalidEmailLinkError"}, NoUser) => setState(_prevState => InvalidLoginLinkError)
     | (list{}, NoUser) => setState(_prevState => NotLoggedin)

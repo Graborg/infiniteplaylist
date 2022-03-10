@@ -111,3 +111,6 @@ external onAuthStateChanged: (t, Js.Nullable.t<User.t> => unit) => unit = "onAut
 @send external signOut: (t, unit) => unit = "signOut"
 
 @get external currentUser: t => User.t = "currentUser"
+
+@send
+external updateProfile: (t, User.t, ~displayName: string) => Promise.t<string> = "displayName"
