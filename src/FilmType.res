@@ -1,11 +1,8 @@
-type user =
-  | Ferma
-  | Karmi
-
 type film = {
   id: int,
   title: string,
-  creator: user,
+  creatorName: string,
+  creatorId: string,
   releaseDate: option<string>,
   posterPath: option<string>,
   plot: option<string>,
@@ -13,10 +10,9 @@ type film = {
   genres: option<array<string>>,
   seen: bool,
 }
-
-let getUserVariant = (userId: string) => userId === "zRruowROmFRMBIxbOQ9OGbGQJHF3" ? Karmi : Ferma
-let getUserId = (user: user) =>
-  switch user {
-  | Karmi => "zRruowROmFRMBIxbOQ9OGbGQJHF3"
-  | Ferma => "lkBK5zcmFmYGte7kGjfsEvGyfDD2"
+let creatorToString = creator =>
+  switch creator {
+  | "Karmi" => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
+  | "Ferma" => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
+  | _ => creator
   }

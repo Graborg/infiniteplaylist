@@ -31,47 +31,29 @@ let horn = %raw(`
       audioElement.play();
     }
 `)
-let creatorToString = creator => {
-  open FilmType
 
-  switch creator {
-  | Some(Karmi) => j`🐘 ` ++ "Karmi!" ++ j` 🐘`
-  | Some(Ferma) => j`🐄 ` ++ "Ferma!" ++ j` 🐄`
-  | None => ""
-  }
-}
-
-let getCreatorColor = creator => {
-  open FilmType
-  switch creator {
-  | Some(Ferma) => "#476098"
-  | Some(Karmi) => "#8b9862"
-  | None => ""
-  }
-}
-let electFilm = (~setState, ~doSelectFilm, ~nextElector, ~films: array<FilmType.film>=[], ()) => {
+let electFilm = (~setState, ~doSelectFilm, ~nextElectorId, ~films: array<FilmType.film>=[], ()) => {
   confetti()->ignore
   horn()->ignore
 
-  switch (doSelectFilm, nextElector) {
-  | (Some(selectFilmFunc), Some(elector)) =>
+  switch doSelectFilm {
+  | Some(selectFilmFunc) =>
     {
       let filmsOfCreator =
-        films->Js.Array2.filter((film: FilmType.film) => film.creator === elector)
+        films->Js.Array2.filter((film: FilmType.film) => film.creatorId === nextElectorId)
       let randomIndex = filmsOfCreator->Belt.Array.length->Random.int
       Belt.Array.get(filmsOfCreator, randomIndex)->Belt.Option.map(film => {
         selectFilmFunc(film.title)
         setState(_prevState => FilmElected(film.title))
       })
     }->ignore
-  | (Some(_), None) => Js.log("no function passed to RandomBtn")
-  | (None, _) => Js.log("Something went wrong when electing next film in randomBtn")
+  | None => Js.log("Something went wrong when electing next film in randomBtn")
   }
   ()
 }
 
 @react.component
-let make = (~films=[], ~doSelectFilm=?, ~nextElector: option<FilmType.user>=?, ~disabled=false) => {
+let make = (~films=[], ~doSelectFilm=?, ~nextElectorId: string, ~disabled=false) => {
   let (state, setState) = React.useState(() => NoElection)
   <div>
     {switch state {
@@ -82,10 +64,10 @@ let make = (~films=[], ~doSelectFilm=?, ~nextElector: option<FilmType.user>=?, ~
       style={ReactDOMStyle.make(
         ~marginBottom="5px",
         ~textAlign="center",
-        ~color={getCreatorColor(nextElector)},
+        //~color={getCreatorColor(nextElector)},
         (),
       )}>
-      {React.string(creatorToString(nextElector))}
+      {React.string(FilmType.creatorToString(nextElectorId))}
     </p>
     <div
       style={ReactDOMStyle.make(
@@ -97,12 +79,7 @@ let make = (~films=[], ~doSelectFilm=?, ~nextElector: option<FilmType.user>=?, ~
       )}>
       <button
         disabled
-        style={ReactDOMStyle.make(
-          ~boxShadow="0 0 0 1px" ++ getCreatorColor(nextElector),
-          ~color={getCreatorColor(nextElector)},
-          (),
-        )}
-        onClick={_event => electFilm(~setState, ~doSelectFilm, ~nextElector, ~films, ())}>
+        onClick={_event => electFilm(~setState, ~doSelectFilm, ~nextElectorId, ~films, ())}>
         {React.string("Haz un volado")}
       </button>
     </div>

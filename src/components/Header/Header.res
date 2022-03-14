@@ -37,25 +37,54 @@ let names = css(`
   width: min-content;
 `)
 
+let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
+  open Promise
+  let maybeUserName = LocalStorage.getUserDisplayName()
+  let maybePartnerName = LocalStorage.getPartnerDisplayName()
+  let maybeUserId = LocalStorage.getUserId()
+  let maybeUserEmail = LocalStorage.getEmail()
+  switch (maybeUserName, maybePartnerName, maybeUserId, maybeUserEmail) {
+  | (Some(userName), Some(partnerName), _, _) => resolve((Some(userName), Some(partnerName)))
+  | (_, _, Some(userId), Some(email)) =>
+    FirebaseAdapter.getUserNames(~userId, ~email)->thenResolve(((
+      displayName,
+      partnerDisplayName,
+    )) => {
+      Belt.Option.map(displayName, name => LocalStorage.setUserDisplayName(name))->ignore
+      Belt.Option.map(partnerDisplayName, name => LocalStorage.setPartnerDisplayName(name))->ignore
+      (displayName, partnerDisplayName)
+    })
+  | (_, _, _, _) => resolve((None, None))
+  }
+}
+
 @react.component
 let make = (~isLoggedIn=false) => {
-  let randomNicks = ["Bae", "Peanut"]
+  let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (None, None))
+  React.useEffect0(() => {
+    getUserNames()
+    ->Promise.thenResolve(((maybeUserName, maybePartnerName)) =>
+      setNames(_ => (maybeUserName, maybePartnerName))
+    )
+    ->ignore
 
-  let userNick = LocalStorage.getUserNick()
-  let partnerNick = LocalStorage.getPartnerNick()
+    None
+  })
+
   <div className={wrapper}>
-    {isLoggedIn
-      ? <div className={nameWrapper}>
-          <p className={ampersand}> {React.string("&")} </p>
-          <p className={names}>
-            {React.string(
-              Belt.Option.getWithDefault(partnerNick, Belt.Array.getExn(randomNicks, 0)) ++
-              " " ++
-              Belt.Option.getWithDefault(userNick, Belt.Array.getExn(randomNicks, 1)) ++ "'s",
-            )}
-          </p>
-        </div>
-      : <div />}
+    {switch (isLoggedIn, maybePartnerName, maybeUserName) {
+    | (true, Some(partnerName), Some(userName)) =>
+      <div className={nameWrapper}>
+        <p className={ampersand}> {React.string("&")} </p>
+        <p className={names}> {React.string(partnerName ++ " " ++ userName ++ "'s")} </p>
+      </div>
+    | (true, None, Some(userName)) =>
+      <div className={nameWrapper}>
+        <p className={names}> {React.string(userName ++ "'s")} </p>
+      </div>
+    | (true, _, None) => React.string("display name not set")
+    | (false, _, _) => <div />
+    }}
     <a href="/"> <p className={logo}> {React.string("Infinite Playlist")} </p> </a>
     {isLoggedIn
       ? <div className={icons}>

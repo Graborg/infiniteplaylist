@@ -32,13 +32,15 @@ let descriptionWrapper = css(`
 @react.component
 let make = (~user, ~doneHandler) => {
   let (partnerEmail, setPartnerEmail) = React.useState(_ => "")
-  let (partnerNick, setPartnerNick) = React.useState(_ => "")
+  let (displayName, setDisplayName) = React.useState(_ => "")
 
-  let addPartner = (partnerEmail, partnerNick) => {
-    FirebaseAdapter.setPartner(~userId=user->Firebase.Auth.User.uid, ~partnerEmail, ~partnerNick)
+  let completeRegistration = (partnerEmail, displayName) => {
+    let userId = user->Firebase.Auth.User.uid
+    FirebaseAdapter.addUser(~userId, ~displayName, ~partnerEmail)
+    ->Promise.then(_ => FirebaseAdapter.setPartnerAccessToFilmList(~userId, ~partnerEmail))
     ->Promise.thenResolve(_ => {
       RescriptReactRouter.push("/")
-      LocalStorage.setPartnerNick(partnerNick)->ignore
+      LocalStorage.setUserDisplayName(displayName)->ignore
       doneHandler(user)
     })
     ->ignore
@@ -49,8 +51,16 @@ let make = (~user, ~doneHandler) => {
     <div className=fieldWrapper>
       <p className=descriptionWrapper>
         <h1 className=header> {React.string("Invite Partner")} </h1>
-        <p> {React.string("Enter your partners email and nickname")} </p>
+        <p> {React.string("Enter your nickname and your partners email")} </p>
       </p>
+      <InputField
+        placeholder="Peanut"
+        onFocusHandler={_ => ()}
+        onChangeHandler={name => setDisplayName(_ => name)}
+        id="nickname-field"
+        labelName="Your nickname"
+        icon=#Zap
+      />
       <InputField
         placeholder="joe@email.com"
         onFocusHandler={_ => ()}
@@ -59,15 +69,9 @@ let make = (~user, ~doneHandler) => {
         labelName="Partner email"
         icon=#Mail
       />
-      <InputField
-        placeholder="Peanut"
-        onFocusHandler={_ => ()}
-        onChangeHandler={nick => setPartnerNick(_ => nick)}
-        id="partner-nick-field"
-        labelName="Partner nickname"
-        icon=#Zap
+      <Button
+        text="Invite partner" onClick={_ => completeRegistration(partnerEmail, displayName)}
       />
-      <Button text="Invite partner" onClick={_ => addPartner(partnerEmail, partnerNick)} />
     </div>
     <Footer />
   </div>

@@ -91,20 +91,11 @@ let make = () => {
           onChangeHandler={text => setText(((prevNickname, _)) => (prevNickname, text))}
           icon=#Mail
         />
-        <InputField
-          id="nickname-field"
-          placeholder="Peanut"
-          labelName="Nickname"
-          onFocusHandler={e => ()}
-          onChangeHandler={text => setText(((_, prevEmail)) => (text, prevEmail))}
-          icon=#Zap
-        />
         <Button
           text="Register"
           onClick={_ =>
             FirebaseAdapter.sendSignInLink(~email, ~nickname, ())
             ->Promise.thenResolve(LocalStorage.setEmail)
-            ->Promise.thenResolve(() => LocalStorage.setUserNick(nickname))
             ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
             ->ignore}
         />

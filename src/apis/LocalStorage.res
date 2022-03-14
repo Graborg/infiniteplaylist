@@ -11,12 +11,13 @@ let setUserId: string => string = token => {
   token
 }
 
-let getUserNick: unit => option<string> = () => getItem(nickNameSpace, localStorage)
-let setUserNick: string => unit = userNick => setItem(nickNameSpace, userNick, localStorage)
+let getUserDisplayName: unit => option<string> = () => getItem(nickNameSpace, localStorage)
+let setUserDisplayName: string => unit = name => setItem(nickNameSpace, name, localStorage)
 
-let getPartnerNick: unit => option<string> = () => getItem(partnerNickNameSpace, localStorage)
-let setPartnerNick: string => unit = partnerNick =>
-  setItem(partnerNickNameSpace, partnerNick, localStorage)
+let getPartnerDisplayName: unit => option<string> = () =>
+  getItem(partnerNickNameSpace, localStorage)
+let setPartnerDisplayName: string => unit = name =>
+  setItem(partnerNickNameSpace, name, localStorage)
 
 let setEmail: string => unit = email => setItem(emailNamespace, email, localStorage)
 let getEmail: unit => option<string> = () => getItem(emailNamespace, localStorage)

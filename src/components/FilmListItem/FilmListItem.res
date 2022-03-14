@@ -2,12 +2,6 @@ type mouseOver =
   | MouseIsOver
   | MouseNotOver
 
-let creatorToString = (creator: FilmType.user) =>
-  switch creator {
-  | Karmi => "Karmi" ++ j` 🐘`
-  | Ferma => "Ferma" ++ j` 🐄`
-  }
-
 let item = Emotion.css(`
   display: flex;
   gap: 5px;
@@ -18,13 +12,13 @@ let item = Emotion.css(`
   
 `)
 
-let creatorBanner = creator =>
+let creatorBanner = creatorName =>
   Emotion.css(
     `
   position: absolute;
   top: 5px;
   left: -5px;
-  background-color: var(${creator === FilmType.Karmi ? "--color-user-one" : "--color-user-two"} );
+  background-color: var(${creatorName === "Karmi" ? "--color-user-one" : "--color-user-two"} );
   border-radius: 2px;
   font-family: var(--font-fancy);
   padding: 4px 4px;
@@ -67,7 +61,9 @@ let make = (
         setCheck(prevState => !prevState)
         click(film)
       }}>
-      <p className={creatorBanner(film.creator)}> {React.string(creatorToString(film.creator))} </p>
+      <p className={creatorBanner(film.creatorName)}>
+        {React.string(FilmType.creatorToString(film.creatorName))}
+      </p>
       <img className=poster src={getPosterPath(posterPath)} />
       <p className=filmTitle> {React.string(title)} </p>
     </li>

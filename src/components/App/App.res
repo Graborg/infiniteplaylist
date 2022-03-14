@@ -54,18 +54,35 @@ let make = () => {
   let handleLoginCallback = () => {
     open FirebaseAdapter
     let url: string = window["location"]["href"]
-    handleAuthCallback(~link=url)
-    /* ->catch(error => */
-    /* switch error { */
-    /* | InvalidLink => RescriptReactRouter.push("/invalidEmailLinkError") */
-    /* | EmailNotFound => RescriptReactRouter.push("/emailNotFoundError") */
-    /* | _ => RescriptReactRouter.replace("/error") */
-    /* }->resolve */
-    /* ) */
-    ->ignore
+    handleAuthCallback(~link=url)->Promise.catch(error => {
+      let _ = switch error {
+      | InvalidLink => RescriptReactRouter.push("/invalidEmailLinkError")
+      | EmailNotFound => RescriptReactRouter.push("/emailNotFoundError")
+      | _ => RescriptReactRouter.replace("/error")
+      }
+      Promise.resolve()
+    })
   }
 
   let handleOnboardingDone = user => loadAndSetFilms(user)
+
+  let partnerIsSet = user =>
+    if Belt.Option.isSome(LocalStorage.getPartnerDisplayName()) {
+      Promise.resolve(true)
+    } else {
+      user
+      ->Firebase.Auth.User.email
+      ->FirebaseAdapter.getPartnerName
+      ->Promise.thenResolve(partnerName =>
+        switch partnerName {
+        | Some(name) => {
+            LocalStorage.setPartnerDisplayName(name)
+            true
+          }
+        | _ => false
+        }
+      )
+    }
 
   let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
@@ -73,14 +90,15 @@ let make = () => {
     | (list{}, SomeUser(user)) => loadAndSetFilms(user)->ignore
     | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
     | (list{"loginCallback"}, SomeUser(user)) =>
-      FirebaseAdapter.partnerIsSet(Firebase.Auth.User.uid(user))
-      ->Promise.thenResolve(partnerIsSet => {
+      partnerIsSet(user)
+      ->Promise.thenResolve(partnerIsSet =>
         if partnerIsSet {
           RescriptReactRouter.push("/")
         } else {
           RescriptReactRouter.push("/invitePartner")
         }
-      })
+      )
+      ->Promise.catch(_ => RescriptReactRouter.push("/invitePartner")->Promise.resolve)
       ->ignore
     | (list{"loginCallback"}, NoUser) => handleLoginCallback()->ignore
     | (list{"emailNotFoundError"}, NoUser) => setState(_prevState => LoginEmailNotFoundError)
@@ -112,7 +130,10 @@ let make = () => {
         }
         switch state {
         | LoadedFilms(films, seenFilms) => {
-            let film = firebaseFilm->convertToFilm
+            let film =
+              LocalStorage.getUserDisplayName()
+              ->Belt.Option.getWithDefault("name not set")
+              ->convertToFilm(firebaseFilm)
             let alreadyInList = films->Js.Array2.map(f => f.id)->Js.Array2.includes(film.id)
 
             if alreadyInList {

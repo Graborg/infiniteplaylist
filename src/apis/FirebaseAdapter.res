@@ -12,7 +12,8 @@ let conf: firebaseConfig = {
   appId: env["FIREBASE_APP_ID"],
 }
 firebase->initializeApp(conf)
-let collectionName = "userFilmLists"
+let usersFilmsCollection = "userFilmLists"
+let usersCollection = "users"
 let filmListField = "filmList"
 
 let acos: Firebase_Auth.actionCodeSettings = {
@@ -22,6 +23,8 @@ let acos: Firebase_Auth.actionCodeSettings = {
 
 exception InvalidLink
 exception EmailNotFound
+exception PartnerDataCorrupted
+exception DisplayNameNotSet
 
 type firebaseFilm = {
   id: int,
@@ -37,12 +40,18 @@ type firebaseFilm = {
 type userFilmListResult = {
   filmList: option<array<firebaseFilm>>,
   partnerEmail: option<string>,
-  partnerNick: option<string>,
 }
 
-let convertToFilm: firebaseFilm => FilmType.film = firebaseFilm => {
+type usersResult = {
+  displayName: option<string>,
+  partnerEmail: option<string>,
+  userId: option<string>,
+}
+
+let convertToFilm: (string, firebaseFilm) => FilmType.film = (creatorName, firebaseFilm) => {
   id: firebaseFilm.id,
-  creator: firebaseFilm.creatorId->FilmType.getUserVariant,
+  creatorName: creatorName,
+  creatorId: firebaseFilm.creatorId,
   title: firebaseFilm.title,
   releaseDate: firebaseFilm.releaseDate,
   plot: firebaseFilm.plot,
@@ -54,7 +63,7 @@ let convertToFilm: firebaseFilm => FilmType.film = firebaseFilm => {
 
 let convertFromFilm: FilmType.film => firebaseFilm = film => {
   id: film.id,
-  creatorId: film.creator->FilmType.getUserId,
+  creatorId: film.creatorId,
   title: film.title,
   releaseDate: film.releaseDate,
   plot: film.plot,
@@ -90,41 +99,84 @@ let useUser: unit => optionalFirebaseUser = () => {
   user
 }
 
-let setPartner: (
-  ~userId: string,
-  ~partnerEmail: string,
-  ~partnerNick: string,
-) => Promise.t<unit> = (~userId, ~partnerEmail, ~partnerNick) => {
+let setPartnerAccessToFilmList: (~userId: string, ~partnerEmail: string) => Promise.t<unit> = (
+  ~userId,
+  ~partnerEmail,
+) => {
   firebase
   ->firestore
-  ->collection(collectionName)
+  ->collection(usersFilmsCollection)
   ->Collection.doc(userId)
   ->Collection.DocRef.set(
     {
       "partnerEmail": partnerEmail,
-      "partnerNick": partnerNick,
     },
     ~options=Collection.DocRef.setOptions(~merge=true),
     (),
   )
 }
 
-let partnerIsSet: string => Promise.t<bool> = userId => {
+let addUser: (~userId: string, ~displayName: string, ~partnerEmail: string) => Promise.t<unit> = (
+  ~userId,
+  ~displayName,
+  ~partnerEmail,
+) => {
   firebase
   ->firestore
-  ->collection(collectionName)
+  ->collection(usersCollection)
+  ->Collection.doc(userId)
+  ->Collection.DocRef.set(
+    {
+      "userId": userId,
+      "displayName": displayName,
+      "partnerEmail": partnerEmail,
+    },
+    ~options=Collection.DocRef.setOptions(~merge=true),
+    (),
+  )
+}
+
+let getUserName: string => Promise.t<option<string>> = userId => {
+  firebase
+  ->firestore
+  ->collection(usersCollection)
   ->Collection.doc(userId)
   ->Collection.DocRef.get()
-  ->Promise.thenResolve(collection => {
-    let res: userFilmListResult = collection->Firestore.DocSnapshot.data()
-
-    Belt.Option.isSome(res.partnerNick) && Belt.Option.isSome(res.partnerEmail)
+  ->Promise.then(collection => {
+    collection
+    ->Firestore.DocSnapshot.data()
+    ->Belt.Option.flatMap(usersResult => usersResult.displayName)
+    ->Promise.resolve
   })
 }
+let getPartnerName: string => Promise.t<option<string>> = email => {
+  firebase
+  ->firestore
+  ->collection(usersCollection)
+  ->Firestore.Collection.where("partnerEmail", #equal, email)
+  ->Firestore.Collection.get()
+  ->Promise.thenResolve(collections => {
+    collections
+    ->Firestore.QuerySnapshot.docs
+    ->Belt.Array.map(collection => {
+      let res: usersResult = collection->Firestore.DocSnapshot.data()
+      res.displayName
+    })
+    ->Belt.Array.get(0)
+    ->Belt.Option.flatMap(e => e)
+  })
+}
+let getUserNames: (
+  ~userId: string,
+  ~email: string,
+) => Promise.t<(option<string>, option<string>)> = (~userId, ~email) => {
+  Promise.all2((getUserName(userId), getPartnerName(email)))
+}
+
 let addFilmToList: (string, firebaseFilm) => Promise.t<'a> = (userId, film) =>
   firebase
   ->firestore
-  ->collection(collectionName)
+  ->collection(usersFilmsCollection)
   ->Collection.doc(userId)
   ->Collection.DocRef.update(
     {
@@ -136,7 +188,7 @@ let addFilmToList: (string, firebaseFilm) => Promise.t<'a> = (userId, film) =>
 let getPartnerFilmList: string => Promise.t<array<FilmType.film>> = email => {
   firebase
   ->firestore
-  ->collection(collectionName)
+  ->collection(usersFilmsCollection)
   ->Firestore.Collection.where("partnerEmail", #equal, email)
   ->Firestore.Collection.get()
   ->Promise.thenResolve(collections =>
@@ -144,10 +196,11 @@ let getPartnerFilmList: string => Promise.t<array<FilmType.film>> = email => {
     ->Firestore.QuerySnapshot.docs
     ->Belt.Array.map(collection => {
       let movieList: userFilmListResult = collection->Firestore.DocSnapshot.data()
+      let partnerName = LocalStorage.getPartnerDisplayName()
 
-      switch movieList.filmList {
-      | Some(filmList) => Belt.Array.map(filmList, convertToFilm)
-      | None => []
+      switch (movieList.filmList, partnerName) {
+      | (Some(filmList), Some(name)) => Belt.Array.map(filmList, convertToFilm(name))
+      | (_, _) => []
       }
     })
     ->Belt.Array.concatMany
@@ -157,14 +210,15 @@ let getPartnerFilmList: string => Promise.t<array<FilmType.film>> = email => {
 let getUserFilmList: string => Promise.t<array<FilmType.film>> = userId =>
   firebase
   ->firestore
-  ->collection(collectionName)
+  ->collection(usersFilmsCollection)
   ->Collection.doc(userId)
   ->Collection.DocRef.get()
   ->Promise.thenResolve(docRef => {
     let movieList: userFilmListResult = docRef->DocSnapshot.data()
-    switch movieList.filmList {
-    | Some(filmList) => Belt.Array.map(filmList, convertToFilm)
-    | None => []
+    let displayName = LocalStorage.getUserDisplayName()
+    switch (movieList.filmList, displayName) {
+    | (Some(filmList), Some(name)) => Belt.Array.map(filmList, convertToFilm(name))
+    | (_, _) => []
     }
   })
 
@@ -184,20 +238,19 @@ let sendSignInLink: (~email: string, ~nickname: string=?, unit) => Promise.t<'a>
   ->Auth.sendSignInLinkToEmail(~email, ~actionCodeSettings=acos)
   ->Promise.thenResolve(_ => email)
 
-let handleAuthCallback: (~link: string) => Promise.t<'a> = (~link) => {
+let handleAuthCallback: (~link: string) => Promise.t<unit> = (~link) => {
   open Promise
   let maybeEmail = LocalStorage.getEmail()
-  let maybeNickname = LocalStorage.getUserNick()
   let linkIsValid = firebase->auth->Auth.isSignInWithEmailLink(~link)
-  switch (maybeEmail, maybeNickname, linkIsValid) {
-  | (Some(email), Some(nickname), true) =>
+  switch (maybeEmail, linkIsValid) {
+  | (Some(email), true) =>
     firebase
     ->auth
     ->Auth.signInWithEmailLink(~email, ~link)
-    ->then(user => firebase->auth->Auth.updateProfile(user, ~displayName=nickname))
+    ->ignore
+    ->Promise.resolve
     ->catch(_error => Promise.reject(InvalidLink))
-  | (None, _, _) => Promise.reject(EmailNotFound)
-  | (Some(_email), _, false) => Promise.reject(InvalidLink)
-  | (_, _, _) => Promise.reject(InvalidLink)
+  | (None, _) => Promise.reject(EmailNotFound)
+  | (_, false) => Promise.reject(InvalidLink)
   }
 }
