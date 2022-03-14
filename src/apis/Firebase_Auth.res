@@ -16,6 +16,14 @@ module User = {
 
   @send
   external getIdToken: (t, unit) => Promise.t<string> = "getIdToken"
+
+  type payload = {
+    displayName: string,
+    photoURL: string,
+  }
+
+  @send
+  external updateProfile: (t, payload) => Promise.t<string> = "updateProfile"
 }
 
 module Result = {
@@ -95,7 +103,7 @@ external sendSignInLinkToEmail: (
 external isSignInWithEmailLink: (t, ~link: string) => bool = "isSignInWithEmailLink"
 
 @send
-external signInWithEmailLink: (t, ~email: string, ~link: string) => Promise.t<User.t> =
+external signInWithEmailLink: (t, ~email: string, ~link: string) => Promise.t<Result.t> =
   "signInWithEmailLink"
 
 @send
@@ -111,6 +119,3 @@ external onAuthStateChanged: (t, Js.Nullable.t<User.t> => unit) => unit = "onAut
 @send external signOut: (t, unit) => unit = "signOut"
 
 @get external currentUser: t => User.t = "currentUser"
-
-@send
-external updateProfile: (t, User.t, ~displayName: string) => Promise.t<string> = "displayName"
