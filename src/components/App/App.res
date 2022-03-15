@@ -174,17 +174,16 @@ let make = () => {
   }
 
   let markFilmAsSeen = (film: FilmType.film) => {
-    Js.Global.setTimeout(() => {
-      setState(pastState => {
-        switch pastState {
-        | LoadedFilms(films, seenFilms) =>
-          let newUnseen = Js.Array2.filter(films, f => f.title !== film.title)
-          let newSeenFilms = Js.Array.concat(seenFilms, [film])
-          LoadedFilms(newUnseen, newSeenFilms)
-        | _ => pastState
-        }
-      })
-    }, 500)->ignore
+    setState(pastState => {
+      switch pastState {
+      | LoadedFilms(films, seenFilms) =>
+        let newUnseen = Js.Array2.filter(films, f => f.title !== film.title)
+        let newSeenFilms = Js.Array.concat(seenFilms, [film])
+        LoadedFilms(newUnseen, newSeenFilms)
+      | _ => pastState
+      }
+    })
+    film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsSeen->ignore
   }
 
   /* let unDooSeenFilm = (film: FilmType.film) => { */

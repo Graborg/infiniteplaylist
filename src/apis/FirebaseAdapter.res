@@ -35,7 +35,7 @@ type firebaseFilm = {
   plot: option<string>,
   language: option<string>,
   genres: option<array<string>>,
-  seen: bool,
+  mutable seen: bool,
 }
 type userFilmListResult = {
   filmList: option<array<firebaseFilm>>,
@@ -238,6 +238,31 @@ let getFilmLists: Firebase.Auth.User.t => Promise.t<array<FilmType.film>> = user
     getPartnerFilmList(user->email),
     getUserFilmList(user->uid),
   ))->Promise.thenResolve(((f1, f2)) => Belt.Array.concat(f1, f2))
+
+let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
+  firebase
+  ->firestore
+  ->collection(usersFilmsCollection)
+  ->Collection.doc(film.creatorId)
+  ->Collection.DocRef.get()
+  ->Promise.thenResolve(docRef => {
+    film.seen = true
+    let updatedList =
+      docRef->DocSnapshot.data()->Belt.Array.keep(f => f.id !== film.id)->Belt.Array.concat([film])
+
+    firebase
+    ->firestore
+    ->collection(usersFilmsCollection)
+    ->Collection.doc(film.creatorId)
+    ->Collection.DocRef.update(
+      {
+        "filmList": updatedList,
+      },
+      (),
+    )
+  })
+  ->Promise.thenResolve(_ => true)
+}
 
 let sendSignInLink: (~email: string, ~nickname: string=?, unit) => Promise.t<'a> = (
   ~email: string,
