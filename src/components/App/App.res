@@ -64,6 +64,7 @@ let make = () => {
       }
     `,
     )
+
     FirebaseAdapter.getFilmLists(user)->Promise.thenResolve((movieList: array<FilmType.film>) => {
       open Js.Array2
 

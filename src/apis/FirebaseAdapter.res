@@ -240,6 +240,7 @@ let getFilmLists: Firebase.Auth.User.t => Promise.t<array<FilmType.film>> = user
   ))->Promise.thenResolve(((f1, f2)) => Belt.Array.concat(f1, f2))
 
 let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
+  open Belt
   firebase
   ->firestore
   ->collection(usersFilmsCollection)
@@ -247,8 +248,11 @@ let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
   ->Collection.DocRef.get()
   ->Promise.thenResolve(docRef => {
     film.seen = true
+    let res: userFilmListResult = docRef->DocSnapshot.data()
     let updatedList =
-      docRef->DocSnapshot.data()->Belt.Array.keep(f => f.id !== film.id)->Belt.Array.concat([film])
+      res.filmList
+      ->Option.map(fList => Array.keep(fList, f => f.id !== film.id)->Array.concat([film]))
+      ->Option.getWithDefault([film])
 
     firebase
     ->firestore
@@ -258,6 +262,7 @@ let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
       {
         "filmList": updatedList,
       },
+      ~options=Collection.DocRef.setOptions(~merge=true),
       (),
     )
   })

@@ -82,10 +82,10 @@ let make = (~isLoggedIn=false) => {
       <div className={nameWrapper}>
         <p className={names}> {React.string(userName ++ "'s")} </p>
       </div>
-    | (true, _, None) => React.string("display name not set")
+    | (true, _, None) => <a href="/invitePartner"> {React.string("set username")} </a>
     | (false, _, _) => <div />
     }}
-    <a href="/"> <p className={logo}> {React.string("Infinite Playlist")} </p> </a>
+    <a href="/"> <p className={logo}> {React.string("Infinite Playlists")} </p> </a>
     {isLoggedIn
       ? <div className={icons}>
           <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} />
