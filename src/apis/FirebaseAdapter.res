@@ -48,9 +48,14 @@ type usersResult = {
   userId: option<string>,
 }
 
-let convertToFilm: (string, firebaseFilm) => FilmType.film = (creatorName, firebaseFilm) => {
+let convertToFilm: (
+  ~creatorName: string,
+  ~creatorIsCurrentUser: bool,
+  ~firebaseFilm: firebaseFilm,
+) => FilmType.film = (~creatorName, ~creatorIsCurrentUser, ~firebaseFilm) => {
   id: firebaseFilm.id,
   creatorName: creatorName,
+  creatorIsCurrentUser: creatorIsCurrentUser,
   creatorId: firebaseFilm.creatorId,
   title: firebaseFilm.title,
   releaseDate: firebaseFilm.releaseDate,
@@ -199,7 +204,10 @@ let getPartnerFilmList: string => Promise.t<array<FilmType.film>> = email => {
       let partnerName = LocalStorage.getPartnerDisplayName()
 
       switch (movieList.filmList, partnerName) {
-      | (Some(filmList), Some(name)) => Belt.Array.map(filmList, convertToFilm(name))
+      | (Some(filmList), Some(creatorName)) =>
+        Belt.Array.map(filmList, firebaseFilm =>
+          convertToFilm(~creatorName, ~creatorIsCurrentUser=false, ~firebaseFilm)
+        )
       | (_, _) => []
       }
     })
@@ -217,7 +225,10 @@ let getUserFilmList: string => Promise.t<array<FilmType.film>> = userId =>
     let movieList: userFilmListResult = docRef->DocSnapshot.data()
     let displayName = LocalStorage.getUserDisplayName()
     switch (movieList.filmList, displayName) {
-    | (Some(filmList), Some(name)) => Belt.Array.map(filmList, convertToFilm(name))
+    | (Some(filmList), Some(creatorName)) =>
+      Belt.Array.map(filmList, firebaseFilm =>
+        convertToFilm(~creatorName, ~creatorIsCurrentUser=true, ~firebaseFilm)
+      )
     | (_, _) => []
     }
   })

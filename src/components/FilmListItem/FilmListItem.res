@@ -12,19 +12,18 @@ let item = Emotion.css(`
   
 `)
 
-let creatorBanner = creatorName =>
+let creatorBanner = userColor =>
   Emotion.css(
     `
   position: absolute;
   top: 5px;
   left: -5px;
-  background-color: var(${creatorName === "Karmi" ? "--color-user-one" : "--color-user-two"} );
+  background-color: var(${userColor});
   border-radius: 2px;
   font-family: var(--font-fancy);
   padding: 4px 4px;
   color: var(--color-background);
   font-weight: 700;
-
 `,
   )
 
@@ -53,20 +52,22 @@ let make = (
   let (checked, setCheck) = React.useState(_ => false)
 
   switch (film.title, film.genres, film.releaseDate, film.posterPath, film.plot) {
-  | (title, Some(genres), Some(year), Some(posterPath), Some(plot)) =>
-    <li
-      key={Belt.Int.toString(film.id)}
-      className=item
-      onClick={_ => {
-        setCheck(prevState => !prevState)
-        click(film)
-      }}>
-      <p className={creatorBanner(film.creatorName)}>
-        {React.string(FilmType.creatorToString(film.creatorName))}
-      </p>
-      <img className=poster src={getPosterPath(posterPath)} />
-      <p className=filmTitle> {React.string(title)} </p>
-    </li>
+  | (title, Some(genres), Some(year), Some(posterPath), Some(plot)) => {
+      let userColor = film.creatorIsCurrentUser ? "--color-user" : "--color-partner"
+      <li
+        key={Belt.Int.toString(film.id)}
+        className=item
+        onClick={_ => {
+          setCheck(prevState => !prevState)
+          click(film)
+        }}>
+        <p className={creatorBanner(userColor)}>
+          {React.string(FilmType.creatorToString(film.creatorName))}
+        </p>
+        <img className=poster src={getPosterPath(posterPath)} />
+        <p className=filmTitle> {React.string(title)} </p>
+      </li>
+    }
   | (title, _, _, _, _) => React.string(title)
   }
 }

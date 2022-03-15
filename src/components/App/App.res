@@ -42,7 +42,28 @@ let make = () => {
   /* | _ => prevState */
   /* } */
   /* ) */
-  let loadAndSetFilms = (user: Firebase.Auth.User.t) =>
+  let loadAndSetFilms = (user: Firebase.Auth.User.t) => {
+    let (userColor, partnerColor) = switch (
+      LocalStorage.getUserDisplayName(),
+      LocalStorage.getPartnerDisplayName(),
+    ) {
+    | (Some(name), Some(partnerName)) =>
+      if Js.String2.localeCompare(name, partnerName) > 0.0 {
+        ("#49D4C6", "#20A4F3")
+      } else {
+        ("#20A4F3", "#49D4C6")
+      }
+    | (_, _) => ("#000000", "")
+    }
+
+    Emotion.injectGlobal(
+      `
+      html {
+        --color-user: ${userColor};
+        --color-partner: ${partnerColor};
+      }
+    `,
+    )
     FirebaseAdapter.getFilmLists(user)->Promise.thenResolve((movieList: array<FilmType.film>) => {
       open Js.Array2
 
@@ -50,6 +71,7 @@ let make = () => {
       let seen = movieList->filter(film => film.seen)
       setState(_ => LoadedFilms(unseen, seen))
     })
+  }
 
   let handleLoginCallback = () => {
     open FirebaseAdapter
@@ -130,10 +152,9 @@ let make = () => {
         }
         switch state {
         | LoadedFilms(films, seenFilms) => {
-            let film =
-              LocalStorage.getUserDisplayName()
-              ->Belt.Option.getWithDefault("name not set")
-              ->convertToFilm(firebaseFilm)
+            let creatorName =
+              LocalStorage.getUserDisplayName()->Belt.Option.getWithDefault("name not set")
+            let film = convertToFilm(~creatorName, ~creatorIsCurrentUser=true, ~firebaseFilm)
             let alreadyInList = films->Js.Array2.map(f => f.id)->Js.Array2.includes(film.id)
 
             if alreadyInList {

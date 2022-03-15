@@ -2,6 +2,7 @@ type film = {
   id: int,
   title: string,
   creatorName: string,
+  creatorIsCurrentUser: bool,
   creatorId: string,
   releaseDate: option<string>,
   posterPath: option<string>,
