@@ -1,11 +1,31 @@
 open Emotion
-let wrapper = css(`
+let wrapper = showAnimation =>
+  css(
+    `
   display: grid;
   grid-template-columns: 1fr 100px 1fr;
   align-items: center;
   height: 70px;
   color: #3C4248;
-`)
+  @keyframes fadeIn {
+    from {
+      filter: opacity(0)
+    }
+    to {
+      filter: opacity(1)
+    }
+  }
+  @keyframes pop {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  ${showAnimation ? "animation: pop 600ms both ease" : ""} ;
+`,
+  )
 
 let logo = css(`
   font-family: var(--font-logo);
@@ -13,18 +33,21 @@ let logo = css(`
   line-height: 0.8;
   font-size: 1.3rem;
   color: #C1666B;
+  will-change: filter;
 `)
 
 let icons = css(`
   display:flex;
   gap: 16px;
   justify-self: end;
+  animation: fadeIn 1200ms 100ms both ease;
 `)
 
 let nameWrapper = css(`
   font-weight: 700;
   display: flex;
   align-items: center;
+  animation: fadeIn 1200ms 100ms both ease;
 `)
 
 let ampersand = css(`
@@ -60,7 +83,10 @@ let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
 
 @react.component
 let make = (~isLoggedIn=false) => {
-  let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (None, None))
+  let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (
+    LocalStorage.getUserDisplayName(),
+    LocalStorage.getPartnerDisplayName(),
+  ))
   React.useEffect0(() => {
     getUserNames()
     ->Promise.thenResolve(((maybeUserName, maybePartnerName)) =>
@@ -71,7 +97,7 @@ let make = (~isLoggedIn=false) => {
     None
   })
 
-  <div className={wrapper}>
+  <div className={wrapper(!isLoggedIn)}>
     {switch (isLoggedIn, maybePartnerName, maybeUserName) {
     | (true, Some(partnerName), Some(userName)) =>
       <div className={nameWrapper}>
@@ -85,7 +111,7 @@ let make = (~isLoggedIn=false) => {
     | (true, _, None) => <a href="/invitePartner"> {React.string("set username")} </a>
     | (false, _, _) => <div />
     }}
-    <a href="/"> <p className={logo}> {React.string("Infinite Playlists")} </p> </a>
+    <a href="/"> <p className={logo}> {React.string("Infinite Playlist")} </p> </a>
     {isLoggedIn
       ? <div className={icons}>
           <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} />

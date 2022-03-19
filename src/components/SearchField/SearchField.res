@@ -5,7 +5,19 @@ open TheMovieDB
 open Emotion
 
 let wrapper = css(`
+  @keyframes fadeDown {
+    from {
+      transform: translateY(-50%);
+      filter: opacity(0);
+    }
+    to {
+      transform: translateY(0);
+      filter: opacity(1);
+    }
+  }
   position: relative;
+  animation: fadeDown 1200ms 500ms both ease;
+  z-index: 1;
 `)
 
 @react.component
