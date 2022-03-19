@@ -9,6 +9,25 @@ html {
   --font-header: 'Fraunces';
   --font-fancy: 'Fraunces';
   --font-bread: 'Commissioner';
+  --shadow-color: 0deg 20% 44%;
+  --shadow-elevation-low:
+    0.6px 0.7px 0.8px hsl(var(--shadow-color) / 0.92),
+    1px 1.2px 1.3px -2.2px hsl(var(--shadow-color) / 0.65),
+    3.1px 3.7px 4.1px -4.4px hsl(var(--shadow-color) / 0.39);
+  --shadow-elevation-medium:
+    0.6px 0.7px 0.8px hsl(var(--shadow-color) / 0.96),
+    1.5px 1.7px 1.9px -1.5px hsl(var(--shadow-color) / 0.75),
+    5.3px 6.3px 6.9px -2.9px hsl(var(--shadow-color) / 0.55),
+    15.3px 18.4px 20.1px -4.4px hsl(var(--shadow-color) / 0.34);
+  --shadow-elevation-high:
+    0.6px 0.7px 0.8px hsl(var(--shadow-color) / 0.89),
+    1.9px 2.3px 2.5px -0.6px hsl(var(--shadow-color) / 0.8),
+    4.4px 5.3px 5.8px -1.3px hsl(var(--shadow-color) / 0.7),
+    9.8px 11.8px 12.9px -1.9px hsl(var(--shadow-color) / 0.6),
+    19.7px 23.6px 25.8px -2.5px hsl(var(--shadow-color) / 0.51),
+    35.6px 42.8px 46.8px -3.1px hsl(var(--shadow-color) / 0.41),
+    59.2px 71.1px 77.7px -3.8px hsl(var(--shadow-color) / 0.31),
+    92px 110.6px 120.8px -4.4px hsl(var(--shadow-color) / 0.22);
 }
 
 html, body, div, span, applet, object, iframe,
