@@ -12,6 +12,21 @@ let wrapper = Emotion.css(`
   max-width: 600px;
   right: 0;
 `)
+let opacityWrapper = Emotion.css(`
+  @keyframes fadeOutAlittle {
+    from {
+      filter: opacity(0);
+    }
+    to {
+      filter: opacity(0.5);
+    }
+  }
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--color-background);
+  animation: fadeOutAlittle 700ms ease both;
+`)
 
 @react.component
 let make = (
@@ -22,18 +37,21 @@ let make = (
   let maxResultLength = 5
 
   showList
-    ? <ul className=wrapper>
-        {switch results {
-        | NoResultsInit => React.string("")
-        | NoResultsFound => <li> {React.string("No results found")} </li>
-        | Results(suggestedFilmList) =>
-          suggestedFilmList
-          ->Belt.Array.slice(~offset=0, ~len=maxResultLength)
-          ->Belt.Array.mapWithIndex((_i, film) =>
-            <SearchListItem film clickHandler=handleNewFilm key={Belt.Int.toString(film.id)} />
-          )
-          ->React.array
-        }}
-      </ul>
+    ? <div>
+        <div className=opacityWrapper />
+        <ul className=wrapper>
+          {switch results {
+          | NoResultsInit => React.string("")
+          | NoResultsFound => <li> {React.string("No results found")} </li>
+          | Results(suggestedFilmList) =>
+            suggestedFilmList
+            ->Belt.Array.slice(~offset=0, ~len=maxResultLength)
+            ->Belt.Array.mapWithIndex((_i, film) =>
+              <SearchListItem film clickHandler=handleNewFilm key={Belt.Int.toString(film.id)} />
+            )
+            ->React.array
+          }}
+        </ul>
+      </div>
     : React.string("")
 }
