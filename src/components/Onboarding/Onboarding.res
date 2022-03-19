@@ -69,9 +69,6 @@ let make = (~user, ~doneHandler) => {
         labelName="Partner email"
         icon=#Mail
       />
-      <Button
-        text="Invite partner" onClick={_ => completeRegistration(partnerEmail, displayName)}
-      />
     </div>
     <Footer />
   </div>

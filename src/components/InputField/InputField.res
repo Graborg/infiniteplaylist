@@ -66,7 +66,15 @@ let make = (
 
   <div className={wrapper(borderRadiusBottom)}>
     <label htmlFor=id className={label(icon)}> {React.string(labelName)} </label>
-    <input className=inputField disabled placeholder value={text} onChange onFocus=onFocusHandler />
+    <input
+      type_="email"
+      className=inputField
+      disabled
+      placeholder
+      value={text}
+      onChange
+      onFocus=onFocusHandler
+    />
     <Icon name=icon className=iconClass />
   </div>
 }

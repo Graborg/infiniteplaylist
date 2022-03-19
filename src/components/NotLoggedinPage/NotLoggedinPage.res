@@ -9,6 +9,7 @@ let wrapper = Emotion.css(`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 `)
 
 let fieldWrapper = Emotion.css(`
@@ -32,77 +33,63 @@ let headerWrapper = Emotion.css(`
   display: flex;
   gap: 12px;
 `)
+let contentWrapper = Emotion.css(`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin: auto;
+  gap: 8px;
+`)
 
+let description = Emotion.css(`
+  text-align: center;
+`)
 @react.component
 let make = () => {
   let (state, setState) = React.useState(_ => Login)
-  let ((nickname, email), setText) = React.useState(_ => ("", ""))
+  let (email, setEmail) = React.useState(_ => "")
 
   switch state {
   | Login =>
-    <div className=wrapper>
+    <form
+      onSubmit={(e: ReactEvent.Form.t) => {
+        ReactEvent.Form.preventDefault(e)
+        FirebaseAdapter.sendSignInLink(~email, ())
+        ->Promise.thenResolve(LocalStorage.setEmail)
+        ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
+        ->ignore
+      }}
+      className=wrapper>
       <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
       <div className=fieldWrapper>
         <div className=headerWrapper>
-          <h2 className=header> {React.string("Login")} </h2>
-          <h2
-            onClick={_ => setState(_ => Register)}
-            className={Js.Array2.joinWith([header, inactiveHeader], " ")}>
-            {React.string("Sign up")}
-          </h2>
+          <h2 className=header> {React.string("Login/Register")} </h2>
         </div>
         <InputField
           id="loginfield"
           placeholder="joe@email.com"
           labelName="Email"
           onFocusHandler={e => ()}
-          onChangeHandler={text => setText(((prevNickname, _)) => (prevNickname, text))}
+          onChangeHandler={text => setEmail(_ => text)}
           icon=#Mail
         />
-        <Button
-          text="Login"
-          onClick={_ =>
-            FirebaseAdapter.sendSignInLink(~email, ())
-            ->Promise.thenResolve(LocalStorage.setEmail)
-            ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
-            ->ignore}
-        />
+        <Button text="Send link" />
       </div>
       <Footer />
-    </div>
-
-  | Register =>
+    </form>
+  | WaitingForEmail =>
     <div className=wrapper>
       <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
-      <div className=fieldWrapper>
-        <div className=headerWrapper>
-          <h2
-            onClick={_ => setState(_ => Login)}
-            className={Js.Array2.joinWith([header, inactiveHeader], " ")}>
-            {React.string("Login")}
-          </h2>
-          <h2 className=header> {React.string("Sign up")} </h2>
-        </div>
-        <InputField
-          id="loginfield"
-          placeholder="joe@email.com"
-          labelName="Email"
-          onFocusHandler={e => ()}
-          onChangeHandler={text => setText(((prevNickname, _)) => (prevNickname, text))}
-          icon=#Mail
-        />
-        <Button
-          text="Register"
-          onClick={_ =>
-            FirebaseAdapter.sendSignInLink(~email, ~nickname, ())
-            ->Promise.thenResolve(LocalStorage.setEmail)
-            ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
-            ->ignore}
-        />
+      <div className=contentWrapper>
+        <h3> {React.string("Check your email inbox for login link!")} </h3>
+        <p className=description>
+          {React.string("A 'magic' email-link has been sent to you, which you can use to login.")}
+        </p>
       </div>
       <Footer />
     </div>
-  | WaitingForEmail => <p> {React.string("Check your email for login link!")} </p>
   | _ => <p> {React.string("error")} </p>
   }
 }

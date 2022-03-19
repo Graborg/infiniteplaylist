@@ -13,5 +13,5 @@ let btn = Emotion.css(`
 `)
 
 @react.component
-let make = (~text: string, ~onClick: ReactEvent.Mouse.t => unit) =>
-  <button className={btn} onClick={onClick}> {React.string(text)} </button>
+let make = (~text: string) =>
+  <button ariaLabel="submit" className={btn}> {React.string(text)} </button>
