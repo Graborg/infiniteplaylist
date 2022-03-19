@@ -9,7 +9,18 @@ let item = Emotion.css(`
   padding-bottom: 10px;
   border-bottom: 1px solid black;
   position: relative;
+  @keyframes fadeUp {
+    from {
+      transform: translateY(30%);
+      filter: opacity(0);
+    }
+    to {
+      transform: translateY(0);
+      filter: opacity(1);
+    }
+  }
   
+  animation: fadeUp 1000ms calc(600ms + 100ms * var(--index)) ease both;
 `)
 
 let creatorBanner = userColor =>
@@ -47,6 +58,7 @@ let make = (
   ~film: FilmType.film,
   ~click: FilmType.film => unit=_ => Js.log("You forgot to set a onClick handler"),
   ~isSelected: bool=false,
+  ~index: int,
   (),
 ) => {
   open TheMovieDB
@@ -56,6 +68,11 @@ let make = (
   | (title, Some(genres), Some(year), Some(posterPath), Some(plot)) => {
       let userColor = film.creatorIsCurrentUser ? "--color-user" : "--color-partner"
       <li
+        style={ReactDOM.Style.unsafeAddProp(
+          ReactDOM.Style.make(),
+          "--index",
+          Belt.Int.toString(index),
+        )}
         key={Belt.Int.toString(film.id)}
         className=item
         onClick={_ => {

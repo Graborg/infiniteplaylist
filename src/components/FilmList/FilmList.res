@@ -1,16 +1,4 @@
 let wrapper = Emotion.css(`
-  @keyframes fadeUp {
-    from {
-      transform: translateY(25%);
-      filter: opacity(0);
-    }
-    to {
-      transform: translateY(0);
-      filter: opacity(1);
-    }
-  }
-  will-change: transform;
-  animation: fadeUp 700ms 900ms cubic-bezier(.26,.68,.44,1.01) both;
 `)
 
 let listClass = showList =>
@@ -31,6 +19,7 @@ let listTitle = Emotion.css(`
   padding-bottom: 4px;
   padding-top: 24px;
   border-bottom: 1px solid var(--color-black);
+  animation: fadeIn 2200ms both;  
 `)
 @react.component
 let make = (
@@ -45,9 +34,9 @@ let make = (
     <h3 className=listTitle> {React.string(header)} </h3>
     <ul className={listClass(isOpen)}>
       {films
-      ->Belt.Array.map(film => {
+      ->Belt.Array.mapWithIndex((i, film) => {
         let isSelected = Belt.Option.eq(selected, Some(film.title), (a, b) => a === b)
-        <FilmListItem key={Belt.Int.toString(film.id)} film isSelected click=onItemSelect />
+        <FilmListItem index=i key={Belt.Int.toString(film.id)} film isSelected click=onItemSelect />
       })
       ->React.array}
     </ul>
