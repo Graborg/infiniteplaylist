@@ -21,13 +21,13 @@ let wrapper = css(`
 `)
 
 @react.component
-let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=false, ()) => {
+let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=false, ()) => {
   let (showList, toggleList) = React.useState(_ => false)
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
 
   let handleNewFilm = film => {
     toggleList(_ => false)
-    addFilmHandler(film)
+    onItemSelect(film)
   }
 
   let searchDebounced = ReactThrottle.useThrottled(~wait=100, text => {
@@ -78,6 +78,6 @@ let make = (~addFilmHandler: TheMovieDB.searchResult => unit, ~disabled: bool=fa
       disabled
       icon=#Search
     />
-    <SearchResults showList results handleNewFilm />
+    <SearchListResults showList results handleNewFilm />
   </div>
 }

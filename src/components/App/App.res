@@ -215,7 +215,7 @@ let make = () => {
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
       <Header isLoggedIn=true />
-      <SearchField addFilmHandler />
+      <Search onItemSelect=addFilmHandler />
       <FilmList isOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList
         isOpen=false
