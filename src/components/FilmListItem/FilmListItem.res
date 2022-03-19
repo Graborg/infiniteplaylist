@@ -29,6 +29,7 @@ let creatorBanner = userColor =>
 
 let poster = Emotion.css(`
   max-width:100%;
+  min-height: 272px;
   height: 100%;
   grid-area: poster;
   border-radius: 10px;
@@ -45,7 +46,7 @@ let filmTitle = Emotion.css(`
 let make = (
   ~film: FilmType.film,
   ~click: FilmType.film => unit=_ => Js.log("You forgot to set a onClick handler"),
-  ~selected: bool=false,
+  ~isSelected: bool=false,
   (),
 ) => {
   open TheMovieDB
