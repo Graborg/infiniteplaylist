@@ -21,14 +21,6 @@ let wrapper = Emotion.css(`
   justify-content: space-between;
 `)
 
-let listTitle = Emotion.css(`
-  font-size: calc(20rem/16);
-  width: fit-content;
-  padding-bottom: 4px;
-  padding-top: 24px;
-  border-bottom: 1px solid var(--color-black);
-`)
-
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
@@ -224,10 +216,13 @@ let make = () => {
     <MaxWidthWrapper>
       <Header isLoggedIn=true />
       <SearchField addFilmHandler />
-      <h3 className=listTitle> {React.string("Not seen")} </h3>
-      <FilmList films selected="" markFilmAsSeen />
-      <h3> {React.string("Seen")} </h3>
-      <SeenFilmList films=seenFilms />
+      <FilmList isOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
+      <FilmList
+        isOpen=false
+        header="Seen"
+        films=seenFilms
+        onItemSelect={_ => Js.log("trying to un-see film")}
+      />
     </MaxWidthWrapper>
   }
 }
