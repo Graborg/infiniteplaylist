@@ -1,5 +1,7 @@
 @send external contains: (Dom.element, {..}) => bool = "contains"
 @val @scope("window") external addEventListener: (string, 'a => unit) => unit = "addEventListener"
+@send external focus: Dom.element => unit = "focus"
+@val external value: unit = "value"
 
 open TheMovieDB
 open Emotion
@@ -24,8 +26,14 @@ let wrapper = css(`
 let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=false, ()) => {
   let (showList, toggleList) = React.useState(_ => false)
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
+  let (text, setText) = React.useState(_ => "")
+
+  let wrapperRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Js.Nullable.null)
 
   let handleNewFilm = film => {
+    setText(_ => "")
+    inputRef.current->Js.Nullable.toOption->Belt.Option.map(dom => focus(dom))->ignore
     toggleList(_ => false)
     onItemSelect(film)
   }
@@ -37,25 +45,28 @@ let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=fals
     }
   })
 
-  let onFocusHandler = _ => {
+  let onFocus = _ => {
     switch results {
     | Results(_) => toggleList(_ => true)
     | _ => ignore()
     }
   }
-  let onChangeHandler = (text: string) => {
+
+  let onChange = e => {
+    let currentText = ReactEvent.Form.target(e)["value"]
+    setText(currentText)
     searchDebounced(text)
     toggleList(_ => true)
   }
-  let wrapperRef = React.useRef(Js.Nullable.null)
 
   React.useEffect0(() => {
-    let handleClickOutside = (event: ReactEvent.Mouse.t) =>
+    let handleClick = (event: ReactEvent.Mouse.t) =>
       switch wrapperRef.current->Js.Nullable.toOption {
       | Some(dom) if dom->contains(ReactEvent.Mouse.target(event)) => ()
       | _ => toggleList(_ => false)
       }
-    addEventListener("mousedown", handleClickOutside)
+
+    addEventListener("mousedown", handleClick)
 
     None
   })
@@ -72,11 +83,13 @@ let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=fals
       id="searchbox"
       placeholder="Star wars: The empire str.."
       labelName="Add new movie to list"
-      onFocusHandler
-      onChangeHandler
+      onFocus
+      onChange
       borderRadiusBottom={!showList}
       disabled
       icon=#Search
+      inputRef={ReactDOM.Ref.domRef(inputRef)}
+      value=text
     />
     <SearchListResults showList results handleNewFilm />
   </div>

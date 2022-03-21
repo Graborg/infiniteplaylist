@@ -71,8 +71,11 @@ let make = () => {
           id="loginfield"
           placeholder="joe@email.com"
           labelName="Email"
-          onFocusHandler={e => ()}
-          onChangeHandler={text => setEmail(_ => text)}
+          onChange={e => {
+            let email = ReactEvent.Form.target(e)["value"]
+            setEmail(_ => email)
+          }}
+          value=email
           icon=#Mail
         />
         <Button text="Send link" />

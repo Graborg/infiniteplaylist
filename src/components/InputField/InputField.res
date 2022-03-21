@@ -47,34 +47,20 @@ let iconClass = css(`
 @react.component
 let make = (
   ~id: string,
+  ~value,
   ~placeholder: string,
   ~labelName: string,
-  ~onChangeHandler,
-  ~onFocusHandler,
+  ~onChange,
+  ~onFocus=?,
   ~disabled: bool=false,
   ~borderRadiusBottom: bool=true,
   ~icon: ReactFeather.name,
+  ~inputRef: option<ReactDOM.domRef>=?,
   (),
 ) => {
-  let (text, setText) = React.useState(_ => "")
-
-  let onChange = e => {
-    let currentText = ReactEvent.Form.target(e)["value"]
-    setText(currentText)
-    onChangeHandler(currentText)
-  }
-
   <div className={wrapper(borderRadiusBottom)}>
     <label htmlFor=id className={label(icon)}> {React.string(labelName)} </label>
-    <input
-      type_="email"
-      className=inputField
-      disabled
-      placeholder
-      value={text}
-      onChange
-      onFocus=onFocusHandler
-    />
+    <input className=inputField disabled placeholder value onChange ?onFocus ref=?inputRef />
     <Icon name=icon className=iconClass />
   </div>
 }

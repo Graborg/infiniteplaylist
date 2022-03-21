@@ -1,5 +1,4 @@
 @val @scope(("window", "location"))
-external reload: unit => unit = "reload"
 open Emotion
 
 let wrapper = css(`
@@ -55,19 +54,25 @@ let make = (~user, ~doneHandler) => {
       </p>
       <InputField
         placeholder="Peanut"
-        onFocusHandler={_ => ()}
-        onChangeHandler={name => setDisplayName(_ => name)}
+        onChange={e => {
+          let name = ReactEvent.Form.target(e)["value"]
+          setDisplayName(_ => name)
+        }}
         id="nickname-field"
         labelName="Your nickname"
         icon=#Zap
+        value=displayName
       />
       <InputField
         placeholder="joe@email.com"
-        onFocusHandler={_ => ()}
-        onChangeHandler={email => setPartnerEmail(_ => email)}
+        onChange={e => {
+          let email = ReactEvent.Form.target(e)["value"]
+          setPartnerEmail(_ => email)
+        }}
         id="partner-email-field"
         labelName="Partner email"
         icon=#Mail
+        value=partnerEmail
       />
     </div>
     <Footer />
