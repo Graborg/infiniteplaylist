@@ -18,6 +18,7 @@ let label = iconName =>
   background-color: var(--color-background);
   color: var(--color-primary);
   font-weight: 700;
+  font-size: 1.2rem;
 `,
   )
 

@@ -101,17 +101,17 @@ let make = (~isLoggedIn=false) => {
     {switch (isLoggedIn, maybePartnerName, maybeUserName) {
     | (true, Some(partnerName), Some(userName)) =>
       <div className={nameWrapper}>
-        <p className={ampersand}> {React.string("&")} </p>
-        <p className={names}> {React.string(partnerName ++ " " ++ userName ++ "'s")} </p>
+        <h2 className={ampersand}> {React.string("&")} </h2>
+        <h2 className={names}> {React.string(partnerName ++ " " ++ userName ++ "'s")} </h2>
       </div>
     | (true, None, Some(userName)) =>
       <div className={nameWrapper}>
-        <p className={names}> {React.string(userName ++ "'s")} </p>
+        <h2 className={names}> {React.string(userName ++ "'s")} </h2>
       </div>
     | (true, _, None) => <a href="/invitePartner"> {React.string("set username")} </a>
     | (false, _, _) => <div />
     }}
-    <a href="/"> <p className={logo}> {React.string("Infinite Playlist")} </p> </a>
+    <a href="/"> <h2 className={logo}> {React.string("Infinite Playlist")} </h2> </a>
     {isLoggedIn
       ? <div className={icons}>
           <ReactFeather.Search size={28} /> <ReactFeather.Menu size={28} />
