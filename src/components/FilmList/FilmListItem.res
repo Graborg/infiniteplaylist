@@ -33,7 +33,7 @@ let creatorBanner = userColor =>
   border-radius: 2px;
   font-family: var(--font-fancy);
   padding: 4px 4px;
-  color: var(--color-background);
+  color: var(--color-black);
   font-weight: 700;
 `,
   )

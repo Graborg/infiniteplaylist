@@ -41,9 +41,9 @@ let make = () => {
     ) {
     | (Some(name), Some(partnerName)) =>
       if Js.String2.localeCompare(name, partnerName) > 0.0 {
-        ("#49D4C6", "#20A4F3")
+        ("#f582ae", "#8bd3dd")
       } else {
-        ("#20A4F3", "#49D4C6")
+        ("#8bd3dd", "#f582ae")
       }
     | (_, _) => ("#000000", "")
     }

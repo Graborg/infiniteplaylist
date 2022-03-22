@@ -3,8 +3,8 @@ html {
   --color-primary-light: hsl(357, 42%, 58%, 0.5);
   --color-lighter-gray: #3C4248;
   --color-lightest-gray: #4E5359;
-  --color-black: #292F36;
-  --color-background: #FDF1F0; 
+  --color-black: #001858;
+  --color-background: hsl(5, 76%, 97%); 
   --font-logo: 'Faster One';
   --font-header: 'Fraunces';
   --font-fancy: 'Fraunces';
@@ -58,7 +58,6 @@ body {
   font-family: var(--font-header);
 }
 #root {
-  background-color: var(--color-background);
   height: 100%;
   border-top: 2px solid var(--color-primary-light);
 }

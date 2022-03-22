@@ -6,7 +6,7 @@ let wrapper = showAnimation =>
   grid-template-columns: 1fr 100px 1fr;
   align-items: center;
   height: 70px;
-  color: #3C4248;
+  color: var(--color-lighter-gray);
   @keyframes fadeIn {
     from {
       filter: opacity(0)
@@ -32,7 +32,7 @@ let logo = css(`
   justify-self: center;
   line-height: 0.8;
   font-size: 1.3rem;
-  color: #C1666B;
+  color: var(--color-primary);
   will-change: filter;
 `)
 
