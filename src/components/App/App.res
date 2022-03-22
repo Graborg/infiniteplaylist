@@ -154,7 +154,7 @@ let make = () => {
               Js.Console.error("Item already in list")
             } else {
               setState(_ => {
-                let newUnseen = Js.Array.concat([film], films)
+                let newUnseen = Js.Array.concat(films, [film])
                 LoadedFilms(newUnseen, seenFilms)
               })
               user->uid->addFilmToList(firebaseFilm)->ignore
