@@ -47,7 +47,12 @@ let make = (~user, ~doneHandler) => {
 
   <div className=wrapper>
     <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
-    <div className=fieldWrapper>
+    <form
+      className=fieldWrapper
+      onSubmit={(e: ReactEvent.Form.t) => {
+        ReactEvent.Form.preventDefault(e)
+        completeRegistration(partnerEmail, displayName)
+      }}>
       <p className=descriptionWrapper>
         <h1 className=header> {React.string("Invite Partner")} </h1>
         <p> {React.string("Enter your nickname and your partners email")} </p>
@@ -74,7 +79,8 @@ let make = (~user, ~doneHandler) => {
         icon=#Mail
         value=partnerEmail
       />
-    </div>
+      <Button text="Send link" />
+    </form>
     <Footer />
   </div>
 }

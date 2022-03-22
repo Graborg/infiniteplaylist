@@ -81,17 +81,17 @@ let make = () => {
 
   let handleOnboardingDone = user => loadAndSetFilms(user)
 
-  let partnerIsSet = user =>
-    if Belt.Option.isSome(LocalStorage.getPartnerDisplayName()) {
+  let userIsSet = user =>
+    if Belt.Option.isSome(LocalStorage.getUserDisplayName()) {
       Promise.resolve(true)
     } else {
       user
       ->Firebase.Auth.User.email
-      ->FirebaseAdapter.getPartnerName
-      ->Promise.thenResolve(partnerName =>
-        switch partnerName {
+      ->FirebaseAdapter.getUserName
+      ->Promise.thenResolve(userName =>
+        switch userName {
         | Some(name) => {
-            LocalStorage.setPartnerDisplayName(name)
+            LocalStorage.setUserDisplayName(name)
             true
           }
         | _ => false
@@ -105,14 +105,14 @@ let make = () => {
     | (list{}, SomeUser(user)) => loadAndSetFilms(user)->ignore
     | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
     | (list{"loginCallback"}, SomeUser(user)) =>
-      partnerIsSet(user)
-      ->Promise.thenResolve(partnerIsSet =>
-        if partnerIsSet {
+      userIsSet(user)
+      ->Promise.thenResolve(displayNameIsSet => {
+        if displayNameIsSet {
           RescriptReactRouter.push("/")
         } else {
           RescriptReactRouter.push("/invitePartner")
         }
-      )
+      })
       ->Promise.catch(_ => RescriptReactRouter.push("/invitePartner")->Promise.resolve)
       ->ignore
     | (list{"loginCallback"}, NoUser) => handleLoginCallback()->ignore

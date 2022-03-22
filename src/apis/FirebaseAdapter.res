@@ -222,9 +222,9 @@ let getUserFilmList: string => Promise.t<array<FilmType.film>> = userId =>
   ->Collection.doc(userId)
   ->Collection.DocRef.get()
   ->Promise.thenResolve(docRef => {
-    let movieList: userFilmListResult = docRef->DocSnapshot.data()
+    let movieList: option<userFilmListResult> = docRef->DocSnapshot.data()
     let displayName = LocalStorage.getUserDisplayName()
-    switch (movieList.filmList, displayName) {
+    switch (Belt.Option.flatMap(movieList, l => l.filmList), displayName) {
     | (Some(filmList), Some(creatorName)) =>
       Belt.Array.map(filmList, firebaseFilm =>
         convertToFilm(~creatorName, ~creatorIsCurrentUser=true, ~firebaseFilm)
@@ -269,11 +269,7 @@ let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
   ->Promise.thenResolve(_ => true)
 }
 
-let sendSignInLink: (~email: string, ~nickname: string=?, unit) => Promise.t<'a> = (
-  ~email: string,
-  ~nickname: option<string>=?,
-  (),
-) =>
+let sendSignInLink: (~email: string, unit) => Promise.t<'a> = (~email: string, ()) =>
   firebase
   ->auth
   ->Auth.sendSignInLinkToEmail(~email, ~actionCodeSettings=acos)
