@@ -10,8 +10,12 @@ let btn = Emotion.css(`
   font-family: var(--font-fancy);
   font-weight: 700;
 
+  &:disabled {
+    background-color: var(--color-primary-light);
+  }
+
 `)
 
 @react.component
-let make = (~text: string) =>
-  <button ariaLabel="submit" className={btn}> {React.string(text)} </button>
+let make = (~text: string, ~disabled=false) =>
+  <button disabled ariaLabel="submit" className={btn}> {React.string(text)} </button>

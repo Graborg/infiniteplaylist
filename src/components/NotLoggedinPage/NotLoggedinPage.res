@@ -50,12 +50,14 @@ let description = Emotion.css(`
 let make = () => {
   let (state, setState) = React.useState(_ => Login)
   let (email, setEmail) = React.useState(_ => "")
+  let (submitIsDisabled, setDisableSubmit) = React.useState(_ => false)
 
   switch state {
   | Login =>
     <form
       onSubmit={(e: ReactEvent.Form.t) => {
         ReactEvent.Form.preventDefault(e)
+        setDisableSubmit(_ => true)
         FirebaseAdapter.sendSignInLink(~email, ())
         ->Promise.thenResolve(LocalStorage.setEmail)
         ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
@@ -73,12 +75,13 @@ let make = () => {
           labelName="Email"
           onChange={e => {
             let email = ReactEvent.Form.target(e)["value"]
+            setDisableSubmit(_ => false)
             setEmail(_ => email)
           }}
           value=email
           icon=#Mail
         />
-        <Button text="Send link" />
+        <Button disabled=submitIsDisabled text="Send link" />
       </div>
       <Footer />
     </form>

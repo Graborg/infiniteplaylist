@@ -32,6 +32,7 @@ let descriptionWrapper = css(`
 let make = (~user, ~doneHandler) => {
   let (partnerEmail, setPartnerEmail) = React.useState(_ => "")
   let (displayName, setDisplayName) = React.useState(_ => "")
+  let (submitIsDisabled, setDisableSubmit) = React.useState(_ => false)
 
   let completeRegistration = (partnerEmail, displayName) => {
     let userId = user->Firebase.Auth.User.uid
@@ -50,6 +51,7 @@ let make = (~user, ~doneHandler) => {
     <form
       className=fieldWrapper
       onSubmit={(e: ReactEvent.Form.t) => {
+        setDisableSubmit(_ => true)
         ReactEvent.Form.preventDefault(e)
         completeRegistration(partnerEmail, displayName)
       }}>
@@ -61,6 +63,7 @@ let make = (~user, ~doneHandler) => {
         placeholder="Peanut"
         onChange={e => {
           let name = ReactEvent.Form.target(e)["value"]
+          setDisableSubmit(_ => false)
           setDisplayName(_ => name)
         }}
         id="nickname-field"
@@ -72,6 +75,7 @@ let make = (~user, ~doneHandler) => {
         placeholder="joe@email.com"
         onChange={e => {
           let email = ReactEvent.Form.target(e)["value"]
+          setDisableSubmit(_ => false)
           setPartnerEmail(_ => email)
         }}
         id="partner-email-field"
@@ -79,7 +83,7 @@ let make = (~user, ~doneHandler) => {
         icon=#Mail
         value=partnerEmail
       />
-      <Button text="Send link" />
+      <Button disabled=submitIsDisabled text="Enter" />
     </form>
     <Footer />
   </div>
