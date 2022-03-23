@@ -7,9 +7,10 @@ const isProd = process.env.NODE_ENV === "production";
 
 module.exports = env => {
   const currentPath = path.join(__dirname);
-  const fileName = env.ENVIRONMENT === "dev" ? ".env-dev" : ".env"
+  const fileName = env.ENVIRONMENT === "prod" ? ".env" : `.env-${env.ENVIRONMENT}`
   const fileEnv = dotenv.config({path: currentPath + "/" + fileName}).parsed;
 
+  console.log("env variables", fileName)
   console.log("env variables", fileEnv)
 
   const envKeys = Object.keys(fileEnv).reduce((prev, next) => {
