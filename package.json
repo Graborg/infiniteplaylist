@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "webpack": "webpack -w",
-    "webpack:production": "NODE_ENV=prod webpack",
+    "webpack:production": "webpack --env ENVIRONMENT=prod",
     "webpack:test": "webpack --env ENVIRONMENT=test",
     "server": "webpack serve --env ENVIRONMENT=dev",
     "build": "rescript build -with-deps",
