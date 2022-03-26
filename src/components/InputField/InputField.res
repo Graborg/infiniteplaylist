@@ -1,9 +1,9 @@
 open Emotion
 
-let iconNameToLabelPadding: ReactFeather.name => string = iconName => {
+let iconNameToLabelPadding: Icon.icon => string = iconName => {
   switch iconName {
-  | #Search => "8"
-  | #Mail => "6"
+  | Search => "8"
+  | Mail => "6"
   | _ => "6"
   }
 }
@@ -55,7 +55,7 @@ let make = (
   ~onFocus=?,
   ~disabled: bool=false,
   ~borderRadiusBottom: bool=true,
-  ~icon: ReactFeather.name,
+  ~icon: Icon.icon,
   ~inputRef: option<ReactDOM.domRef>=?,
   (),
 ) => {

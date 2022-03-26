@@ -79,7 +79,7 @@ let make = () => {
             setEmail(_ => email)
           }}
           value=email
-          icon=#Mail
+          icon=Mail
         />
         <Button disabled=submitIsDisabled text="Send link" />
       </div>

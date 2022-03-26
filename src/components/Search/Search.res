@@ -87,7 +87,7 @@ let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=fals
       onChange
       borderRadiusBottom={!showList}
       disabled
-      icon=#Search
+      icon=Search
       inputRef={ReactDOM.Ref.domRef(inputRef)}
       value=text
     />

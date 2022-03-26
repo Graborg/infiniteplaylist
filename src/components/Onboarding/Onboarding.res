@@ -68,7 +68,7 @@ let make = (~user, ~doneHandler) => {
         }}
         id="nickname-field"
         labelName="Your nickname"
-        icon=#Zap
+        icon=Zap
         value=displayName
       />
       <InputField
@@ -80,7 +80,7 @@ let make = (~user, ~doneHandler) => {
         }}
         id="partner-email-field"
         labelName="Partner email"
-        icon=#Mail
+        icon=Mail
         value=partnerEmail
       />
       <Button disabled=submitIsDisabled text="Enter" />
