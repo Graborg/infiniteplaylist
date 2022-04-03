@@ -54,12 +54,26 @@ let ampersand = css(`
   font-size: 2.7rem;
 `)
 
-let names = css(`
+let name = css(`
   line-height: 1;
-  font-size: 1rem;
-  width: min-content;
 `)
 
+let nameWithTurnIndicator = userColor =>
+  css(
+    `
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background-color: ${userColor}; 
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-left: 4px;
+    line-height: 1;
+  }
+`,
+  )
 let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
   open Promise
   let maybeUserName = LocalStorage.getUserDisplayName()
@@ -82,7 +96,7 @@ let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
 }
 
 @react.component
-let make = (~isLoggedIn=false) => {
+let make = (~isLoggedIn=false, ~isUsersTurn: bool) => {
   let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (
     LocalStorage.getUserDisplayName(),
     LocalStorage.getPartnerDisplayName(),
@@ -102,11 +116,18 @@ let make = (~isLoggedIn=false) => {
     | (true, Some(partnerName), Some(userName)) =>
       <div className={nameWrapper}>
         <h2 className={ampersand}> {React.string("&")} </h2>
-        <h2 className={names}> {React.string(partnerName ++ " " ++ userName ++ "'s")} </h2>
+        <div>
+          <h2 className={isUsersTurn ? name : nameWithTurnIndicator("var(--color-partner)")}>
+            {React.string(partnerName)}
+          </h2>
+          <h2 className={isUsersTurn ? nameWithTurnIndicator("var(--color-user)") : name}>
+            {React.string(userName ++ "'s")}
+          </h2>
+        </div>
       </div>
     | (true, None, Some(userName)) =>
       <div className={nameWrapper}>
-        <h2 className={names}> {React.string(userName ++ "'s")} </h2>
+        <h2 className={name}> {React.string(userName ++ "'s")} </h2>
       </div>
     | (true, _, None) => <a href="/invitePartner"> {React.string("set username")} </a>
     | (false, _, _) => <div />
