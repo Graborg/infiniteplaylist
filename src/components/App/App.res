@@ -21,6 +21,25 @@ let wrapper = Emotion.css(`
   justify-content: space-between;
 `)
 
+exception Error
+let isUsersTurn = (seenFilms: array<FilmType.film>, user) => {
+  open FirebaseAdapter
+  switch user {
+  | SomeUser(user) => {
+      let userId = Firebase_Auth.User.uid(user)
+      let nrOfSeen = Belt.Array.reduce(seenFilms, 0, (acc, film) => {
+        if film.creatorId === userId {
+          acc + 1
+        } else {
+          acc
+        }
+      })
+      nrOfSeen < Belt.Array.size(seenFilms) - nrOfSeen
+    }
+  | _ => raise(Error)
+  }
+}
+
 @react.component
 let make = () => {
   let (state, setState) = React.useState(() => LoadingFilms)
@@ -214,7 +233,7 @@ let make = () => {
   | NotLoggedin => <NotLoggedinPage />
   | LoadedFilms(films, seenFilms) =>
     <MaxWidthWrapper>
-      <Header isLoggedIn=true />
+      <Header isLoggedIn=true isUsersTurn={isUsersTurn(seenFilms, firebaseUser)} />
       <Search onItemSelect=addFilmHandler />
       <FilmList isOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList
