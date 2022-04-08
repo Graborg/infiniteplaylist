@@ -18,7 +18,6 @@ let listTitle = Emotion.css(`
   font-size: calc(20rem/16);
   width: fit-content;
   border-bottom: 1px solid var(--color-black);
-  animation: fadeIn 2200ms both;  
 `)
 
 let titleWrapper = Emotion.css(`
@@ -26,6 +25,7 @@ let titleWrapper = Emotion.css(`
   align-items: center;
   gap: 4px;
   padding-bottom: 4px;
+  animation: fadeIn 2200ms both;  
 `)
 
 let expandList = isOpen =>
@@ -37,6 +37,7 @@ let expandList = isOpen =>
   transition: transform 200ms;
   display: inline-block;
   padding: 0;
+  cursor: pointer;
 `,
   )
 
