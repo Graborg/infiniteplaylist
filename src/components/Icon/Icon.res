@@ -2,18 +2,14 @@ type icon =
   | Search
   | Mail
   | Zap
+  | ChevronRight
 
 @react.component
 let make = (~name: icon, ~size: int=24, ~className="") => {
   switch name {
-  | Search => <ReactFeather.Search className />
-  | Mail => <ReactFeather.Mail className />
-  | Zap => <ReactFeather.Zap className />
+  | Search => <ReactFeather.Search size className />
+  | Mail => <ReactFeather.Mail size className />
+  | Zap => <ReactFeather.Zap size className />
+  | ChevronRight => <ReactFeather.ChevronRight size className />
   }
-  /* ReactFeather.make({ */
-  /* "className": Some(className), */
-  /* "color": Some("var(--color-primary)"), */
-  /* "size": Some(size), */
-  /* "name": name, */
-  /* }) */
 }
