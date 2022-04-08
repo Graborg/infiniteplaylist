@@ -20,7 +20,7 @@ let item = Emotion.css(`
     }
   }
   
-  animation: fadeUp 1000ms calc(600ms + 100ms * var(--index)) ease both;
+  animation: fadeUp 1000ms calc(100ms * var(--index)) ease both;
 `)
 
 let creatorBanner = userColor =>
