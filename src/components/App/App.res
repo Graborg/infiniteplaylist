@@ -235,9 +235,9 @@ let make = () => {
     <MaxWidthWrapper>
       <Header isLoggedIn=true isUsersTurn={isUsersTurn(seenFilms, firebaseUser)} />
       <Search onItemSelect=addFilmHandler />
-      <FilmList isOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
+      <FilmList initAsOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList
-        isOpen=false
+        initAsOpen=false
         header="Seen"
         films=seenFilms
         onItemSelect={_ => Js.log("trying to un-see film")}
