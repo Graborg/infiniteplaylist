@@ -4,6 +4,12 @@ type mouseOver =
 
 let item = Emotion.css(`
   display: flex;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  cursor: pointer;
+  background: transparent;
+  font-family: var(--font-fancy);
   gap: 5px;
   flex-direction: column;
   padding-bottom: 10px;
@@ -51,6 +57,7 @@ let filmTitle = Emotion.css(`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  text-align: start;
 `)
 
 @react.component
@@ -73,17 +80,19 @@ let make = (
           "--index",
           Belt.Int.toString(index),
         )}
-        key={Belt.Int.toString(film.id)}
-        className=item
-        onClick={_ => {
-          setCheck(prevState => !prevState)
-          click(film)
-        }}>
-        <p className={creatorBanner(userColor)}>
-          {React.string(FilmType.creatorToString(film.creatorName))}
-        </p>
-        <img className=poster src={getPosterPath(posterPath)} />
-        <p className=filmTitle> {React.string(title)} </p>
+        key={Belt.Int.toString(film.id)}>
+        <button
+          className=item
+          onClick={_ => {
+            setCheck(prevState => !prevState)
+            click(film)
+          }}>
+          <p className={creatorBanner(userColor)}>
+            {React.string(FilmType.creatorToString(film.creatorName))}
+          </p>
+          <img className=poster src={getPosterPath(posterPath)} />
+          <p className=filmTitle> {React.string(title)} </p>
+        </button>
       </li>
     }
   | (title, _, _, _, _) => React.string(title)
