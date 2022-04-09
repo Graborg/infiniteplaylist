@@ -71,6 +71,7 @@ let nameWithTurnIndicator = userColor =>
     vertical-align: middle;
     margin-left: 4px;
     line-height: 1;
+    transform: translateY(-1px);
   }
 `,
   )
