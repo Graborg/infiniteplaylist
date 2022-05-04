@@ -269,6 +269,36 @@ let setFilmAsSeen: firebaseFilm => Promise.t<bool> = film => {
   ->Promise.thenResolve(_ => true)
 }
 
+let setFilmAsUnSeen: firebaseFilm => Promise.t<bool> = film => {
+  open Belt
+  firebase
+  ->firestore
+  ->collection(usersFilmsCollection)
+  ->Collection.doc(film.creatorId)
+  ->Collection.DocRef.get()
+  ->Promise.thenResolve(docRef => {
+    film.seen = false
+    let res: userFilmListResult = docRef->DocSnapshot.data()
+    let updatedList =
+      res.filmList
+      ->Option.map(fList => Array.keep(fList, f => f.id !== film.id)->Array.concat([film]))
+      ->Option.getWithDefault([film])
+
+    firebase
+    ->firestore
+    ->collection(usersFilmsCollection)
+    ->Collection.doc(film.creatorId)
+    ->Collection.DocRef.update(
+      {
+        "filmList": updatedList,
+      },
+      ~options=Collection.DocRef.setOptions(~merge=true),
+      (),
+    )
+  })
+  ->Promise.thenResolve(_ => true)
+}
+
 let sendSignInLink: (~email: string, unit) => Promise.t<'a> = (~email: string, ()) =>
   firebase
   ->auth

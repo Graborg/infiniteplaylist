@@ -198,16 +198,18 @@ let make = () => {
     film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsSeen->ignore
   }
 
-  /* let unDooSeenFilm = (film: FilmType.film) => { */
-  /* //let _k = Todoist.setFilmAsUnseen(film) */
-  /* Js.Global.setTimeout(() => { */
-  /* setState((LoadedFilms(films, seenFilms)) => { */
-  /* let newSeenFilms = Js.Array2.filter(seenFilms, f => f.title !== film.title) */
-  /* let newUnseen = Js.Array.concat(films, [film]) */
-  /* LoadedFilms(newUnseen, newSeenFilms) */
-  /* }) */
-  /* }, 500) -> ignore */
-  /* } */
+  let markFilmAsNotSeen = (film: FilmType.film) => {
+    setState(pastState => {
+      switch pastState {
+      | LoadedFilms(films, seenFilms) =>
+        let newSeenFilms = Js.Array2.filter(seenFilms, f => f.title !== film.title)
+        let newUnseen = Js.Array.concat([film], films)
+        LoadedFilms(newUnseen, newSeenFilms)
+      | _ => raise(Error)
+      }
+    })
+    film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsUnSeen->ignore
+  }
 
   /* let getNextElector = (seenFilms: array<FilmType.film>) => { */
   /* let selectedByKarmi = */
@@ -236,12 +238,7 @@ let make = () => {
       <Header isLoggedIn=true isUsersTurn={isUsersTurn(seenFilms, firebaseUser)} />
       <Search onItemSelect=addFilmHandler />
       <FilmList initAsOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
-      <FilmList
-        initAsOpen=false
-        header="Seen"
-        films=seenFilms
-        onItemSelect={_ => Js.log("trying to un-see film")}
-      />
+      <FilmList initAsOpen=false header="Seen" films=seenFilms onItemSelect=markFilmAsNotSeen />
     </MaxWidthWrapper>
   }
 }
