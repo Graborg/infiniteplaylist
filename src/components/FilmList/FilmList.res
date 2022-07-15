@@ -45,6 +45,23 @@ let chevronIcon = Emotion.css(`
     vertical-align: middle;
     transform: translateY(2px);
   `)
+let userCountHeader = Emotion.css(`
+  color: var(--color-user);
+  padding: 0 5px;
+`)
+
+let partnerCountHeader = Emotion.css(`
+  color: var(--color-partner);
+  padding: 0 5px;
+`)
+
+let b = Emotion.css(`
+display: flex;
+background-color: var(--color-black);
+border-radius: 5px;
+color: white;
+padding: 0 2px 1px 2px;
+`)
 
 @react.component
 let make = (
@@ -55,7 +72,13 @@ let make = (
   ~initAsOpen=true,
   (),
 ) => {
+  open Belt.Array
+  open Belt.Int
   let (isOpen, toggle) = React.useState(() => true)
+
+  let userFilmsInList = films->keep(f => f.creatorIsCurrentUser)->size->toString
+  let partnerFilmsInList = films->keep(f => !f.creatorIsCurrentUser)->size->toString
+
   React.useEffect0(() => {
     toggle(_ => initAsOpen)
     None
@@ -64,6 +87,13 @@ let make = (
   <div className=wrapper>
     <div className=titleWrapper>
       <h3 className=listTitle> {React.string(header)} </h3>
+      <div className=b>
+        {React.string("(")}
+        <h3 className=userCountHeader> {React.string(userFilmsInList)} </h3>
+        {React.string(",")}
+        <h3 className=partnerCountHeader> {React.string(partnerFilmsInList)} </h3>
+        {React.string(")")}
+      </div>
       <button onClick={_ => toggle(prev => !prev)} className={expandList(isOpen)}>
         <Icon name=ChevronRight className=chevronIcon size=20 />
       </button>
