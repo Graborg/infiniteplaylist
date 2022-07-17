@@ -211,15 +211,6 @@ let make = () => {
     film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsUnSeen->ignore
   }
 
-  /* let getNextElector = (seenFilms: array<FilmType.film>) => { */
-  /* let selectedByKarmi = */
-  /* Js.Array2.filter(seenFilms, film => film.creator === FilmType.Karmi)->Js.Array.length */
-  /* let selectedByFerma = */
-  /* Js.Array2.filter(seenFilms, film => film.creator === Ferma)->Js.Array.length */
-
-  /* selectedByKarmi > selectedByFerma ? FilmType.Ferma : FilmType.Karmi */
-  /* } */
-
   switch state {
   | LoginEmailNotFoundError =>
     React.string(
