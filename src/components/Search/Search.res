@@ -6,10 +6,12 @@
 open TheMovieDB
 open Emotion
 
-let wrapper = css(`
+let wrapper = shouldAnimate =>
+  css(
+    `
   @keyframes fadeDown {
     from {
-      transform: translateY(-50%);
+      transform: translateY(-30%);
       filter: opacity(0);
     }
     to {
@@ -18,12 +20,19 @@ let wrapper = css(`
     }
   }
   position: relative;
-  animation: fadeDown 1200ms 500ms both ease;
+  ${shouldAnimate ? "animation: fadeDown 1200ms both ease;" : ""}
   z-index: 1;
-`)
+`,
+  )
+let unsetHandler = _ => Js.log("You forgot to set a onClick handler")
 
 @react.component
-let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=false, ()) => {
+let make = (
+  ~onItemSelect: TheMovieDB.searchResult => unit=unsetHandler,
+  ~disabled: bool=false,
+  ~noAnimation: bool=false,
+  (),
+) => {
   let (showList, toggleList) = React.useState(_ => false)
   let (results, setResults) = React.useState(() => TheMovieDB.NoResultsInit)
   let (text, setText) = React.useState(_ => "")
@@ -77,7 +86,7 @@ let make = (~onItemSelect: TheMovieDB.searchResult => unit, ~disabled: bool=fals
         toggleList(_ => false)
       }
     }}
-    className=wrapper
+    className={wrapper(!noAnimation)}
     ref={ReactDOM.Ref.domRef(wrapperRef)}>
     <InputField
       id="searchbox"

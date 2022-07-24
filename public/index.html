@@ -1,45 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#FDF1F0" />
-    <title>Ferma and Karmi's infinite playlist </title>
-    <link rel="stylesheet" href="main.css"/>
-<style> 
-  .hej {
-    color: red;
-  }
-  @font-face {
-    font-family: 'Faster One';
-    font-style: normal;
-    font-weight: 400;
-    font-display: fallback;
-    src: url(/fonts/fasterone.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-  @font-face {
-    font-family: 'Fraunces';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: fallback;
-    src: url(/fonts/fraunces.woff2) format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
-  @font-face {
-  font-family: 'Commissioner';
-  font-style: normal;
-  font-weight: 400;
-  font-display: fallback;
-  src: url(/fonts/commissioner.woff) format('woff');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-</style>
-  </head>
-  <body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FDF1F0" />
+  <title>Ferma and Karmi's infinite playlist </title>
+  <link rel="stylesheet" href="main.css" />
+  <style>
+    @font-face {
+      font-family: 'Faster One';
+      font-style: normal;
+      font-weight: 400;
+      font-display: fallback;
+      src: url(/fonts/fasterone.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Fraunces';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: fallback;
+      src: url(/fonts/fraunces.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Commissioner';
+      font-style: normal;
+      font-weight: 400;
+      font-display: fallback;
+      src: url(/fonts/commissioner.woff) format('woff');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="max-width-wrapper">
+    <header>
+      <div id="name-wrapper">
+        <h2 id="ampersand">&</h2>
+        <div>
+          <h2 class="header-username">Pistache</h2>
+          <h2 class="header-username">Karmini's</h2>
+        </div>
+      </div>
+      <a id="logo" href="/">
+        <h2>Infinite Playlist </h2>
+      </a>
+      <div id="navigation-icons">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </div>
+    </header>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
     <div id="root"></div>
     <script src="index.js"></script>
-    <audio src="airhorn1.mp3" ></audio>
-  </body>
+    <audio src="airhorn1.mp3"></audio>
+  </div>
+</body>
+
 </html>

@@ -23,7 +23,7 @@ let wrapper = showAnimation =>
       transform: translateX(0);
     }
   }
-  ${showAnimation ? "animation: pop 600ms both ease" : ""} ;
+  /* ${showAnimation ? "animation: pop 600ms both ease" : ""} ; */
 `,
   )
 
@@ -40,14 +40,14 @@ let icons = css(`
   display:flex;
   gap: 16px;
   justify-self: end;
-  animation: fadeIn 1200ms 100ms both ease;
-`)
+  /* animation: fadeIn 1200ms 100ms both ease; */
+ `)
 
 let nameWrapper = css(`
   font-weight: 700;
   display: flex;
   align-items: center;
-  animation: fadeIn 1200ms 100ms both ease;
+  /* animation: fadeIn 1200ms 100ms both ease; */
 `)
 
 let ampersand = css(`
@@ -97,7 +97,7 @@ let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
 }
 
 @react.component
-let make = (~isLoggedIn=false, ~isUsersTurn=false: bool) => {
+let make = (~isLoggedIn=false, ~isUsersTurnOpt=?, ()) => {
   let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (
     LocalStorage.getUserDisplayName(),
     LocalStorage.getPartnerDisplayName(),
@@ -118,10 +118,16 @@ let make = (~isLoggedIn=false, ~isUsersTurn=false: bool) => {
       <div className={nameWrapper}>
         <h2 className={ampersand}> {React.string("&")} </h2>
         <div>
-          <h2 className={isUsersTurn ? name : nameWithTurnIndicator("var(--color-partner)")}>
+          <h2
+            className={Belt.Option.mapWithDefault(isUsersTurnOpt, name, isUsersTurn =>
+              isUsersTurn ? name : nameWithTurnIndicator("var(--color-partner)")
+            )}>
             {React.string(partnerName)}
           </h2>
-          <h2 className={isUsersTurn ? nameWithTurnIndicator("var(--color-user)") : name}>
+          <h2
+            className={Belt.Option.mapWithDefault(isUsersTurnOpt, name, isUsersTurn =>
+              isUsersTurn ? nameWithTurnIndicator("var(--color-partner)") : name
+            )}>
             {React.string(userName ++ "'s")}
           </h2>
         </div>

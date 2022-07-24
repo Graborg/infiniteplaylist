@@ -12,7 +12,6 @@ let spinner = Emotion.css(`
 @react.component
 let make = () =>
   <div className=wrapper>
-    <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
     <p className=spinner style={ReactDOMStyle.make(~fontSize="100px", ())}>
       {React.string(`🐄`)}
     </p>

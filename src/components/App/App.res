@@ -222,14 +222,14 @@ let make = () => {
     )
   | Error => React.string("Something went wrong!! :(")
   | Onboarding(user) => <Onboarding user doneHandler=handleOnboardingDone />
-  | LoadingFilms => <Spinner />
+  | LoadingFilms => <> <Search /> <Spinner /> </>
   | NotLoggedin => <NotLoggedinPage />
   | LoadedFilms(films, seenFilms) =>
-    <MaxWidthWrapper>
-      <Header isLoggedIn=true isUsersTurn={isUsersTurn(seenFilms, firebaseUser)} />
-      <Search onItemSelect=addFilmHandler />
+    <div>
+      /* <Header isLoggedIn=true isUsersTurnOpt={isUsersTurn(seenFilms, firebaseUser)} /> */
+      <Search onItemSelect=addFilmHandler noAnimation=true />
       <FilmList initAsOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList initAsOpen=false header="Seen" films=seenFilms onItemSelect=markFilmAsNotSeen />
-    </MaxWidthWrapper>
+    </div>
   }
 }
