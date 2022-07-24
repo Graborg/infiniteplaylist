@@ -1,4 +1,4 @@
-%%raw("import './styles/main.scss'")
+/* %%raw("import './styles/main.scss'") */
 
 let _ = {
   open Firebase.Auth

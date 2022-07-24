@@ -8,9 +8,6 @@ import * as Auth from "firebase/auth";
 import * as Firestore from "firebase/firestore";
 import * as App$RescriptProjectTemplate from "./components/App/App.bs.js";
 
-import './styles/main.scss'
-;
-
 ReactDom.render(React.createElement(React.StrictMode, {
           children: React.createElement(App$RescriptProjectTemplate.make, {})
         }), Belt_Option.getExn(Caml_option.nullable_to_opt(document.querySelector("#root"))));
