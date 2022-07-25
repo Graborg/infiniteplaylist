@@ -1,7 +1,7 @@
 @val external window: 'a = "window"
 
 type state =
-  | Onboarding(Firebase.Auth.User.t)
+  | Onboarding(FirebaseAdapter.optionalFirebaseUser)
   | Error
   | InvalidLoginLinkError
   | LoginEmailNotFoundError
@@ -43,9 +43,16 @@ let isUsersTurn = (seenFilms: FilmList.t, user) => {
 
 @react.component
 let make = () => {
-  let (state, setState) = React.useState(() => IsLoggedIn(Loading, Loading))
-  //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
+  let urlParts = RescriptReactRouter.useUrl()
   let firebaseUser = FirebaseAdapter.useUser()
+  let (state, setState) = React.useState(() => {
+    switch (urlParts.path, LocalStorage.getUserId()) {
+    | (list{}, Some(_)) => IsLoggedIn(Loading, Loading)
+    | (list{"invitePartner"}, _) => Onboarding(firebaseUser)
+    | _ => NotLoggedin
+    }
+  })
+  //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
 
   /* let doSelectFilm = filmId => */
   /* setState(prevState => */
@@ -119,11 +126,10 @@ let make = () => {
       )
     }
 
-  let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
     switch (urlParts.path, firebaseUser) {
     | (list{}, SomeUser(user)) => loadAndSetFilms(user)->ignore
-    | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
+    | (list{"invitePartner"}, SomeUser(_)) => setState(_ => Onboarding(firebaseUser))
     | (list{"loginCallback"}, SomeUser(user)) =>
       userIsSet(user)
       ->Promise.thenResolve(displayNameIsSet => {

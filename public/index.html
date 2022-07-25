@@ -42,14 +42,28 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
   <div id="root">
     <div class="max-width-wrapper">
-      <header>
-        <div id="name-wrapper">
-          <h2 id="ampersand">&</h2>
+      <header id="header">
+        <div id="name-wrapper"></div>
+        <a id="logo" href="/">
+          <h2>Infinite Playlist </h2>
+        </a>
+        <div id="navigation-icons"> </div>
+      </header>
+    </div>
+    <script>
+      const hasFirebaseUserId = !!localStorage["firebase-userId"]
+      const userNick = localStorage["user-nick"]
+      const partnerNick = localStorage["partner-nick"]
+      if (partnerNick && userNick && window.location.pathname === "/") {
+        document.getElementById("header").innerHTML =
+          `
+          <div id="name-wrapper" >
+            <h2 id="ampersand">&</h2>
           <div>
-            <h2 class="header-username">Pistache</h2>
-            <h2 class="header-username">Karmini's</h2>
+            <h2 class="header-username">${partnerNick}</h2>
+            <h2 class="header-username">${userNick}'s</h2>
           </div>
-        </div>
+        </div >
         <a id="logo" href="/">
           <h2>Infinite Playlist </h2>
         </a>
@@ -66,7 +80,9 @@
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </div>
-    </div>
+        `
+      }
+    </script>
     <script src="index.js"></script>
     <audio src="airhorn1.mp3"></audio>
   </div>

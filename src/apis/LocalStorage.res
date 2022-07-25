@@ -6,6 +6,7 @@ let nickNameSpace = "user-nick"
 open Dom.Storage
 
 let getUserId: unit => option<string> = () => getItem(tokenNamespace, localStorage)
+let removeUserId: unit => unit = () => removeItem(tokenNamespace, localStorage)
 let setUserId: string => string = token => {
   setItem(tokenNamespace, token, localStorage)
   token

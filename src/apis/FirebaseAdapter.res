@@ -96,7 +96,11 @@ let useUser: unit => optionalFirebaseUser = () => {
           LocalStorage.setUserId(user->Auth.User.uid)->ignore
           setUser(_ => SomeUser(user))
         }
-      | None => setUser(_ => NoUser)
+      | None => {
+          Js.log("no longer signed in!")
+          LocalStorage.removeUserId()->ignore
+          setUser(_ => NoUser)
+        }
       }
     )
     None
