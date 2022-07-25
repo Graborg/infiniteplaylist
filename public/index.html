@@ -3,10 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#FDF1F0" />
   <title>Ferma and Karmi's infinite playlist </title>
   <link rel="stylesheet" href="main.css" />
+  <audio src="airhorn1.mp3"></audio>
   <style>
     @font-face {
       font-family: 'Faster One';
@@ -38,8 +40,6 @@
 </head>
 
 <body>
-  </header>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
   <div id="root">
     <div class="max-width-wrapper">
       <header id="header">
@@ -50,12 +50,13 @@
         <div id="navigation-icons"> </div>
       </header>
     </div>
-    <script>
-      const userNick = localStorage["user-nick"]
-      const partnerNick = localStorage["partner-nick"]
-      if (partnerNick && userNick && window.location.pathname === "/") {
-        document.getElementById("header").innerHTML =
-          `
+  </div>
+  <script>
+    const userNick = localStorage["user-nick"]
+    const partnerNick = localStorage["partner-nick"]
+    if (partnerNick && userNick && window.location.pathname === "/") {
+      document.getElementById("header").innerHTML =
+        `
           <div id="name-wrapper" >
             <h2 id="ampersand">&</h2>
           <div>
@@ -80,11 +81,9 @@
           </svg>
         </div>
         `
-      }
-    </script>
-    <script src="index.js"></script>
-    <audio src="airhorn1.mp3"></audio>
-  </div>
+    }
+  </script>
+  <script src="index.js"></script>
 </body>
 
 </html>
