@@ -61,6 +61,20 @@ let name = css(`
 let nameWithTurnIndicator = userColor =>
   css(
     `
+  line-height: 1;
+  @keyframes blink {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+
+
+  }
   &::after {
     content: "";
     display: inline-block;
@@ -72,6 +86,8 @@ let nameWithTurnIndicator = userColor =>
     margin-left: 4px;
     line-height: 1;
     transform: translateY(-1px);
+    animation: blink 1700ms 1500ms both ease-in-out;
+    animation-iteration-count: 2.5;
   }
 `,
   )
