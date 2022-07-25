@@ -4,6 +4,16 @@ type t =
 
 let wrapper = Emotion.css(`
   padding-top: 24px;
+  @keyframes slideFromLeft {
+    from {
+      transform: translateX(-70%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 `)
 
 let listClass = showList =>
@@ -47,6 +57,7 @@ let expandList = isOpen =>
 
 let chevronIcon = Emotion.css(`
     vertical-align: middle;
+    animation: slideFromLeft 1600ms both ease;
     transform: translateY(2px);
   `)
 let userCountHeader = Emotion.css(`
@@ -65,6 +76,7 @@ background-color: var(--color-black);
 border-radius: 5px;
 color: white;
 padding: 0 2px 1px 2px;
+    animation: slideFromLeft 1600ms both ease;
 `)
 
 open Belt.Int
@@ -88,20 +100,21 @@ let make = (~header: string, ~films: t, ~selected=?, ~onItemSelect, ~initAsOpen=
       <h3 className=listTitle> {React.string(header)} </h3>
       {switch films {
       | Loading => <> </>
-      | Loaded(loadedFilms) =>
-        <div className=b>
-          {React.string("(")}
-          <h3 className=userCountHeader> {React.string(userFilmCountInList(loadedFilms))} </h3>
-          {React.string(",")}
-          <h3 className=partnerCountHeader>
-            {React.string(partnerFilmCountInList(loadedFilms))}
-          </h3>
-          {React.string(")")}
-        </div>
+      | Loaded(loadedFilms) => <>
+          <div className=b>
+            {React.string("(")}
+            <h3 className=userCountHeader> {React.string(userFilmCountInList(loadedFilms))} </h3>
+            {React.string(",")}
+            <h3 className=partnerCountHeader>
+              {React.string(partnerFilmCountInList(loadedFilms))}
+            </h3>
+            {React.string(")")}
+          </div>
+          <button onClick={_ => toggle(prev => !prev)} className={expandList(isOpen)}>
+            <Icon name=ChevronRight className=chevronIcon size=20 />
+          </button>
+        </>
       }}
-      <button onClick={_ => toggle(prev => !prev)} className={expandList(isOpen)}>
-        <Icon name=ChevronRight className=chevronIcon size=20 />
-      </button>
     </div>
     {switch films {
     | Loading => <> </>

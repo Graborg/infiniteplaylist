@@ -97,7 +97,7 @@ let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
 }
 
 @react.component
-let make = (~isLoggedIn=false, ~isUsersTurnOpt=?, ()) => {
+let make = (~isLoggedIn=false, ~isUsersTurnOpt, ()) => {
   let ((maybeUserName, maybePartnerName), setNames) = React.useState(() => (
     LocalStorage.getUserDisplayName(),
     LocalStorage.getPartnerDisplayName(),

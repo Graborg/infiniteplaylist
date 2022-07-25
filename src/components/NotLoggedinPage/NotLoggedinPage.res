@@ -10,6 +10,7 @@ let wrapper = Emotion.css(`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  padding-top: 30vh;
 `)
 
 let fieldWrapper = Emotion.css(`
@@ -53,49 +54,51 @@ let make = () => {
   let (submitIsDisabled, setDisableSubmit) = React.useState(_ => false)
 
   switch state {
-  | Login =>
-    <form
-      onSubmit={(e: ReactEvent.Form.t) => {
-        ReactEvent.Form.preventDefault(e)
-        setDisableSubmit(_ => true)
-        FirebaseAdapter.sendSignInLink(~email, ())
-        ->Promise.thenResolve(LocalStorage.setEmail)
-        ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
-        ->ignore
-      }}
-      className=wrapper>
-      <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
-      <div className=fieldWrapper>
-        <div className=headerWrapper>
-          <h2 className=header> {React.string("Login/Register")} </h2>
+  | Login => <>
+      <MaxWidthWrapper> <Header isUsersTurnOpt=None /> </MaxWidthWrapper>
+      <form
+        onSubmit={(e: ReactEvent.Form.t) => {
+          ReactEvent.Form.preventDefault(e)
+          setDisableSubmit(_ => true)
+          FirebaseAdapter.sendSignInLink(~email, ())
+          ->Promise.thenResolve(LocalStorage.setEmail)
+          ->Promise.thenResolve(_ => setState(_ => WaitingForEmail))
+          ->ignore
+        }}
+        className=wrapper>
+        <div className=fieldWrapper>
+          <div className=headerWrapper>
+            <h2 className=header> {React.string("Login/Register")} </h2>
+          </div>
+          <InputField
+            id="loginfield"
+            placeholder="joe@email.com"
+            labelName="Email"
+            onChange={e => {
+              let email = ReactEvent.Form.target(e)["value"]
+              setDisableSubmit(_ => false)
+              setEmail(_ => email)
+            }}
+            value=email
+            icon=Mail
+          />
+          <Button disabled=submitIsDisabled text="Send link" />
         </div>
-        <InputField
-          id="loginfield"
-          placeholder="joe@email.com"
-          labelName="Email"
-          onChange={e => {
-            let email = ReactEvent.Form.target(e)["value"]
-            setDisableSubmit(_ => false)
-            setEmail(_ => email)
-          }}
-          value=email
-          icon=Mail
-        />
-        <Button disabled=submitIsDisabled text="Send link" />
+        <Footer />
+      </form>
+    </>
+  | WaitingForEmail => <>
+      <Header isUsersTurnOpt=None />
+      <div className=wrapper>
+        <div className=contentWrapper>
+          <h3> {React.string("Check your email inbox for login link!")} </h3>
+          <p className=description>
+            {React.string("A 'magic' email-link has been sent to you, which you can use to login.")}
+          </p>
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </form>
-  | WaitingForEmail =>
-    <div className=wrapper>
-      <MaxWidthWrapper> <Header /> </MaxWidthWrapper>
-      <div className=contentWrapper>
-        <h3> {React.string("Check your email inbox for login link!")} </h3>
-        <p className=description>
-          {React.string("A 'magic' email-link has been sent to you, which you can use to login.")}
-        </p>
-      </div>
-      <Footer />
-    </div>
+    </>
   | _ => <p> {React.string("error")} </p>
   }
 }

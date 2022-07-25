@@ -22,19 +22,20 @@ let wrapper = Emotion.css(`
 `)
 
 exception Error
-let isUsersTurn = (seenFilms: array<FilmType.film>, user) => {
+let isUsersTurn = (seenFilms: FilmList.t, user) => {
   open FirebaseAdapter
-  switch user {
-  | SomeUser(user) => {
+  switch (user, seenFilms) {
+  | (_, Loading) => None
+  | (SomeUser(user), Loaded(loadedSeenFilms)) => {
       let userId = Firebase_Auth.User.uid(user)
-      let nrOfSeen = Belt.Array.reduce(seenFilms, 0, (acc, film) => {
+      let nrOfSeen = Belt.Array.reduce(loadedSeenFilms, 0, (acc, film) => {
         if film.creatorId === userId {
           acc + 1
         } else {
           acc
         }
       })
-      nrOfSeen < Belt.Array.size(seenFilms) - nrOfSeen
+      Some(nrOfSeen < Belt.Array.size(loadedSeenFilms) - nrOfSeen)
     }
   | _ => raise(Error)
   }
@@ -224,11 +225,11 @@ let make = () => {
   | Onboarding(user) => <Onboarding user doneHandler=handleOnboardingDone />
   | NotLoggedin => <NotLoggedinPage />
   | IsLoggedIn(films, seenFilms) =>
-    <div>
-      /* <Header isLoggedIn=true isUsersTurnOpt={isUsersTurn(seenFilms, firebaseUser)} /> */
+    <MaxWidthWrapper>
+      <Header isLoggedIn=true isUsersTurnOpt={isUsersTurn(seenFilms, firebaseUser)} />
       <Search onItemSelect=addFilmHandler />
       <FilmList initAsOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList initAsOpen=false header="Seen" films=seenFilms onItemSelect=markFilmAsNotSeen />
-    </div>
+    </MaxWidthWrapper>
   }
 }
