@@ -1,5 +1,19 @@
+type t =
+  | Loading
+  | Loaded(array<FilmType.film>)
+
 let wrapper = Emotion.css(`
   padding-top: 24px;
+  @keyframes slideFromLeft {
+    from {
+      transform: translateX(-70%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 `)
 
 let listClass = showList =>
@@ -43,6 +57,7 @@ let expandList = isOpen =>
 
 let chevronIcon = Emotion.css(`
     vertical-align: middle;
+    animation: slideFromLeft 1600ms both ease;
     transform: translateY(2px);
   `)
 let userCountHeader = Emotion.css(`
@@ -61,23 +76,19 @@ background-color: var(--color-black);
 border-radius: 5px;
 color: white;
 padding: 0 2px 1px 2px;
+    animation: slideFromLeft 1600ms both ease;
 `)
 
-@react.component
-let make = (
-  ~header: string,
-  ~films: array<FilmType.film>,
-  ~selected=?,
-  ~onItemSelect,
-  ~initAsOpen=true,
-  (),
-) => {
-  open Belt.Array
-  open Belt.Int
-  let (isOpen, toggle) = React.useState(() => true)
+open Belt.Int
+open Belt.Array
+let userFilmCountInList = (films: array<FilmType.film>) =>
+  films->keep(f => f.creatorIsCurrentUser)->size->toString
 
-  let userFilmsInList = films->keep(f => f.creatorIsCurrentUser)->size->toString
-  let partnerFilmsInList = films->keep(f => !f.creatorIsCurrentUser)->size->toString
+let partnerFilmCountInList = (films: array<FilmType.film>) =>
+  films->keep(f => !f.creatorIsCurrentUser)->size->toString
+@react.component
+let make = (~header: string, ~films: t, ~selected=?, ~onItemSelect, ~initAsOpen=true, ()) => {
+  let (isOpen, toggle) = React.useState(() => true)
 
   React.useEffect0(() => {
     toggle(_ => initAsOpen)
@@ -87,24 +98,37 @@ let make = (
   <div className=wrapper>
     <div className=titleWrapper>
       <h3 className=listTitle> {React.string(header)} </h3>
-      <div className=b>
-        {React.string("(")}
-        <h3 className=userCountHeader> {React.string(userFilmsInList)} </h3>
-        {React.string(",")}
-        <h3 className=partnerCountHeader> {React.string(partnerFilmsInList)} </h3>
-        {React.string(")")}
-      </div>
-      <button onClick={_ => toggle(prev => !prev)} className={expandList(isOpen)}>
-        <Icon name=ChevronRight className=chevronIcon size=20 />
-      </button>
+      {switch films {
+      | Loading => <> </>
+      | Loaded(loadedFilms) => <>
+          <div className=b>
+            {React.string("(")}
+            <h3 className=userCountHeader> {React.string(userFilmCountInList(loadedFilms))} </h3>
+            {React.string(",")}
+            <h3 className=partnerCountHeader>
+              {React.string(partnerFilmCountInList(loadedFilms))}
+            </h3>
+            {React.string(")")}
+          </div>
+          <button onClick={_ => toggle(prev => !prev)} className={expandList(isOpen)}>
+            <Icon name=ChevronRight className=chevronIcon size=20 />
+          </button>
+        </>
+      }}
     </div>
-    <ul className={listClass(isOpen)}>
-      {films
-      ->Belt.Array.mapWithIndex((i, film) => {
-        let isSelected = Belt.Option.eq(selected, Some(film.title), (a, b) => a === b)
-        <FilmListItem index=i key={Belt.Int.toString(film.id)} film isSelected click=onItemSelect />
-      })
-      ->React.array}
-    </ul>
+    {switch films {
+    | Loading => <> </>
+    | Loaded(loadedFilms) =>
+      <ul className={listClass(isOpen)}>
+        {loadedFilms
+        ->Belt.Array.mapWithIndex((i, film) => {
+          let isSelected = Belt.Option.eq(selected, Some(film.title), (a, b) => a === b)
+          <FilmListItem
+            index=i key={Belt.Int.toString(film.id)} film isSelected click=onItemSelect
+          />
+        })
+        ->React.array}
+      </ul>
+    }}
   </div>
 }

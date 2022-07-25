@@ -1,12 +1,12 @@
 @val external window: 'a = "window"
+
 type state =
-  | LoadingFilms
-  | Onboarding(Firebase.Auth.User.t)
+  | Onboarding(FirebaseAdapter.optionalFirebaseUser)
   | Error
   | InvalidLoginLinkError
   | LoginEmailNotFoundError
-  | LoadedFilms(array<FilmType.film>, array<FilmType.film>)
   | NotLoggedin
+  | IsLoggedIn(FilmList.t, FilmList.t)
 
 type url = {
   path: list<string>,
@@ -22,19 +22,20 @@ let wrapper = Emotion.css(`
 `)
 
 exception Error
-let isUsersTurn = (seenFilms: array<FilmType.film>, user) => {
+let isUsersTurn = (seenFilms: FilmList.t, user) => {
   open FirebaseAdapter
-  switch user {
-  | SomeUser(user) => {
+  switch (user, seenFilms) {
+  | (_, Loading) => None
+  | (SomeUser(user), Loaded(loadedSeenFilms)) => {
       let userId = Firebase_Auth.User.uid(user)
-      let nrOfSeen = Belt.Array.reduce(seenFilms, 0, (acc, film) => {
+      let nrOfSeen = Belt.Array.reduce(loadedSeenFilms, 0, (acc, film) => {
         if film.creatorId === userId {
           acc + 1
         } else {
           acc
         }
       })
-      nrOfSeen < Belt.Array.size(seenFilms) - nrOfSeen
+      Some(nrOfSeen < Belt.Array.size(loadedSeenFilms) - nrOfSeen)
     }
   | _ => raise(Error)
   }
@@ -42,9 +43,16 @@ let isUsersTurn = (seenFilms: array<FilmType.film>, user) => {
 
 @react.component
 let make = () => {
-  let (state, setState) = React.useState(() => LoadingFilms)
-  //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
+  let urlParts = RescriptReactRouter.useUrl()
   let firebaseUser = FirebaseAdapter.useUser()
+  let (state, setState) = React.useState(() => {
+    switch (urlParts.path, LocalStorage.getUserId()) {
+    | (list{}, Some(_)) => IsLoggedIn(Loading, Loading)
+    | (list{"invitePartner"}, _) => Onboarding(firebaseUser)
+    | _ => NotLoggedin
+    }
+  })
+  //let (filmRandomlySelected, randomlySelectFilm) = React.useState(() => "")
 
   /* let doSelectFilm = filmId => */
   /* setState(prevState => */
@@ -81,7 +89,7 @@ let make = () => {
 
       let unseen = movieList->filter(film => !film.seen)
       let seen = movieList->filter(film => film.seen)
-      setState(_ => LoadedFilms(unseen, seen))
+      setState(_ => IsLoggedIn(Loaded(unseen), Loaded(seen)))
     })
   }
 
@@ -118,11 +126,10 @@ let make = () => {
       )
     }
 
-  let urlParts = RescriptReactRouter.useUrl()
   React.useEffect2(() => {
     switch (urlParts.path, firebaseUser) {
     | (list{}, SomeUser(user)) => loadAndSetFilms(user)->ignore
-    | (list{"invitePartner"}, SomeUser(user)) => setState(_ => Onboarding(user))
+    | (list{"invitePartner"}, SomeUser(_)) => setState(_ => Onboarding(firebaseUser))
     | (list{"loginCallback"}, SomeUser(user)) =>
       userIsSet(user)
       ->Promise.thenResolve(displayNameIsSet => {
@@ -163,7 +170,7 @@ let make = () => {
           seen: false,
         }
         switch state {
-        | LoadedFilms(films, seenFilms) => {
+        | IsLoggedIn(Loaded(films), seenFilms) => {
             let creatorName =
               LocalStorage.getUserDisplayName()->Belt.Option.getWithDefault("name not set")
             let film = convertToFilm(~creatorName, ~creatorIsCurrentUser=true, ~firebaseFilm)
@@ -174,7 +181,7 @@ let make = () => {
             } else {
               setState(_ => {
                 let newUnseen = Js.Array.concat(films, [film])
-                LoadedFilms(newUnseen, seenFilms)
+                IsLoggedIn(Loaded(newUnseen), seenFilms)
               })
               user->uid->addFilmToList(firebaseFilm)->ignore
             }
@@ -188,11 +195,11 @@ let make = () => {
   let markFilmAsSeen = (film: FilmType.film) => {
     setState(pastState => {
       switch pastState {
-      | LoadedFilms(films, seenFilms) =>
+      | IsLoggedIn(Loaded(films), Loaded(seenFilms)) =>
         let newUnseen = Js.Array2.filter(films, f => f.title !== film.title)
         let newSeenFilms = Js.Array.concat(seenFilms, [film])
-        LoadedFilms(newUnseen, newSeenFilms)
-      | _ => pastState
+        IsLoggedIn(Loaded(newUnseen), Loaded(newSeenFilms))
+      | _ => raise(Error)
       }
     })
     film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsSeen->ignore
@@ -201,24 +208,15 @@ let make = () => {
   let markFilmAsNotSeen = (film: FilmType.film) => {
     setState(pastState => {
       switch pastState {
-      | LoadedFilms(films, seenFilms) =>
+      | IsLoggedIn(Loaded(films), Loaded(seenFilms)) =>
         let newSeenFilms = Js.Array2.filter(seenFilms, f => f.title !== film.title)
         let newUnseen = Js.Array.concat([film], films)
-        LoadedFilms(newUnseen, newSeenFilms)
+        IsLoggedIn(Loaded(newUnseen), Loaded(newSeenFilms))
       | _ => raise(Error)
       }
     })
     film->FirebaseAdapter.convertFromFilm->FirebaseAdapter.setFilmAsUnSeen->ignore
   }
-
-  /* let getNextElector = (seenFilms: array<FilmType.film>) => { */
-  /* let selectedByKarmi = */
-  /* Js.Array2.filter(seenFilms, film => film.creator === FilmType.Karmi)->Js.Array.length */
-  /* let selectedByFerma = */
-  /* Js.Array2.filter(seenFilms, film => film.creator === Ferma)->Js.Array.length */
-
-  /* selectedByKarmi > selectedByFerma ? FilmType.Ferma : FilmType.Karmi */
-  /* } */
 
   switch state {
   | LoginEmailNotFoundError =>
@@ -231,11 +229,10 @@ let make = () => {
     )
   | Error => React.string("Something went wrong!! :(")
   | Onboarding(user) => <Onboarding user doneHandler=handleOnboardingDone />
-  | LoadingFilms => <Spinner />
   | NotLoggedin => <NotLoggedinPage />
-  | LoadedFilms(films, seenFilms) =>
+  | IsLoggedIn(films, seenFilms) =>
     <MaxWidthWrapper>
-      <Header isLoggedIn=true isUsersTurn={isUsersTurn(seenFilms, firebaseUser)} />
+      <Header isLoggedIn=true isUsersTurnOpt={isUsersTurn(seenFilms, firebaseUser)} />
       <Search onItemSelect=addFilmHandler />
       <FilmList initAsOpen=true header="Not seen" films selected="" onItemSelect=markFilmAsSeen />
       <FilmList initAsOpen=false header="Seen" films=seenFilms onItemSelect=markFilmAsNotSeen />
