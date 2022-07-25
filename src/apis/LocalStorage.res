@@ -23,3 +23,5 @@ let setPartnerDisplayName: string => unit = name =>
 let setEmail: string => unit = email => setItem(emailNamespace, email, localStorage)
 let getEmail: unit => option<string> = () => getItem(emailNamespace, localStorage)
 let removeEmail: unit => unit = () => removeItem(emailNamespace, localStorage)
+
+let clearLocalStorage: unit => unit = () => clear(localStorage)
