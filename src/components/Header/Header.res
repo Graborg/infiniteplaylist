@@ -46,6 +46,7 @@ let icons = css(`
 let nameWrapper = css(`
   font-weight: 700;
   display: flex;
+  z-index: 2;
   align-items: center;
   /* animation: fadeIn 1200ms 100ms both ease; */
 `)
@@ -56,27 +57,23 @@ let ampersand = css(`
 
 let name = css(`
   line-height: 1;
+
 `)
 
-let nameWithTurnIndicator = userColor =>
+let turnIndicator = userColor =>
   css(
     `
-  line-height: 1;
-  @keyframes blink {
-    0% {
-      opacity: 0;
+    @keyframes blink {
+      0% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
     }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-
-
-  }
-  &::after {
-    content: "";
     display: inline-block;
     width: 7px;
     height: 7px;
@@ -88,9 +85,25 @@ let nameWithTurnIndicator = userColor =>
     transform: translateY(-1px);
     animation: blink 1700ms 1500ms both ease-in-out;
     animation-iteration-count: 2.5;
-  }
+    & .tooltip {
+      display: none;
+      font-size: 0.8rem;
+      position: absolute;
+      left: 10px;
+      top: -6px;
+      padding: 2px;
+      white-space: nowrap;
+      border: 1px solid var(--color-primary-light);
+      background-color: var(--color-background);
+    }
+    &:hover .tooltip {
+      display: inline-block;
+      
+    }
+
 `,
   )
+let hiddenElement = css(``)
 let getUserNames: unit => Promise.t<(option<string>, option<string>)> = () => {
   open Promise
   let maybeUserName = LocalStorage.getUserDisplayName()
@@ -128,23 +141,32 @@ let make = (~isLoggedIn=false, ~isUsersTurnOpt, ()) => {
     None
   })
 
+  open Belt
   <div className={wrapper(!isLoggedIn)}>
     {switch (isLoggedIn, maybePartnerName, maybeUserName) {
     | (true, Some(partnerName), Some(userName)) =>
       <div className={nameWrapper}>
         <h2 className={ampersand}> {React.string("&")} </h2>
         <div>
-          <h2
-            className={Belt.Option.mapWithDefault(isUsersTurnOpt, name, isUsersTurn =>
-              isUsersTurn ? name : nameWithTurnIndicator("var(--color-partner)")
-            )}>
+          <h2 className=name>
             {React.string(partnerName)}
+            {Option.mapWithDefault(isUsersTurnOpt, <div />, isUsersTurn =>
+              isUsersTurn
+                ? <> </>
+                : <div className={turnIndicator("var(--color-partner)")}>
+                    <div className="tooltip"> {React.string("Your partner's turn to choose")} </div>
+                  </div>
+            )}
           </h2>
-          <h2
-            className={Belt.Option.mapWithDefault(isUsersTurnOpt, name, isUsersTurn =>
-              isUsersTurn ? nameWithTurnIndicator("var(--color-partner)") : name
-            )}>
+          <h2 className=name>
             {React.string(userName ++ "'s")}
+            {Option.mapWithDefault(isUsersTurnOpt, <div />, isUsersTurn =>
+              isUsersTurn
+                ? <div className={turnIndicator("var(--color-user)")}>
+                    <div className="tooltip"> {React.string("Your turn to choose")} </div>
+                  </div>
+                : <> </>
+            )}
           </h2>
         </div>
       </div>
