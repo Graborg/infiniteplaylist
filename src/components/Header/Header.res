@@ -60,6 +60,22 @@ let name = css(`
 
 `)
 
+let tooltip = userColor =>
+  css(
+    `
+  display: none;
+  font-size: 0.8rem;
+  position: absolute;
+  left: 10px;
+  top: -6px;
+  padding: 2px;
+  white-space: nowrap;
+  border: 1px solid ${userColor};
+  background-color: var(--color-background);
+
+`,
+  )
+
 let turnIndicator = userColor =>
   css(
     `
@@ -85,20 +101,9 @@ let turnIndicator = userColor =>
     transform: translateY(-1px);
     animation: blink 1700ms 1500ms both ease-in-out;
     animation-iteration-count: 2.5;
-    & .tooltip {
-      display: none;
-      font-size: 0.8rem;
-      position: absolute;
-      left: 10px;
-      top: -6px;
-      padding: 2px;
-      white-space: nowrap;
-      border: 1px solid var(--color-primary-light);
-      background-color: var(--color-background);
-    }
-    &:hover .tooltip {
+
+    &:hover .${tooltip(userColor)}{
       display: inline-block;
-      
     }
 
 `,
@@ -154,7 +159,9 @@ let make = (~isLoggedIn=false, ~isUsersTurnOpt, ()) => {
               isUsersTurn
                 ? <> </>
                 : <div className={turnIndicator("var(--color-partner)")}>
-                    <div className="tooltip"> {React.string("Your partner's turn to choose")} </div>
+                    <div className={tooltip("var(--color-partner)")}>
+                      {React.string("Your partner's turn to choose")}
+                    </div>
                   </div>
             )}
           </h2>
@@ -163,7 +170,9 @@ let make = (~isLoggedIn=false, ~isUsersTurnOpt, ()) => {
             {Option.mapWithDefault(isUsersTurnOpt, <div />, isUsersTurn =>
               isUsersTurn
                 ? <div className={turnIndicator("var(--color-user)")}>
-                    <div className="tooltip"> {React.string("Your turn to choose")} </div>
+                    <div className={tooltip("var(--color-user)")}>
+                      {React.string("Your turn to choose")}
+                    </div>
                   </div>
                 : <> </>
             )}
